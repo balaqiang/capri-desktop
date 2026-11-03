@@ -693,7 +693,7 @@ async function run(said) {
         return { handled: true, reply: T('My code came out garbled. Ask me again?'), emotion: 'glitch' };
       }
     }
-    case 'clock': { // the time or the date, exactly: her model only guesses them
+    case 'time': { // the time or the date, exactly: her model only guesses them ('clock' is an alarm, below)
       const now = new Date();
       const locale = lang.code === 'id' || c.replyLanguage === 'id' || c.replyLanguage === 'mix' ? 'id-ID' : 'en-US';
       const time = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
