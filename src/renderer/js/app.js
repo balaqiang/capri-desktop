@@ -608,14 +608,14 @@ async function boot() {
         else capri.poke(h.x + 30, h.y);
         break;
       }
-      case 'music': // --dev: her with the music, in the log (the line's number and length, not its words); { verdict, doze } to act one out
+      case 'music': // --dev: her with the music, in the log (the line's number and length, not its words); { verdict, doze (a sigh now) } to act one out
         // (not 'listen': that's Ctrl+Alt+V, push to talk, below)
         if (cmd.verdict) listening.judged(listening.song, cmd.verdict);
-        if (cmd.doze) listening.dozeAt = 1;
+        if (cmd.doze) listening.sighAt = 1;
         console.log('[listen]', JSON.stringify({
           song: Boolean(listening.song), playing: listening.playing, pos: Math.round(listening.position() * 10) / 10, verdict: listening.verdict,
           lines: listening.words.song === listening.song ? listening.words.lines?.length || 0 : -1, shown: listening.shown,
-          shownChars: listening.el.hidden ? 0 : listening.lineEl.textContent.length, groove: capri.groove, mode: capri.mode, napping: capri.napping,
+          shownChars: listening.el.hidden ? 0 : listening.lineEl.textContent.length, groove: capri.groove, mode: capri.mode, hearing: capri.hearing,
           base: capri.base?.name, lyricBox: listening.el.hidden ? null : listening.el.style.transform,
         }));
         break;
