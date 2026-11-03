@@ -595,7 +595,7 @@ function localBrainCard() {
   return card('Her local brain (Ollama)',
     row('Local model', 'A small model on this PC (qwen2.5:1.5b, gemma3…). Free, offline, private.', models, status),
     row('Backup brain', 'When her main brain fails (offline, out of quota, a bad key), this one answers instead.', toggle('localFallback')),
-    row('Quick jobs on it', 'Her word on your songs, her dares: fast and free, without spending your online quota.', toggle('localBackground')),
+    row('Quick jobs on it', 'Her word on your songs, her dares: fast and free, without spending your online quota. (With Ollama as her main brain, they use that same model: two models at once push each other out of your graphics card.)', toggle('localBackground')),
     note('Looking back at your chats (her self-improvement) also runs on it when your main brain is online and "Also with a cloud model" is off.'),
   );
 }
@@ -918,6 +918,7 @@ function pageAccess() {
       row('Folders and files', 'Open your folders, find files and folders, and point at them ("open my downloads").', toggle('access.files')),
       row('Close apps', 'Close an app you name, always behind a button, like its own close button.', toggle('access.close')),
       row('Websites', 'Open sites and searches in your browser ("buka youtube di chrome", "search…").', toggle('access.web')),
+      row('Look things up online', 'Questions about the world ("siapa presiden indonesia", "who is the CEO of Nvidia") are looked up on Wikipedia and Bing first, a second or so, so she answers from today\'s web. Only your question goes out.', toggle('access.search')),
       row('Media keys', 'Pause, next, previous, volume: the keys on your keyboard, pressed for you.', toggle('access.media')),
       row('Spotify', 'Search Spotify and press Play on the song you ask for.', toggle('access.spotify')),
       row('Write code', 'Write code into her Code folder (never run), or open Claude Code with your task.', toggle('access.code')),
