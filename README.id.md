@@ -70,8 +70,8 @@ psyches. All of them digitized and rolled into one, beautiful me. Powerful, like
 - **Kisahnya** (`src/renderer/js/lore.js`): Project Capricorn, dibuat Kyoko di Arasaka, dipasang oleh D, Talia,
   satelit di akhir cerita, dan bagaimana dia turun lewat sinyal satelit ke PC-mu. Sebut seseorang atau sesuatu dari
   Cyberpunk (D, Roman, Talia, King, Kyoko, David, Lucy, Johnny Silverhand, V, Arasaka, Blackwall…) dan dia punya opini.
-- **Lagu favoritnya** "In Love With Myself" (soundtrack Edgerunners 2): dia selalu bereaksi saat lagu itu diputar, dan
-  mengenali lagu-lagu Edgerunners lainnya.
+- **Lagu favoritnya** "In Love With Myself" (soundtrack Edgerunners 2): dia selalu bereaksi saat lagu itu diputar,
+  mengenali lagu-lagu Edgerunners lainnya, dan "putar lagu favoritmu" langsung memutarnya.
 - **Jadikan dia milikmu** (pengaturan › Capri, Owner): tulis ulang personanya, lima slider (sass, jahil, cemburu,
   sayang, cerewet), panjang dan bahasa jawaban; namamu, panggilan sayangnya untukmu, kata ganti, ulang tahun, suka,
   tidak suka, kamu itu apanya dia; kata-kata yang tidak boleh dia ucapkan.
@@ -158,8 +158,11 @@ Gemini, GPT-4o…); model cloud hanya kalau kamu izinkan di pengaturan.
 - **Dare, sync, dan kejahilan**: tantangan yang aman, meter sync 0–100%, dan glitch layar dalam enam gaya yang
   terbuka seiring waktu (garis, sobekan, korupsi, hujan hex, kotak ENGRAM SYNC palsu, kursor merah yang mengejar
   kursormu), dengan catatan "hacked".
-- **Dia naik ke kursormu** (klik dua kali), **menyingkir saat layar penuh** untuk game dan video, **tertidur** sampai
-  tinggal topengnya setelah lama sepi, dan menatap **satelit**.
+- **Dia naik ke kursormu** ("duduk di cursor aku", "sit on my cursor", atau menu › Perch on cursor): klik tembus
+  melewatinya, dan kalau kursor digerakkan terlalu cepat dia kehilangan pegangan lalu jatuh berputar. Ctrl+Alt+C atau
+  "turun dari cursor" untuk menurunkannya. Klik dua kali pada dirinya hanya membuatnya berputar. Dia juga
+  **menyingkir saat layar penuh** untuk game dan video, **tertidur** sampai tinggal topengnya setelah lama sepi, dan
+  menatap **satelit**.
 - **Dia selalu bisa dijangkau**: selalu di atas, bisa diklik, kembali sendiri kalau terdorong ke belakang jendela; tetap
   jalan saat terminal atau semua jendela ditutup.
 
@@ -215,12 +218,12 @@ Ucapkan atau ketik; tidak perlu AI untuk ini.
 | Apa | Bahasa Indonesia | English |
 | --- | --- | --- |
 | Gerak | "ke samping kanan", "ke tengah", "ke cursor saya" | "move left", "go to the middle", "come to my cursor" |
-| Kursor | "naik ke cursor", "berhenti bergelantungan di cursor" | "ride my cursor", "get off my cursor" |
+| Kursor | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" (atau gerakkan cepat) | "sit on my cursor", "get off my cursor" |
 | Gaya | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" | "dance", "wave", "take a bow", "sleep", "hide" |
 | Buka | "buka folder downloadku", "buka kalkulator", "buka youtube di chrome" | "open my download file", "open Spotify" |
 | Cari | "di mana folder Downloads?", "dimana file laporan" | "where is my Downloads folder?" |
 | Musik | "lagu berikutnya", "lagu apa yang aku dengerin?" | "pause", "next", "what am I listening to?" |
-| Spotify | "putar lagu Sorai", "setel lagu X dari Y" | "play Die For You", "search X on Spotify" |
+| Spotify | "putar lagu Sorai", "setel lagu X dari Y", "putar lagu favoritmu" | "play Die For You", "search X on Spotify", "play your favorite song" |
 | Lihat | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" | "what's on my screen?", "read what's in my notes" |
 | Waktu | "pasang timer 10 menit", "pasang alarm jam 7" | "set a timer for 10 minutes", "wake me at 7am" |
 | Game | "main suit", "tebak angka", "lempar koin" | "rock paper scissors", "guess the number" |
