@@ -343,7 +343,7 @@ export class Chat {
     const id = Date.now();
     this.turn = id;
     this.answer = '';
-    this.asked = text; // (what her answer is to: asked about a song's lyrics, she never writes them out)
+    this.lyricQuestion = text; // (what her answer is to: asked about a song's lyrics, she never writes them out)
     this.acted = false;
     this.history.push({ role: 'user', content: text });
     this.panel.setChatBusy(true);
@@ -703,7 +703,7 @@ export class Chat {
   onDelta(id, piece) {
     if (id !== this.turn) return;
     this.answer += piece;
-    this.panel.stream(aboutLyrics(this.asked) && LYRIC_DUMP.test(this.answer) ? T(NO_DUMP_LINE) : this.unban(clean(this.answer)));
+    this.panel.stream(aboutLyrics(this.lyricQuestion) && LYRIC_DUMP.test(this.answer) ? T(NO_DUMP_LINE) : this.unban(clean(this.answer)));
     this.voice.play('blip'); // her blips as the words come in
     this.moveFrom(this.answer); // her body moves as soon as her AI says how, mid-sentence
   }
