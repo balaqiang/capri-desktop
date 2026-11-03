@@ -8,6 +8,11 @@ import { rand, pick } from './util.js';
 const BLIP_NOTES = [62, 65, 67, 69, 72, 74, 77, 79];
 const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
 
+// Her recorded lines (from Capri Desktop 2.4): clips of your own in her voice folder, named for the moment
+// they belong to (pat.wav, pat-2.wav, wake.mp3…). Nothing is bundled.
+export const CLIP_KINDS = ['pat', 'click', 'wake', 'sit', 'peek', 'stretch', 'look', 'yawn', 'sleep', 'alarm', 'study', 'hello', 'reply', 'mischief', 'jealous', 'dare'];
+const CLIP_GAP_MS = 8000; // automatic lines stay at least this far apart
+
 export const CUES = ['teleport-out', 'teleport-in', 'done', 'alert', 'error', 'hello', 'blip', 'tick', 'star', 'land', 'rise', 'bolt', 'charge', 'possess'];
 
 export class Voice {
@@ -17,6 +22,11 @@ export class Voice {
     this.muted = false;
     this.volume = 0.7;
     this.custom = new Map(); // cue -> AudioBuffer
+    this.clips = new Map();  // kind -> [AudioBuffer]: her recorded lines
+    this.clipsOn = true;
+    this.quiet = () => false; // a focus session: no automatic lines
+    this.lastClip = { at: -Infinity, buffer: null };
+    this.clipSource = null;
     this.lastBlip = 0;
   }
 
@@ -39,8 +49,10 @@ export class Voice {
     return ctx;
   }
 
-  configure({ muted, volume }) {
+  configure({ muted, volume, voiceClips }) {
     if (typeof muted === 'boolean') this.muted = muted;
+    if (typeof voiceClips === 'boolean') this.clipsOn = voiceClips;
+    if (this.muted) this.clipSource?.stop();
     if (typeof volume === 'number') {
       this.volume = volume;
       if (this.master) this.master.gain.value = volume;
@@ -59,6 +71,48 @@ export class Voice {
         console.warn('[capri] could not load sound', name, err);
       }
     }
+  }
+
+  // Her recorded lines, from her voice folder (main.js lists them). Files that won't decode are skipped.
+  async loadClips(list) {
+    const ctx = this.ensure();
+    const clips = new Map();
+    for (const { kind, url } of list || []) {
+      if (!CLIP_KINDS.includes(kind)) continue;
+      try {
+        const buffer = await ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
+        clips.set(kind, [...(clips.get(kind) || []), buffer]);
+      } catch (err) {
+        console.warn('[capri] could not load voice clip', url, err);
+      }
+    }
+    this.clips = clips;
+    return [...clips.values()].reduce((n, l) => n + l.length, 0);
+  }
+
+  get clipCount() {
+    return [...this.clips.values()].reduce((n, l) => n + l.length, 0);
+  }
+
+  // One of her lines for that moment, if she has one: true when it played. Automatic ones (not forced)
+  // stay apart and keep quiet while you focus.
+  say(kind, { force = false } = {}) {
+    const list = this.clips.get(kind);
+    if (!list?.length || this.muted || !this.clipsOn) return false;
+    const now = performance.now();
+    if (!force && (now - this.lastClip.at < CLIP_GAP_MS || this.quiet())) return false;
+    let buffer = list[Math.floor(Math.random() * list.length)];
+    if (list.length > 1 && buffer === this.lastClip.buffer) buffer = list[(list.indexOf(buffer) + 1) % list.length];
+    const ctx = this.ensure();
+    if (ctx.state === 'suspended') ctx.resume();
+    this.clipSource?.stop();
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(this.master);
+    src.start();
+    this.clipSource = src;
+    this.lastClip = { at: now, buffer };
+    return true;
   }
 
   play(cue, opts = {}) {
