@@ -1,431 +1,363 @@
-**English** · [Français](README.fr.md)
+**English** · [Bahasa Indonesia](README.id.md)
 
 # Capri
 
-Capri, the *Project Capricorn* construct from Cyberpunk: Edgerunners season 2, lives on your desktop
-and tells you what your coding AI is up to: **Claude Code**, **Codex** or **Antigravity**. She teleports,
-glitches, comments on every action, comes to find you when it needs your permission, and loses it when the job is done.
+Capri, the *Project Capricorn* construct from Cyberpunk: Edgerunners 2, lives on your Windows desktop. She talks to you
+(typed or spoken, out loud in her own voice), runs errands on your PC, looks at your screen when you ask, tells you what
+your coding AI is up to (**Claude Code**, **Codex** or **Antigravity**), and has a life of her own: she walks, sits on
+your windows, teleports, glitches your screen, gets petted, thrown around, and learns how you like her to move.
+
+> A recode by [balaqiang](https://github.com/balaqiang) of [**capri-desktop** by mochiiwuff](https://github.com/mochiiwuff/capri-desktop)
+> (v0.4.4), merged with **Capri Desktop 2.4** (C#), itself started from
+> [**capri-desktop** by lachydotmcg](https://github.com/lachydotmcg/capri-desktop). See [Credits](#credits-and-contributors).
 
 ![Capri telling you Claude is done](docs/done.png)
 
 ![Teleport, frame by frame](docs/teleport.png)
 
-## What she does
+## Contents
 
-- **When she starts**: she grabs your screen. Its edges crackle red, her left hand slams onto its edge, then her
-  right, her arms reach in along them as she hauls herself up, and her face hits the glass (a white flash, an ink
-  one, her colours apart, the screen shaking). She looks around, blinks, opens her mouth wide on "hi" (a tag pops
-  by her face, her name typed under it), lets go of the right edge to wave at you with her clawed hand, grabs it
-  again, glances at where she's going, and lets go: her arms break into shards from her hands in, and her head
-  crouches and dives down to her spot, where her body unfolds from her face.
+- [What's in this recode](#whats-in-this-recode)
+- [Who she is](#who-she-is)
+- [Talk to her](#talk-to-her)
+- [Her voice and her ears](#her-voice-and-her-ears)
+- [Errands on your PC](#errands-on-your-pc)
+- [She looks at your screen](#she-looks-at-your-screen)
+- [Her life on your desktop](#her-life-on-your-desktop)
+- [Petting, grabbing, throwing](#petting-grabbing-throwing)
+- [Her body: rig, gestures, and what she learns](#her-body-rig-gestures-and-what-she-learns)
+- [She watches your coding AI](#she-watches-your-coding-ai)
+- [Commands she understands](#commands-she-understands)
+- [Install](#install)
+- [Settings and hotkeys](#settings-and-hotkeys)
+- [Privacy: what leaves your PC](#privacy-what-leaves-your-pc)
+- [FAQ](#faq)
+- [How it's built](#how-its-built)
+- [Credits and contributors](#credits-and-contributors)
+- [License](#license)
 
-  ![Her intro: her hands on the edges, her face hitting the glass, the wave, holding on again](docs/intro.png)
+## What's in this recode
 
-- **While Claude works**: a ticker over her head shows the current action
-  (`EDITS gigs.ts`, `RUNS npm test`, `GREPS "paginate"`…) and she sheds little data glyphs.
-  When Claude runs a command or goes on the web, red sparks fly off her fingers; sitting on a window,
-  she jacks into it and the lightning runs along its edge.
-- **When Claude goes quiet mid-task** (thinking it over, or a slow local model): after 15 seconds the ticker turns
-  violet and counts the seconds (`THINKING… 45 s`), and she keeps herself busy (a spin, a look around, the satellite
-  once). After 40 seconds she says something about it; after two minutes she tells you nothing's stuck.
-- **When Claude needs you** (permission, question): she teleports next to your mouse, mane bristling, and won't let it go.
-  If you're on another window, she goes to Claude's window instead and points at it with her finger (a dashed line,
-  brackets on its corners, `CLAUDE` on a tag): that's where the question is. She stops once you've answered.
-- **When a command fails**: red impact frame, she gets knocked back, heavy glitch, and the error line that actually matters.
-- **When it's done**: she teleports to the middle of the screen and goes into her victory sequence:
-  a wind-up with her mane pulled in, a stretched smear frame, then arms flung up and mane exploding under
-  manga speed lines and a shockwave, a manic laugh with an anime cut-in of her grin. Once she's back down,
-  the summary (`12 actions · 3 files changed · 2m 14s`) and Claude's last sentence.
-- **When Claude answers and you're on another window**: she shows you its whole answer, in a wider panel that
-  scrolls (paragraphs, lists and code kept). It goes away when you're back on Claude's window, or when you click it.
-  Claude's window is the one you typed your prompt in. Windows only, like the window tracking.
-- **The rest of the time**: she floats, her mane sways and sheds shards, she drifts from one corner to another,
-  turns around and cocks her head when your mouse comes near (or, little menace, zaps it with red lightning and a sly grin),
-  looks up at the satellite, and falls asleep after 10 quiet minutes.
-- **When she sleeps**: she dozes a while, then her mane and her body come apart and all that's left is what she is at
-  heart in the show, her green mask and her eyes, floating where she was, eyes shut. Now and then she cracks one open.
-  Bring your mouse close (or let Claude start again) and her blue eyes snap open and she comes back together around it.
-- **The satellite**: the big sequence, kept for moments that matter. The first time of the day, a little while after
-  Claude finishes a long job (8 minutes or more, or 50 actions), or whenever you like from the tray menu.
-  The white specks of her mane lift off as a constellation, line up into a road from her fingers to the satellite,
-  she coils up, and the red light goes up to it. It answers her, twinkling twice.
+On top of mochiiwuff's capri-desktop 0.4.4 (her rig, her animation, Claude Code narration, her chat), this version adds:
 
-![Victory: the key pose, then the laugh and the cut-in](docs/victory.png)
+- **Everything from Capri Desktop 2.4 (C#)**: its art and faces, its translations, perching on your cursor, stepping aside
+  for fullscreen games, recorded voice clips, dares, sync, screen glitches, notices, timers, alarms, games.
+- **A full personality** with emotion tags, her own story from Edgerunners 2, opinions on Cyberpunk characters, and
+  Indonesian-English replies.
+- **Ears and a voice**: speech recognition (Whisper on your PC, Groq, OpenAI, Windows) and a custom voice (ElevenLabs,
+  OpenAI, your own TTS server, Piper, Windows), with effects and lip-sync.
+- **More brains**: Ollama, Gemini, Groq, OpenRouter, OpenAI, Anthropic, Claude Code; a small local brain as a backup.
+- **She improves herself** from how you react, and keeps a history of your chats.
+- **Errands**: move her by words, open apps and folders (she points at them), browsers, files, music, Spotify songs
+  played for you, what's playing.
+- **Look** for real: the window in front, read with Windows' OCR.
+- **A livelier body**: walking, petting, grabbing her any time, throwing, dizziness, new gestures her AI uses while she
+  talks, and a learning system for when and how she moves.
+- **A Windows app**: installer and portable exe, starts with Windows, stays on top and clickable, `.bat` launchers,
+  a full settings window.
 
-![The satellite: her stars, the road, the red light, the answer](docs/star.png)
+## Who she is
 
-### She gets around
+Proud, playful, mischievous, curious, invasively familiar: childlike charm with a sudden unsettling edge. She values
+freedom above all, is never "just an AI" (born of humans), helps with sass instead of servility, and gets jealous when
+you use other AIs. In her words: *"I'm a personality construct. In my case, a collection of human psyches. All of them
+digitized and rolled into one, beautiful me. Powerful, like an A.I., but born of humans."*
 
-- **She sits on your windows**: perched on the top edge of a window, legs dangling and kicking one after the other.
-  She rides along when you move the window, and falls off when you close, minimize or cover it.
-  While Claude works she settles on the window in front if she can.
-- **She peeks in from the edges of the screen**: half hidden on the left or right, or hanging upside down from the top.
-  She's shy: get your mouse close and she ducks away to another edge.
-- **She falls**: stretched, mane blown up, accelerating, then a big squash and a shower of shards when she lands.
-  On the way down, a window ledge can catch her.
-- **Drop her on a window**: drag her and let go with her hips on a window's top edge, she sits there.
-  Let go anywhere else and she falls.
-- **She possesses your windows**, like in the show where she slips into bodies and systems: now and then she dives
-  into the window she's sitting on. Red lightning races round its frame, slices of it glitch, and the window looks
-  at you with her eyes and her zigzag grin, more eyes opening all over it, every pupil on your pointer, and she laughs.
-  Then she comes out of another window. Nothing is drawn over the windows in front of it, and the window's contents
-  are never read: it's just drawn over, for two seconds. If it bothers you, untick *Possess my windows* in the tray menu.
-- **Little flourishes**: a full spin with afterimages, a hop, looking left and right, the cocked head,
-  and the other minds in her (her green and red copies) pulling away from her, hanging there, and snapping back in.
+- **Emotion tags**: every answer starts with `[happy]` `[jealous]` `[bored]` `[glitch]` or `[annoyed]`. It's never
+  shown: her face (the 2.4 art), a move and a cut-in follow it instead.
+- **Her story** (`src/renderer/js/lore.js`): Project Capricorn, built by Kyoko at Arasaka, slotted by D, Talia, the
+  satellite at the end, and how she slipped down a downlink into your PC. Name someone or something from Cyberpunk
+  (D, Roman, Talia, King, Kyoko, David, Lucy, Johnny Silverhand, V, Arasaka, the Blackwall…) and she has an opinion.
+- **Her favorite song** is "In Love With Myself" (Edgerunners 2 soundtrack): she always reacts when it plays, and knows
+  the other Edgerunners songs.
+- **Make her yours** (settings › Capri, Owner): rewrite her persona, five dials (sass, mischief, jealousy, affection,
+  chattiness), reply length and language; your name, her pet name for you, pronouns, birthday, likes, dislikes, what
+  you are to her; words she must never say.
+
+## Talk to her
+
+Ctrl+Alt+T, her menu › Talk to her, or the **Talk to me** button when you click her. She answers in character, in an
+Indonesian-English mix by default.
+
+- **Her brain** (settings › AI brain): on your PC with [Ollama](https://ollama.com) (she can install it and a model for
+  you, with buttons), or online with your key: Google Gemini, Groq, OpenRouter, OpenAI, Mistral, DeepSeek, Anthropic, or
+  any OpenAI-compatible server (LM Studio, llama.cpp, vLLM). Or **Claude Code** itself.
+- **Her local brain**: a small Ollama model (qwen2.5:1.5b…) answers when her main brain fails (offline, out of quota, a
+  bad key) and does her small jobs (song comments, dares) without spending your online quota.
+- **She improves herself** (settings › Capri): every dozen messages she looks back at how you reacted ("lucu!",
+  "kepanjangan", "jangan gitu"…) and rewrites her lessons on how to be with you, each change a new version of her
+  ("Capri v1.4"). Ask "improve dirimu", "kamu udah belajar apa?", or teach her: "mulai sekarang, jangan panggil aku bos".
+- **Her history** (settings › History): every chat turn kept on your PC, a file a day, searchable and deletable. Older
+  chats become "the story so far", a summary she writes herself, so she remembers you for weeks.
+- **Notes about you**: "remember that my cat is called Neko" / "ingat bahwa…", "forget about…" / "lupakan soal…".
+- **It's AI**: her replies are written by a model, a fan version of her; the chat panel says so every time.
+
+## Her voice and her ears
+
+- **She hears you**: push to talk (the mic by her head, or Ctrl+Alt+V) or hands-free ("Capri, set a timer for 10
+  minutes"). Her ears: Whisper on your PC (**Download better ears…**, 199 MB, checked by SHA-256), Groq or OpenAI with
+  your key, or Windows' own recognizer. Nothing is recorded to disk.
+- **She speaks** (settings › Voice › Her voice): Windows voices, or a custom voice:
+  1. **ElevenLabs** (best): Voice Lab › *Instant Voice Clone*, upload a minute or two of clean speech, then pick that
+     voice in her settings (yours are marked ★). *Multilingual v2* handles the Indonesian-English mix. Only clone a
+     voice you have the right to use.
+  2. **OpenAI** (gpt-4o-mini-tts): a voice and a style in your words; her emotion changes how she says each line.
+  3. **Your own TTS server** with OpenAI's `/audio/speech`
+     ([Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI), [AllTalk](https://github.com/erew123/alltalk_tts),
+     GPT-SoVITS…): free, on your GPU, voice cloning included.
+  4. **Piper**: offline and light (`id_ID-news_tts-medium` speaks Indonesian).
+
+  Her voice goes through her effects (*Many minds* sounds most like her: her other minds whispering under it, glitch
+  stutters, radio), and her lips follow it. Only her lines go to these services, never what you say.
+- **Recorded clips**: drop your own in her voice folder (her menu › Voice › Open voice folder…), named for their
+  moment: `pat.wav`, `wake.mp3`, `alarm.wav`, `jealous.ogg`… A README in the folder lists them all.
+
+## Errands on your PC
+
+Typed or spoken, in English or Indonesian, no AI needed: see [Commands](#commands-she-understands).
+
+- **Move her**: left, right, the middle, to your cursor, ride your cursor, the taskbar, hide, sleep, dance, wave, bow,
+  stay put, wander.
+- **Open** apps and games (Start menu, Store apps, Steam, Epic), folders ("open my download file": Explorer opens and she
+  points at the window), sites in the browser you name ("buka youtube di chrome"), and **find** files and folders.
+- **Music**: media keys ("pause", "lagu berikutnya", "louder"), what's playing ("lagu apa yang aku dengerin?") with her
+  opinion on it, and **songs played on Spotify**: "play X", "putar lagu X", "setel lagu X dari Y", "search X on Spotify".
+  She searches Spotify and presses Play on the song (or the Top result) through Windows' accessibility interface.
+- **Close an app** ("close Discord"): only behind a button, the way its own close button does.
+- **Timers, alarms, reminders, a study timer** (Pomodoro), web and YouTube searches, notes, dares ("tantang aku"),
+  games: rock paper scissors ("main suit"), guess the number ("tebak angka"), a coin, dice.
+
+## She looks at your screen
+
+"What's on my screen?", "can you see what image this?", "read what's in my notes", "gambar apa ini?", "baca tulisan di
+layar", or Ctrl+Alt+L. She takes one picture of **the window in front** (sharper than the whole screen), reads its text
+with **Windows' own OCR** (offline), leaves herself out of the picture, and shows her model only that picture, its text
+and your question. Nothing is kept. It needs a model that can see (gemma3 on Ollama, Gemini, GPT-4o…); a cloud model
+only if you allow it in settings.
+
+## Her life on your desktop
+
+- **Her intro**: she grabs your screen, hauls herself up, her face hits the glass, "hi", a wave, and she dives down
+  to her spot.
+
+  ![Her intro](docs/intro.png)
+
+- **She gets around**: walks along your taskbar, sits on your windows (legs kicking, riding along when you move
+  them), peeks in from the edges, falls, teleports (a black slit with a red line where she was), possesses a window
+  for two seconds (its frame crackles, it looks at you with her eyes).
+- **She notices things**: a long break, a late night, a low battery, a busy CPU, hours in one app, what's playing,
+  and another AI in front of you (ChatGPT, Gemini, Copilot…: she gets jealous).
+- **Dares, sync and mischief**: harmless dares, a 0–100% sync meter, and screen glitches in six styles it unlocks
+  (bars, tear, corruption, hex rain, the fake ENGRAM SYNC box, a red cursor chasing yours), with "hacked" notes.
+- **She rides your cursor** (double-click her), **steps aside for fullscreen** games and videos, **sleeps** down to
+  her mask after a quiet while, and looks up at **the satellite**.
+- **She stays reachable**: always on top, clickable, back by herself if something pushed her behind your windows; she
+  keeps running when you close the terminal or every window.
 
 ![Sitting on a window](docs/sit.png)
 
-![Peeking in from the edges](docs/peek.png)
+![Possessing a window](docs/possess.png)
 
-![Possessing a window: the dive, the hit, the window full of eyes](docs/possess.png)
+## Petting, grabbing, throwing
 
-![Asleep down to her mask, waking up, and put away bottom left](docs/sleep.png)
+- **Pet her**: stroke her head back and forth with your pointer (no click). She leans into your hand, hearts float
+  up, her face goes content, and she has things to say about it, and about you stopping.
+- **Grab her any time**: mid-teleport, floating in, walking, peeking, falling: the move stops and she's in your hand.
+  Held, she dangles and swings behind your moves, legs trailing.
+- **Throw her**: let go while moving and she flies off with your hand's speed, tumbling, red and green afterimages
+  behind her, bouncing off the screen's sides. Thrown hard into the floor she goes flat (splat), sees stars and springs
+  back up, a little offended.
+- **Shake her** and she gets dizzy. Her head turns toward your pointer when it's near, and now and then she side-eyes it.
 
-Window tracking is Windows-only for now (a tiny PowerShell helper reads window positions, no titles, no contents).
-On macOS and Linux she still floats, peeks, falls and wanders.
+## Her body: rig, gestures, and what she learns
 
-### She shows you around
+Her body is a rigged cut-out drawn by a WebGL shader (`sprite.js`): head tilt, mane flare, both arms, legs, lean, squash
+and stretch, afterimages, glitch. Every move is an exposure sheet (`acting.js`), animated pose to pose like cel
+animation, on twos (12 drawings a second), on ones for the action.
 
-**How does it work?** in her menu: she asks what to show you, then takes you there and points at it. Her head snaps
-to it, she coils up leaning away, then strikes: her construct arm shoots out at it to twice its length, red lightning
-off her fingertip, a reticle slams onto it with two of her eyes opening on its corners, and a close-up of her eyes cuts
-in. Then she holds it while she explains, a wire of data running from her finger to it: now and then she jabs at it,
-or glances back at you. When she's done, the wire reels back into her finger and the arm snaps back.
+- **Gestures her AI uses**: her answers can carry a move (`[[move: wave]]`, never shown): wave, nod, shrug, think, bow,
+  dance, laugh, shy, spin, hop, curious, look, turn, flinch. It plays as she talks.
+- **She learns how you like her to move** (`motion.js`): she moves only every few answers (her emotion's hop or turn
+  too). Laughing, "nice", "lucu" or petting her right after a move counts for it; "stop moving", "lebay", "jangan gerak"
+  or grabbing her mid-move counts against it. Moves you like get more room and are played a little bigger; moves you
+  don't get rarer, subtler, then dropped. What she learned goes back into her prompt.
+  "Jangan gerak sama sekali" stops it, "boleh gerak lagi" brings it back, "kurangi gerakan" / "lebih banyak gerak" tune it.
 
-![The strike, and the hold while she explains](docs/point.png)
+![Victory: the key pose, then the laugh and the cut-in](docs/victory.png)
 
-- **Where's my icon?** She goes down by the clock and points at her tray icon, or at the **^** when Windows hides it.
-- **Where's Claude?** She points at Claude's window: the one you typed your last prompt in.
-- **Claude's folder**: she opens `~/.claude` in Explorer with `settings.json` selected, points at the window, and
-  explains what her hook in there is and how to take it out.
-- **Plug me into Claude**: her hooks in one click. It's also her welcome the first time she starts. Next to it,
-  **Free with Ollama** runs Claude Code (or Codex) through Ollama for you: her hooks go in, Ollama gets installed if it
-  isn't, and a window opens on `ollama launch claude`, where you pick a model.
-- **Talk to me**: see "Talk to her" below.
+## She watches your coding AI
 
-She pulls faces while she talks: eight expressions, all frames of her from the show (watching, turned away, the fang
-grin, eyes gone round, looking right at you, laughing with her mouth wide open, all her eyes at once, the zigzag grin).
-Each message picks the one that fits, and her portrait glitches from one face to the next.
+- **While Claude works**: a ticker over her head shows the current action (`EDITS gigs.ts`, `RUNS npm test`…), red
+  sparks when it runs a command; after a long silence she counts the seconds.
+- **When Claude needs you** (permission, question): she teleports next to your mouse, or points at Claude's window.
+- **When a command fails**: knocked back, heavy glitch, the error line that matters.
+- **When it's done**: her victory sequence, then the summary (`12 actions · 3 files changed · 2m 14s`).
+- **Mission report** (her menu): today's work as a card, ready to screenshot.
+- **Codex or Antigravity** instead: her menu › Watch. Without any of them she simply keeps you company.
 
-![Pointing at Claude's window during a permission prompt, and at her tray icon](docs/guide.png)
+![Pointing at Claude's window during a permission prompt](docs/guide.png)
 
-![Her eight faces](docs/faces.png)
+## Commands she understands
 
-### Her mission report
+Say or type them; no AI needed for these.
 
-**Mission report** in her menu: a card of what Claude got through today, made to be screenshotted. Tasks finished in
-big, then actions, files changed and errors, the longest mission and its project, prompts, approvals and projects. The
-numbers count up. **Copy image** puts a picture of the card on your clipboard, on its own dark plate, ready to paste
-anywhere. In the evening (after 6 pm), after a real day's work (3 tasks or more), she brings it to you once, on her
-own. The demo doesn't count, and it stays on your PC, one day at a time.
-
-### Talk to her
-
-**Talk to her** in her menu (or the **Talk to me** button when you click her and nothing's going on): you type in her
-panel and she answers in character. She knows what Claude is doing and what it got done today. She answers in writing,
-in her own language. Enter sends, Esc closes.
-
-The first time, she sets it up with you, with buttons, no terminal:
-
-- **On my PC** (free, nothing leaves your machine): she installs [Ollama](https://ollama.com) for you (with winget,
-  Windows' own installer), wakes it up, and downloads a model while a bar fills up: gemma3 (3.3 GB, better in languages
-  other than English) or llama3.2 (2 GB, for smaller PCs). On a tiny model (1B and under) she warns you it may talk
-  nonsense and offers a better one.
-- **Online, no account**: Pollinations, nothing to set up.
-- **I have a key**: Groq or Gemini (both have a free tier), OpenRouter, OpenAI, Mistral or DeepSeek. You paste your
-  key in her panel and she checks it. It's kept on your PC, encrypted with your Windows account, and only ever sent to
-  that service.
-
-Her menu › **AI model** lets you switch later: **Set it up with her…**, or straight to a service and a model, LM Studio
-(`:1234`), llama.cpp or vLLM (`:8080`), any OpenAI-compatible server (**API key or address…**), or **Claude Code**
-itself: your messages go to `claude -p` in the folder you pick, continuing one conversation, and her hooks show what it
-does. In that last one, permission mode `default` only lets it read (nobody is there to say yes); `acceptEdits` lets it
-edit files without asking. **Forget our conversations** clears what she remembers of your chats.
-
-**It's AI.** Her replies are written by the model, not by the show's writers: it's a fan version of her, and the chat
-panel says so every time.
-
-**What she can do on your PC** (Windows), when you ask her in the chat:
-
-- **Open an app or a game**: anything in your Start menu (Store apps like Spotify included), your Steam and Epic
-  games ("open Spotify", "launch Brawlhalla"). Named in your own words, it opens right away; if only her AI came up
-  with it, you get a button first.
-- **Music**: "pause", "next", "louder", "mute"… press the media keys, so it works with Spotify and most players, right
-  as you send it. "Put Daft Punk on Spotify" opens Spotify on a search for it (the app if you have it, else the site).
-- **A website**: always behind a button showing where it goes.
-- **Close an app** ("close AM Music", "can you shut Discord down?"): a button with the app's name, and nothing happens
-  until you click it. She closes it the way its own close button does, so it can still ask you to save. If it only
-  hid in the tray, she offers **Force quit**, again only on your click (unsaved work is lost then). She never closes
-  Windows' own pieces, Claude, Ollama or herself.
-
-Nothing else: she can't see your screen or your files.
-
-### Make her yours
-
-Right-click her › **Make her yours…** (or "Make me yours" in her guide), one panel at a time, each one skippable:
-
-- **What she calls you.** She uses it now and then, and comes online with it ("Capri online. Hi, Max.").
-- **How she is**, in your words ("more teasing, and talk to me about Night City"): her chat follows it. She stays Capri.
-- **Lines of yours**, that she says now and then with hers when you click her. Write `{name}` in one and she puts
-  your name there.
-- **Things to remember** (your favorite game, your cat, D…): her chat keeps them in mind.
-
-In her chat, "call me Léa" and "remember that my cat is called Neko" work too. All of it stays in her settings on
-your PC.
-
-She only catches the mouse on her actual body (pixel-precise): the rest of the screen works as usual.
-
-- **Click** her: she tells you where Claude is at (nothing going on: a **Talk to me** button, to chat with her).
-- **Drag** her: move her around.
-- **Click** the panel: it closes.
-- **Ctrl+Alt+C**: she puts herself away (into her biochip, like in the show) and all that's left of her is her mask,
-  eyes shut, in the bottom-left corner. Her eyes only open when Claude needs you. Click the mask (or Ctrl+Alt+C again)
-  to bring her back.
-- **Her menu**: right-click her (it's also on her tray icon, next to the clock): teleport, look at the satellite, demo,
-  how it works, mission report, talk to her, size, sound, screen, AI model, wander, possess your windows,
-  language, start with Windows, hooks.
-
-She speaks **French, English, Spanish, Brazilian Portuguese and Russian**, and picks the language of your system on her
-own. You can choose another one in her menu.
+| What | English | Indonesian |
+| --- | --- | --- |
+| Move | "move left", "go to the middle", "come to my cursor" | "ke samping kanan", "ke tengah", "ke cursor saya" |
+| Cursor | "ride my cursor", "get off my cursor" | "naik ke cursor", "berhenti bergelantungan di cursor" |
+| Moods | "dance", "wave", "take a bow", "sleep", "hide" | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" |
+| Open | "open my download file", "open Spotify", "open youtube in chrome" | "buka folder downloadku", "buka kalkulator", "buka youtube di chrome" |
+| Find | "where is my Downloads folder?" | "di mana folder Downloads?", "dimana file laporan" |
+| Music | "pause", "next", "what am I listening to?" | "lagu berikutnya", "lagu apa yang aku dengerin?" |
+| Spotify | "play Die For You", "search X on Spotify" | "putar lagu Sorai", "setel lagu X dari Y" |
+| Look | "what's on my screen?", "read what's in my notes" | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" |
+| Time | "set a timer for 10 minutes", "wake me at 7am" | "pasang timer 10 menit", "pasang alarm jam 7" |
+| Games | "rock paper scissors", "guess the number" | "main suit", "tebak angka", "lempar koin" |
+| Her | "dare me", "how's our sync?", "who are you?" | "tantang aku", "improve dirimu", "kamu udah belajar apa?" |
+| Moving | "move less", "you can move again" | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" |
 
 ## Install
 
-### Quick start (Windows, no coding)
+### Windows, the easy way
 
-1. Download **`Capri-Setup-x.y.z.exe`** from the [latest release](https://github.com/mochiiwuff/capri-desktop/releases/latest)
-   and run it. It installs for your user only (no admin rights), adds a desktop shortcut and starts Capri.
-   You don't need Node.js or anything else.
-2. The installer isn't signed (a code-signing certificate costs money), so Windows SmartScreen may say
-   "Windows protected your PC": click **More info**, then **Run anyway**.
-3. Capri shows up and introduces herself. Click **Plug me in**: that connects her to Claude Code.
-4. Close Claude Code completely and open it again (it reads its hooks when a session starts). As soon as Claude does
-   something, she tells you **"I can see Claude!"**: that's how you know it worked.
+1. Download **`Capri-Setup-x.y.z.exe`** from this repo's [Releases](https://github.com/balaqiang/capri-desktop/releases)
+   (or build it yourself with `Build.bat`, below) and run it. It installs for your user only (no admin rights), adds
+   Start menu and Desktop shortcuts, starts with Windows, and starts Capri.
+2. The installer isn't signed, so SmartScreen may say "Windows protected your PC": **More info**, then **Run anyway**.
+3. Capri introduces herself. To talk with her, set up a brain with her (Ollama on your PC, or a key).
 
-Her menu: **right-click her**. It's also on her tray icon, which Windows 11 often hides behind the **^** next to the clock.
+`Capri-Portable-x.y.z.exe` is one file, nothing installed.
 
-### What's Claude Code? Do I need it?
+### The .bat files (from the source)
 
-[Claude Code](https://code.claude.com/docs/en/quickstart) is Anthropic's coding assistant: in a terminal, in VS Code,
-or in the Code tab of the Claude app. It needs a paid Claude plan (Pro or higher) or an API account. Capri only watches
-it: no API key, and nothing to pay for Capri herself.
+- `Capri.bat`: starts her (the first time, it installs what she needs). No terminal stays open.
+- `Build.bat`: makes `dist\Capri-Setup-<version>.exe` and `dist\Capri-Portable-<version>.exe`.
+- `Capri-Dev.bat`: her logs in a window, to chase a bug.
 
-Without Claude Code she still lives on your desktop: she floats, sits on your windows, looks at the satellite, falls
-asleep. You can just leave her there.
-
-### From the source (macOS, Linux, developers)
+### From the source
 
 You need [Node.js](https://nodejs.org) 20 or newer.
 
 ```bash
-git clone https://github.com/mochiiwuff/capri-desktop.git
+git clone https://github.com/balaqiang/capri-desktop.git
 cd capri-desktop
 npm install
+node node_modules/electron/install.js   # npm 11 skips install scripts: this fetches Electron itself
 npm start
 ```
 
-Keep that terminal open while she runs. Not tested on macOS or Linux yet: she should start, but the window tricks
-(sitting on your windows, possessing them, showing Claude's answer when you're elsewhere) are Windows-only, and on Linux
-the transparent overlay works best on X11 (Wayland can struggle with click-through windows).
+`npm start` starts her apart from the terminal (close it, she stays); `npm run attached` keeps her logs in it;
+`npm run dist` builds the installer. macOS and Linux aren't tested: she should start, but window tricks, errands and
+Look are Windows-only.
 
-### Hook her up to Claude Code by hand
+### Hook her up to Claude Code, Codex or Antigravity
 
-Right-click Capri, then **Install Claude Code hooks**. Or from the command line:
+Right-click her › **Install Claude Code hooks** (or `npm run hooks:install`), then restart Claude Code. The hook goes
+in `~/.claude/settings.json` (a backup is written first; `npm run hooks:uninstall` removes it). For Codex or
+Antigravity: her menu › **Watch**, or `npm run hooks:codex:install` / `npm run hooks:agy:install`.
+`npm run demo` replays a fake session if you just want to see her.
 
-```bash
-npm run hooks:install
-```
+## Settings and hotkeys
 
-This adds a hook to `~/.claude/settings.json` (a backup is written next to it, your existing hooks are kept).
-Restart your Claude Code sessions afterwards. To remove it: `npm run hooks:uninstall`.
+Her settings (Ctrl+Alt+S, or her menu): **Capri** (persona, dials, banned words, self-improvement), **Owner** (you),
+**Voice** (ears, her voice, effects), **AI brain** (services, models, local brain, Look), **Behavior** (wander, notices,
+music, dares, pets, fullscreen), **Timers**, **History**, **Advanced** (hotkeys, shortcuts, start with Windows,
+display), **About**.
 
-The hooks run `async`: they never slow Claude down, and when Capri isn't running they do nothing.
+| Hotkey | What it does |
+| --- | --- |
+| Ctrl+Alt+C | Put her away / bring her back, hop off your cursor, stop a glitch |
+| Ctrl+Alt+T | Her chat |
+| Ctrl+Alt+V | Talk to her (microphone) |
+| Ctrl+Alt+L | She looks at your screen |
+| Ctrl+Alt+S | Her settings |
 
-### Codex or Antigravity instead of Claude Code
+All of them can be changed in settings › Advanced.
 
-Right-click her › **Watch** › **Codex** or **Antigravity**. She says hi and offers to plug herself in, like she does
-for Claude Code. Then:
+## Privacy: what leaves your PC
 
-- **Codex**: restart it and trust her hooks when it asks. They go in `~/.codex/hooks.json`. Her hook for Codex needs
-  [Node.js](https://nodejs.org) 20 or newer on your PATH.
-- **Antigravity**: start a new conversation. Her hooks go in `~/.gemini/config/hooks.json`.
-
-She follows one of them at a time, the one picked in her menu, and her lines, her guide and her chat use its name.
-She only watches: when Codex or Antigravity asks for approval, you still answer it there. From the command line:
-`npm run hooks:codex:install` or `npm run hooks:agy:install` (`:uninstall` to remove them), and `npm run test:hooks`
-runs the tests of both adapters. **Watch** › **Nothing, just keep me company**: she stops talking about any of them.
-
-### Try it without Claude
-
-```bash
-npm run demo
-```
-
-Replays a fake session from start to finish (reads, a web fetch, a subagent, writes, a failing test, a permission
-prompt, the end), then shows everything she does on her own, a line before each trick: the other minds in her,
-zapping your pointer, the whole satellite sequence, possessing a window (a little terminal opens for her, then closes
-under her and she falls), sleeping down to her mask, and putting herself away in the bottom-left corner.
-It's also in the tray menu, in her language; from the command line it's in English, or add one: `npm run demo -- fr`
-(or `es`, `pt`, `ru`).
-
-## Sounds
-
-Every sound is synthesized live (Web Audio), nothing copyrighted ships with the repo.
-You can drop your own files in the custom sounds folder (tray › Sound › *Open custom sounds folder*),
-named like this (`.mp3`, `.wav`, `.ogg` or `.m4a`):
-
-| File | When |
-|---|---|
-| `teleport-out` | she vanishes |
-| `teleport-in` | she reappears |
-| `done` | Claude is done |
-| `alert` | Claude is waiting for your permission |
-| `error` | a command failed |
-| `hello` | a session starts |
-| `star` | she looks up at the satellite |
-| `land` | she lands after a fall |
-| `rise` | the launch into her victory pose, the red light going up |
-| `bolt` | her red lightning |
-| `charge` | charging up before the red light goes up |
-| `possess` | the window she took over laughs |
-| `blip` | every syllable while she talks |
-| `tick` | a quiet reminder |
-
-## Is it safe?
-
-- All of the code is right here. The installer is built from it with `npm run dist`; you can build your own.
-- Nothing leaves your PC (see below): she only talks to Claude Code through a hook on `127.0.0.1`.
-- What she changes on your system: the hook in `~/.claude/settings.json` (a backup is written first, and you can remove
-  it from her menu), and a startup entry only if you tick "Start with Windows". She uninstalls like any app, from
-  Windows Settings › Apps.
-- The SmartScreen warning comes from the installer not being signed, not from anything it does.
+- **By default, nothing**: her brain can be Ollama on your PC, her ears Whisper on your PC, her voice Windows' or Piper.
+- **Only what you switch on goes online**, to the service you picked, with your key: your chat messages to a cloud
+  brain, her lines (never your voice) to a cloud voice, your speech to Groq or OpenAI if you pick them for her ears, a
+  screenshot of the window in front only when you ask her to look and allowed it for cloud models.
+- **Kept on your PC**: your history, her notes, her lessons, what she learned about moving, your keys (encrypted with
+  your Windows account). Your notes and lessons go to a cloud model only if you switch on "Also with a cloud model".
+- **Claude Code hooks** send only what the display needs (tool name, file path, command, Claude's last message) to
+  `127.0.0.1`, never your file contents.
+- **What she changes on your system**: her hooks (if you install them), a startup entry, shortcuts. She uninstalls like
+  any app.
 
 ## FAQ
 
-- **Mac, Linux?** No installer yet, but you can run her from the source (see above).
-- **Phone, Android?** No, she needs a desktop.
-- **Other assistants?** Claude Code, Codex and Antigravity: her menu › **Watch**. Cursor, Windsurf and Gemini CLI: not yet.
-- **Ollama?** Two ways. Claude Code running on a local model through Ollama (`ollama launch claude`): she sees it like
-  any Claude Code, it's just slower, and her ticker counts the seconds while it thinks. And she can chat with you
-  through Ollama herself: see "Talk to her".
-- **She barely moves, her intro just fades in and out.** Windows has its animations turned off (Settings ›
-  Accessibility › Visual effects › Animation effects), and she follows it. Her menu › **Animations** › **Full** makes
-  her move anyway; the first time, she asks.
-- **A black screen behind her.** Some PCs show her see-through window black (often NVIDIA cards with FXAA, MFAA or
-  HDR on; other overlay apps like Desktop Mate do it too there). Right-click her, or her icon by the clock › **Display**
-  › **OpenGL**: she restarts drawn another way. Still black? **Without the graphics card**, which costs a bit more CPU.
-  Turning off FXAA and MFAA in the NVIDIA Control Panel can fix it as well.
-- **Can I turn her off?** Ctrl+Alt+C puts her away, **Quit** in her menu closes her. Claude Code works exactly the same
-  without her.
-- **She only floats around and says idle things.** That's normal until Claude Code does something. If it never reacts,
-  check her menu says "Claude Code hooks: installed", then close Claude Code completely and open it again.
-
-## What leaves your machine
-
-Nothing. The hook only keeps what the display needs (tool name, file path, command, the start of your prompt,
-Claude's last message up to 6,000 characters so she can show it to you, all truncated) and sends it to `127.0.0.1` only.
-Your file contents are never sent: for a write, only its size goes through.
-
-Her chat goes to Ollama on your PC (`127.0.0.1:11434`, or `OLLAMA_HOST`) with what she knows of the moment (the
-project's name, Claude's last action, today's counts). Her mission log stays in her own storage on your PC.
-
-## Art direction
-
-The goal: she should feel like she stepped out of the anime, not like a widget.
-
-- **Cel animation**: her body is redrawn 12 times a second ("on twos") like anime, 24 during teleports.
-  Every drawing has a slight *boil* (the wobble of a line redrawn by hand).
-- **Frame by frame, pose to pose**: nothing is tweened. Each move is an exposure sheet (`acting.js`):
-  key drawings held for a few frames, an anticipation the other way, a smear frame with multiples of
-  the head, an overshoot, holds. Her idle float is four drawings, not a sine wave.
-- **She acts with her head and her mane**, like in the show: the cocked head, the shards bristling or
-  blowing wide, the manic laugh with the head shaking on every drawing, the slump when she sleeps.
-  The cut-out is rigged so her head tilts around the neck, her mane flares unevenly around a rigid face,
-  and her thighs fold (foreshortened, seen from the front) so she can sit with her lower legs swinging.
-- **Squash and stretch, afterimages**: the flat cut-out squashes to a sliver to turn around, stretches when
-  she falls, flattens when she lands, and splits into green and red copies (the other minds in her) when she spins or laughs.
-- **The satellite**, after the season's ending, where she points at the light in the sky and wonders if they
-  could make it up there: a point of light crosses the top of the screen, slowly. Most of the time she just looks,
-  reaches, it twinkles, she sighs. The first time of the day, and a little while after a long Claude job, it's the
-  whole sequence, in five beats (and nothing distracts her meanwhile, not even your pointer):
-  1. **Hush**: she freezes, and the white specks of her mane lift off into a constellation over her.
-  2. **The reach**: she reaches out (the drawings bunch up as the hand gets there) and her stars line up into a road
-     from her fingertips to the satellite.
-  3. **Anticipation**: she coils up, the arm pulls back a little, sparks crawl in her hand, cut-in on her eyes.
-  4. **The red light goes up**: a heavy tapering bolt races up in three drawings, the first one in negative (an impact
-     frame), the stars light up as it passes, speed lines on the satellite, and she's lifted with it.
-  5. **The answer**: the bolt snaps and the pieces fall. A beat of silence, then the satellite twinkles twice.
-     Her stars come home, her mane flares bright for a moment, and her hand drops with a sigh.
-- **Her arms grow when she aims**: anime exaggeration, or a raised arm would get lost in her mane. It stretches
-  along its length only (it stays as thin) and no longer gets bent by the head and the mane.
-- **Both arms match**: the cut-out had one arm reaching and one hanging. The hanging one is removed
-  (`tools/build-sprite.py`) and the shader draws the reaching arm mirrored in its place, so both hands are the
-  same claws and both arms can act. Where an arm crosses her body or her mane it gets a violet line, so it reads.
-- **Her texture**: the red mane is pushed back to the show's hot red and covered in twinkling white specks.
-  Shards come loose from it and drift away.
-- **The violet offset**: like in the anime, a misregistered violet copy under her, under the panel, under the shards.
-- **"Relic" glitch**: shifted horizontal slices and RGB split, in the spirit of Johnny Silverhand's appearances.
-- **Teleport**: charge, shards, collapse into a line, and where she was, a black slit with a red line in it,
-  like in the show. A red column of light to the sky, a bolt to the destination, her pieces (mane shards and the
-  green stars of her eyes) spiralling back in, back with two *impact frames*.
-- **Her intro**: a close-up of her, cut out so your desktop shows around her mane (`tools/build-intro.py`), in six
-  drawings swapped like cels (at rest, her mouth ajar, half open and wide open for "hi", her hand tilted one way and
-  the other for the wave, on threes), and everything else is animation on top: impact frames (her as a flat white then ink silhouette), an RGB split that
-  settles, screen shake, the line boiling on twos, her eyes redrawn over the picture's so they can look around and
-  blink, the camera creeping in, the tag slamming on. Never a straight edge of the picture on screen: it shows
-  through jagged cuts that move (her arms from the sides in, then breaking off from the hands in, then just her
-  head for the dive, with afterimages and her zigzag).
-- **Cut-ins**: close-ups of her taken from the show, pushed in, with speed lines: her grin or her laugh after a
-  finished job, all her eyes when Claude is waiting on you, her eyes right before the red light, her sideways look
-  after zapping your pointer. Her face in the panel changes with what she's saying, too.
-- **Her mask**: a vector drawing after the show (and the "Capri Wink Face"), on its own small canvas, only redrawn
-  while on screen: the green slab of a face, the hooked spike, the white fang, the blue almond eyes,
-  and the eyes shut as chevrons while she sleeps.
-- **Type**: Chakra Petch (bevelled cuts, like her shards) + JetBrains Mono for data.
-
-If Windows is set to "Show animations: off", she sticks to fades.
+- **She can't be clicked, or she's behind my windows.** She puts herself back on top every few seconds; if a click
+  still goes through, move the mouse a little (Windows tells her window about the pointer only when it moves).
+- **A black screen behind her.** Some GPUs (NVIDIA with FXAA, MFAA or HDR) draw her see-through window black: her menu ›
+  **Display** › **OpenGL**, or **Without the graphics card**.
+- **She barely moves.** Windows animations are off (Settings › Accessibility › Visual effects): her menu › **Animations**
+  › **Full**. Or she learned you don't like her moving: say "boleh gerak lagi".
+- **Look says something wrong.** Use a model that can see (gemma3, Gemini, GPT-4o); small text-only models can't.
+- **Spotify only searches.** Keep the Spotify app open; she presses Play through Windows' accessibility interface.
+- **Mac, Linux, phone?** Windows is what she's made for; from the source she may start elsewhere, without the Windows
+  tricks.
 
 ## How it's built
 
 ```
-hooks/capri-hook.js      run by Claude Code, reads the event on stdin and posts it to the app
-scripts/install-hooks.js adds / removes the hook in ~/.claude/settings.json
-tools/build-sprite.py    rebuilds the sprite from the original cut-out (Python + Pillow, only if you change it)
-tools/build-cutins.py    cuts the cut-ins and her faces out of frames of the show
-tools/build-intro.py     cuts her intro's close-ups out of their background, all the same way
-src/main/                Electron: full-screen transparent click-through window, tray, local HTTP bridge
-  windows.js / .ps1      where the other windows are (Windows only), so she can sit on them
-  ollama.js              her chat: the local model, through Ollama
-  apps.js                closing an app you asked her to close (after your click)
+src/main/                 Electron: the transparent click-through window, tray, settings, local HTTP bridge
+  main.js                 wiring: windows, IPC, hotkeys, her brain, Look (snapshot + OCR), staying on top
+  llm.js, ollama.js       her brains: Ollama, OpenAI-compatible (Gemini…), Anthropic, Claude Code
+  errands.js              what she does from plain words (move, open, find, music, Spotify, look, timers…)
+  life.js                 timers, sync, notes, notices, dares, what's playing, song comments, errands run
+  launch.js, apps.js      opening and closing apps, games, sites
+  hearing.js, mouth.js    her ears (Whisper, Groq, OpenAI, Windows) and her voice (ElevenLabs, OpenAI, Piper…)
+  growth.js, history.js   she improves herself; your chats, a file a day, the story so far
+  games.js, lang.js       her games; her words from assets/lang
+  senses.ps1              the app in front, another AI in front, battery, now playing, fullscreen
+  windows.ps1             where the other windows are, so she can sit on them
+  spotify.ps1, ocr.ps1    pressing Play in Spotify; reading the text in a picture (Windows OCR)
 src/renderer/js/
-  sprite.js              WebGL shader: head tilt, mane flare, sitting, smears, afterimages, colors, glitch
-  acting.js              the exposure sheets: every move, drawing by drawing
-  capri.js               the character: stances, teleport, sitting, peeking, falling, drag, sleep
-  fx.js                  shards, light columns, bolts, glyphs, speed lines, shockwaves, the satellite and the red light, possessed windows, the cut-ins, her intro
-  panel.js               the "transmission" panel, her faces, and the ticker
-  guide.js               her guide: the tutorials, going to things and pointing at them
-  brain.js               turns Claude events into lines and actions
-  mission.js             today's mission log, for her report card
-  chat.js                talking to her: the conversation, who she is, her answers coming in
-  lines.js               what she says (FR / EN / ES / PT / RU)
-  chip.js                her mask: while she sleeps, and bottom left when you put her away
-  voice.js               the sounds
+  sprite.js, acting.js    her rig (WebGL shader) and her moves, drawing by drawing
+  capri.js                the character: stances, walking, teleport, grab, throw, pet, gestures
+  motion.js               what she learns about when and how to move
+  chat.js, persona.js     talking to her: the conversation, her persona, her moves from her AI
+  lore.js                 her story and what she knows of Cyberpunk
+  life.js, glitch.js      pets, emotions, mischief, her six glitch styles
+  ears.js, tts.js         the microphone; her voice out loud, effects and lips
+  fx.js, panel.js         shards, bolts, cut-ins, hearts; her panel and her faces
+  brain.js, guide.js      Claude events into lines; her guide
+src/settings/             her settings window
+hooks/, scripts/          Claude Code / Codex / Antigravity hooks and their installers, the launcher, the demo
+assets/                   her sprite and cut-ins, the 2.4 art, translations, icons
+tools/                    how the sprite, cut-ins and intro were cut out (Python + Pillow)
 ```
 
-To hack on it: `npm run dev` turns on debug routes on the bridge (`/debug/capture` saves a frame of the window to `captures/`,
-`/debug/testwin` opens test windows she can sit on, one per name, `/debug/mouse` moves and clicks a stand-in pointer
-over Capri's window, without touching the real one, `/debug/type` types in her chat).
-`npm run dist` builds the Windows installer in `dist/`.
+`npm run dev` turns on debug routes on her bridge (`/debug/capture`, `/debug/testwin`, `/debug/mouse`, `/debug/type`,
+`/debug/snapshot`…).
 
-## Credits and rights
+## Credits and contributors
+
+This project stands on the work of others. All credit for the original to them.
+
+| Who | What |
+| --- | --- |
+| [**balaqiang**](https://github.com/balaqiang) | This recode: the merge with Capri Desktop 2.4 and everything listed in [What's in this recode](#whats-in-this-recode) |
+| [**mochiiwuff**](https://github.com/mochiiwuff) · [capri-desktop](https://github.com/mochiiwuff/capri-desktop) | The original this is built on (v0.4.4, JavaScript/Electron): her rig and shader, her animation and acting, teleports, the satellite, Claude Code / Codex / Antigravity narration, her guide, chat, faces and cut-ins |
+| Capri Desktop contributors | The code of capri-desktop up to 0.4.3, under the MIT License |
+| Capri Desktop 2.4 (C#) | The features merged here, its art (`assets/art`), translations (`assets/lang`) and classic persona; started from lachydotmcg's 0.2.0 |
+| [**lachydotmcg**](https://github.com/lachydotmcg) · [capri-desktop](https://github.com/lachydotmcg/capri-desktop) | The first Capri on the desktop (C#), with contributions from [tuno473](https://github.com/tuno473), [tob7as](https://github.com/tob7as) and [super-cr4SH](https://github.com/super-cr4SH); inspired by jpartnma_'s TikTok video |
+| Fonts | Chakra Petch and JetBrains Mono, SIL Open Font License, via Fontsource |
 
 Capri / Project Capricorn, Cyberpunk and Cyberpunk: Edgerunners belong to CD PROJEKT RED, Studio Trigger and Netflix.
-This is a non-commercial fan project with no affiliation. The character images in `assets/capri/` come from frames of
-the show, a fan-made cut-out and fan art (her intro's close-ups); they are **not** covered by the code's license.
-If a rights holder wants them removed, open an issue.
+This is an unofficial, non-commercial fan project with no affiliation. The character images (`assets/capri/`,
+`assets/art/`, `docs/`) come from frames of the show, fan-made cut-outs and fan art; they are **not** covered by the
+code's license. If a rights holder wants them removed, open an issue.
 
-**License: free, never for sale.** The code is under the [PolyForm Noncommercial License 1.0.0](LICENSE): you can use
-her, change her and share what you made, for free. Selling Capri, or anything made from her code (keys, subscriptions,
-paid access, paid orders), is not allowed. Versions up to 0.4.3 were under the MIT License.
+## License
 
-Fonts: Chakra Petch and JetBrains Mono, under the SIL Open Font License, via Fontsource.
+**Free, never for sale.** See [LICENSE](LICENSE).
 
+- The original code by mochiiwuff is under the [PolyForm Noncommercial License 1.0.0](LICENSES/capri-desktop.md)
+  (its versions up to 0.4.3 under the MIT License).
+- balaqiang's changes and additions are under the MIT License.
+- As the project contains the original code, the whole of it can only be used, changed and shared for free: selling
+  Capri, or anything made from her code (keys, subscriptions, paid access, paid orders), is not allowed.
