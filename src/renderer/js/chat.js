@@ -32,11 +32,37 @@ const LYRIC_WORD = /\b(?:lyrics?|lirik\w*)\b/i;
 const WRITE_ASK = /\b(?:write|make|create|compose|bikin\w*|buat\w*|tulis\w*|karang\w*|ciptakan)\b/i;
 const aboutLyrics = (said) => LYRIC_WORD.test(said || '') && !WRITE_ASK.test(said || '');
 const NO_DUMP_LINE = "Lyrics? Look over my head: they show line by line, as they're sung.";
+
+// A question about the world, looked up on the web first ("siapa presiden indonesia", "who is the ceo of nvidia",
+// "harga emas hari ini?"): not one about her, you or the two of you, not chit-chat.
+const WORLD_Q = /^(?:siapa(?:kah)?|apa(?:kah)? (?:itu|sih|arti|nama|ibu ?kota)|apakah|kapan(?:kah)?|di ?mana(?:kah)?|berapa(?:kah)?|bagaimana (?:cara|sejarah)|gimana cara|jelaskan|ceritakan tentang|who(?:'s| is| was| are| were| won| invented| wrote| made| founded| owns| directed| sang)|what(?:'s| is| are| was| were| does| did)|when (?:is|was|did|does|will)|where (?:is|was|are)|how (?:many|much|old|tall|far|long|big)|which (?:country|team|city|company|year)|define|explain)\b/i;
+const ABOUT_US = /\b(?:kamu|kau|lu|lo|elo|anda|km|you|your|yours|yourself|capri|aku|saya|gue|gw|me|my|mine|kita|we|our|us|(?:umur|nama|rumah|pacar|teman|lagu|hobi|kabar|warna|makanan|film)(?:mu|ku))\b/i;
+const CHITCHAT = /^(?:what(?:'s| is) (?:up|new|good|wrong|happening|going on)|apa kabar)\b/i;
+const NEWS = /\b(?:harga|kurs|cuaca|skor|hasil|berita|terbaru|price|weather|score|news|latest)\b/i;
+function worldQuestion(text) {
+  const t = String(text || '').trim().replace(/^(?:(?:hey|hi|halo|hai) )?(?:capri|kapri)[,\s]+/i, '');
+  if (t.length < 8 || t.length > 200 || ABOUT_US.test(t) || CHITCHAT.test(t)) return false;
+  return WORLD_Q.test(t) || (NEWS.test(t) && /\?$/.test(t));
+}
+
+// What the web said (main/web.js), for her model: newer than what it remembers, so used first, briefly.
+function webNote(question, found) {
+  if (!found) return '';
+  const results = (found.results || []).slice(0, 6);
+  if (!results.length) return `They asked something to look up ("${question}"), but the web search found nothing useful: answer from what you know, and say so if you're not sure.`;
+  // (said this firmly because a model trusts its own memory first: it answered last year's president otherwise)
+  return [
+    `Today is ${new Date().toDateString()}. What you remember stops years ago and is OUT OF DATE: who holds an office, prices, scores and news have changed since.`,
+    `You just searched the web for their question "${question}". The results, from today:`,
+    ...results.map((r, i) => `${i + 1}. ${r.title} (${r.from}): ${r.text}`),
+    `Answer "${question}" ONLY from these results: if they name a person, a number or a date, that is the answer, even if you remember something else. Never answer it from memory. If they don't answer it, say you couldn't find it. One or two sentences, in character.`,
+  ].join('\n');
+}
 const MOVE_NAMES = 'wave, nod, shrug, think, bow, dance, laugh, shy, spin, hop, curious, look, turn, flinch';
 // the move each emotion of hers comes with (life.js): moving too, so spaced and learned like her AI's moves
 // her chat's header: CAPRI / her mood, from her emotion of the moment, or what she's doing
 const MOOD = {
-  idle: 'NIGHT CITY', thinking: 'THINKING…', looking: 'WATCHING', music: 'VIBING',
+  idle: 'NIGHT CITY', thinking: 'THINKING…', looking: 'WATCHING', music: 'VIBING', searching: 'SEARCHING…',
   happy: 'HAPPY', jealous: 'JEALOUS', bored: 'BORED', glitch: 'GLITCHING', annoyed: 'ANGRY',
 };
 const EMOTION_MOVES = { happy: 'hop', jealous: 'turn', bored: 'look', glitch: 'split', annoyed: 'flinch' };
@@ -250,6 +276,9 @@ export class Chat {
     }
     this.open = true;
     this.host.quiet(STAY_MS); // no remarks of hers over your chat
+    // opened again while she's still finishing the last message (closed halfway): you can type once she's done,
+    // nothing you send meanwhile gets lost
+    if (this.sending) this.panel.setChatBusy(true);
     if (focus) setTimeout(() => this.panel.chatInput.focus(), 150); // once the overlay has the keyboard
     capri.perform('hop');
     capri.nextMove = capri.nextGaze = performance.now() + STAY_MS;
@@ -326,7 +355,20 @@ export class Chat {
     this.capri.nextGaze = performance.now() + 60000;
   }
 
-  async send(text, { look = false, skipErrand = false } = {}) {
+  // One message at a time: while she's still on the last one (an errand, a web search, her answer), another is
+  // ignored, so prompts never pile up on her model. (A look her errand asked for is part of the same message.)
+  async send(text, options = {}) {
+    if (this.turn || (this.sending && !options.look) || !this.open) return;
+    this.sending = true;
+    try {
+      await this.sendNow(text, options);
+    } finally {
+      this.sending = false;
+      if (this.open && !this.turn) this.panel.setChatBusy(false);
+    }
+  }
+
+  async sendNow(text, { look = false, skipErrand = false } = {}) {
     if (this.turn || !this.open) return;
     if (!look) this.motion.heard(text); // what you say about her last move, or about her moving
     this.panel.setActions([]); // a close button she offered before goes with a new message
@@ -357,12 +399,31 @@ export class Chat {
     await Promise.race([this.appsReady, new Promise((r) => setTimeout(r, 1500))]);
     const persona = this.persona();
     this.host.setPersona(persona);
-    // looking at your screen, what's playing and the like would only distract her from the picture
-    const context = look ? '' : await this.host.lifeContext().catch(() => '');
     // the people and things of Cyberpunk you bring up (this message or the one before: "why?" follows up)
     const said = this.history.filter((m) => m.role === 'user').slice(-2).map((m) => m.content).join('\n');
     const lore = look ? '' : loreFor(said, { max: SMALL.test(this.model || '') ? 2 : 4 });
-    const messages = [{ role: 'system', content: [persona, lore, context].filter(Boolean).join('\n\n') }, ...this.history.slice(-(Number(this.cfg.contextMessages) || REMEMBER))];
+    // a question about the world ("siapa presiden indonesia"): looked up on the web first, a second or so, so she
+    // answers from today's web and not from what her model remembers (main/web.js)
+    const asking = !look && !lore && this.cfg.access?.search !== false && worldQuestion(text);
+    if (asking) this.panel.setMood(MOOD.searching);
+    // looking at your screen, what's playing and the like would only distract her from the picture
+    const [context, found] = await Promise.all([
+      look ? '' : this.host.lifeContext().catch(() => ''),
+      asking ? Promise.race([this.host.webLookup(text).catch(() => null), new Promise((r) => setTimeout(() => r(null), 5500))]) : null,
+    ]);
+    if (asking) this.panel.setMood(MOOD.thinking);
+    if (asking && this.cfg.debugLog) console.log('[web]', found ? `${found.results.length} results for "${found.query}"` : 'no answer in time');
+    // what changes from one message to the next (the moment, what's playing, the apps open, lore, the web) goes
+    // last, just before your message: everything before it is the same as last time, so a local model (Ollama)
+    // reuses what it already read instead of reading her whole prompt and your chat again
+    const now = [lore, context, this.appsNow(), webNote(text, found)].filter(Boolean).join('\n\n');
+    let recent = this.history.slice(-(Number(this.cfg.contextMessages) || REMEMBER));
+    // the same question asked before and looked up again: her old answers to it go (she copies them, stale or not)
+    if (found?.results?.length) {
+      const same = (m) => m?.role === 'user' && m.content.trim().toLowerCase() === text.trim().toLowerCase();
+      recent = recent.filter((m, i, all) => i === all.length - 1 || !(same(m) || (m.role === 'assistant' && same(all[i - 1]))));
+    }
+    const messages = [{ role: 'system', content: persona }, ...recent.slice(0, -1), ...(now ? [{ role: 'system', content: now }] : []), ...recent.slice(-1)];
     if (look) {
       // one look at the screen, for this answer only: it's never kept, not even in her memory of the chat
       const shot = await this.host.snapshot().catch(() => ({ ok: false, error: 'blind' }));
@@ -399,6 +460,12 @@ export class Chat {
     const slow = wait && setTimeout(() => {
       if (this.turn === id && !this.answer) this.panel.stream(wait);
     }, LOADING_AFTER_MS);
+    // closed while she was looking it up or getting ready: nothing goes to her model (no answer nobody reads)
+    if (this.turn !== id) {
+      clearTimeout(slow);
+      if (this.history.at(-1)?.content === text) this.history.pop();
+      return;
+    }
     let res = await this.host.chatSend({ id, messages });
     if (res.ok && !this.agent && this.turn === id && REFUSAL.test(res.text) && !/\b(?:password|hack|kill|bunuh|bom|bomb)\b/i.test(text)) {
       this.answer = '';
@@ -663,10 +730,8 @@ export class Chat {
     const lines = [
       'Only when the user asks you to open an app or a game installed on their PC, play something on Spotify, control the music playing, or open a website: say in a few words that you will, and end your answer with one tag: [[open: NAME]], [[music: WHAT TO PLAY]], [[media: ACTION]] (ACTION: pause, play, next, previous, volup, voldown or mute), or [[site: ADDRESS]]. Some of these get a button to confirm, so never say it is already done. Any other time, write no tag at all: there are no other tags.',
     ];
-    if (this.apps.length) {
-      const open = this.apps.map(({ name, label }) => (label && label !== name ? `${name} (${label})` : name)).join(', ');
-      lines.push(`You can also close an app that's open, only when they ask you to: end your answer with [[close: NAME]], NAME being the exact name from this list (the part before the parentheses). They get a button to confirm it. Apps open right now: ${open}.`);
-    }
+    // (which apps are open comes with each message, appsNow(): it changes, and this part stays the same)
+    lines.push('You can also close an app that\'s open, only when they ask you to: end your answer with [[close: NAME]], NAME being the exact name from the list of apps open right now that comes with their message (the part before the parentheses). They get a button to confirm it.');
     // what the app does itself from plain words (main/errands.js), so she knows and doesn't fake it
     lines.push('The app around you also does these by itself when the user says them plainly: timers, alarms and reminders ("set a timer for 10 minutes", "pasang alarm jam 7"), a study timer, notes about them ("remember that…"), dares ("dare me"), games with you (rock paper scissors: "main suit"; guess the number: "tebak angka"; a coin; dice), web and YouTube searches, and looking at their screen ("look at my screen" or Ctrl+Alt+L, one screenshot when they ask). If they ask you for one of these and nothing happened, tell them to say it plainly like that; never pretend it is done.');
     lines.push(`When the user asks you to come or go somewhere on their screen in words that didn't move you yet ("temenin aku di deket mouse", "hang out on the left", "get on my pointer"), say you're on it and put one tag [[go: WHERE]] in your reply (never shown), WHERE one of: ${GO_PLACES.join(', ')}. Only when they asked you to move.`);
@@ -676,6 +741,12 @@ export class Chat {
     lines.push('The app also moves you when asked ("ke kanan", "ke cursor saya", "berhenti bergelantungan di cursor", "jalan-jalan") and shows where files and folders are ("di mana folder Downloads?"). Anything else on their PC (changing settings, editing files) you can\'t do: if they ask, say so in character. But questions, opinions and choices are never things you can\'t do: answer them.');
     lines.push('Code: never write code in your replies, your speech bubble is tiny. When they want code, a script, a program, a web page or a game written, the app does it from their words ("buatkan kode python untuk…", "bikin game snake pakai html", "write a script that…"; "pakai claude code" or "sendiri" picks who): Claude Code in a terminal if it\'s installed, else you write it into a file in their Capri Code folder and open it in an editor. If they asked in other words and nothing happened, tell them to say it like that.');
     return lines;
+  }
+
+  // The apps open right now, for [[close: NAME]] (with each message: it changes).
+  appsNow() {
+    if (!this.apps.length) return '';
+    return `Apps open right now: ${this.apps.map(({ name, label }) => (label && label !== name ? `${name} (${label})` : name)).join(', ')}.`;
   }
 
   // What the user made her (custom.js): their name, how they want her, what to remember.
