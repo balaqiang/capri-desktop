@@ -25,6 +25,7 @@ const KEY_PAGES = {
   groq: 'https://console.groq.com/keys',
   gemini: 'https://aistudio.google.com/apikey',
   openrouter: 'https://openrouter.ai/keys',
+  anthropic: 'https://console.anthropic.com/settings/keys',
   openai: 'https://platform.openai.com/api-keys',
   mistral: 'https://console.mistral.ai/api-keys',
   deepseek: 'https://platform.deepseek.com/api_keys',
