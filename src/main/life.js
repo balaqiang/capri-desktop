@@ -18,6 +18,7 @@ const lang = require('./lang');
 const errands = require('./errands');
 const launch = require('./launch');
 const games = require('./games');
+const lyrics = require('./lyrics');
 
 const { T, F } = lang;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -49,13 +50,17 @@ const SYNC_TIERS = [
 ];
 
 let emit = () => {};
+let coder = null;    // { claude(task), self(task) }: code you ask for (main.js)
 let askModel = null; // (messages) => Promise<string>: her model, with her persona (main.js)
+let askPlain = null; // (messages) => Promise<string>: her model as is, for plain questions (main.js)
 let canLook = () => false;
 let snapshot = null; // () => Promise<base64 jpeg>
 let sensesChild = null;
 const state = {
   front: '', frontRaw: '', frontSince: Date.now(), ai: '', aiSince: 0,
   cpu: -1, cpuBusy: 0, battery: -1, track: null, lastTrackKey: '', lastComment: 0,
+  song: '', words: null, // the song she follows, and its lyrics ({ lines, plain, instrumental }, lyrics.js)
+  verdict: { song: '', verdict: '' }, // what she thinks of the song playing (taste)
   wasAway: false, peakIdle: 0, activeSeconds: 0, lastTick: Date.now(),
   noticed: {}, noticeNext: Date.now() + 4 * 60000, dareNext: Date.now() + 20 * 60000, dareOpenUntil: 0,
   study: { phase: 'off', end: 0, left: 0, paused: false, done: 0 },
@@ -286,19 +291,135 @@ function onSense(msg) {
 }
 
 function onTrack(track) {
+  if (track) track.at = Date.now(); // when its position was read: she counts on from there
   state.track = track;
   const mode = cfg().music;
   emit({ type: 'nowPlaying', track: mode === 'off' ? null : track });
+  if (mode !== 'off') followSong(track);
   const key = track?.playing ? `${track.title}|${track.artist}` : '';
   if (!key || key === state.lastTrackKey) return;
   state.lastTrackKey = key;
   const now = Date.now();
   // her favorite song gets a word from her every time
   const favorite = songNote(track)?.favorite;
-  if (mode === 'comment' && (favorite || now - state.lastComment > 4 * 60000) && now > state.quietUntil) {
-    state.lastComment = now;
-    commentOn(track);
+  const comment = mode === 'comment' && (favorite || now - state.lastComment > 4 * 60000) && now > state.quietUntil;
+  if (comment) state.lastComment = now;
+  // what she thinks of it first (she dances to it, or dozes off), then her word on it, in the same mood
+  (async () => {
+    const verdict = cfg().musicMood !== false ? await taste(track) : '';
+    if (verdict && state.lastTrackKey === key) {
+      state.verdict = { song: songKey(track), verdict };
+      emit({ type: 'taste', ...state.verdict });
+    }
+    if (comment) commentOn(track, verdict);
+  })();
+}
+
+// ---- following the song: its words, and whether she likes it ----
+
+const songKey = (track) => (track?.title ? `${track.title}|${track.artist || ''}` : '');
+
+// A new song: its lyrics (lyrics.js), sent to the overlay for her to show, line by line. Played before, they're
+// on this PC already; else from LRCLIB, a moment in (Windows gives the new song's length a reading to settle).
+let songTimer = null;
+function followSong(track) {
+  const key = songKey(track);
+  if (key === state.song) return;
+  state.song = key;
+  state.words = null;
+  clearTimeout(songTimer);
+  if (!key || cfg().lyrics === false) return;
+  const deliver = (words) => {
+    if (state.song !== key) return;
+    state.words = words;
+    emit({ type: 'lyrics', song: key, lines: words?.lines || null, instrumental: Boolean(words?.instrumental), found: Boolean(words) });
+  };
+  const kept = lyrics.cached(track);
+  if (kept !== undefined) {
+    deliver(kept);
+    return;
   }
+  // none (LRCLIB down, or not there yet): asked once more a little later, while the song still plays
+  const fetchWords = (again) => {
+    if (state.song !== key) return;
+    lyrics.lyricsFor(state.track).then((words) => {
+      deliver(words);
+      if (!words && again) songTimer = setTimeout(() => fetchWords(false), 30000);
+    });
+  };
+  songTimer = setTimeout(() => fetchWords(true), 2200);
+}
+
+// Lyrics turned on or off (settings, or you asked her): the song's words fetched again, or taken away.
+function lyricsChanged() {
+  state.song = '';
+  state.words = null;
+  if (cfg().lyrics === false) emit({ type: 'lyrics', song: '', lines: null, instrumental: false, found: false });
+  else if (cfg().music !== 'off') followSong(state.track);
+}
+
+// The song she's following, for her window when it (re)loads: what's playing (where it is now), its lyrics, her verdict.
+function songNow() {
+  const track = cfg().music === 'off' || !state.track ? null : { ...state.track, pos: songPosition() };
+  const song = songKey(track);
+  return {
+    track,
+    lines: song && song === state.song ? state.words?.lines || null : null,
+    verdict: song && state.verdict.song === song ? state.verdict.verdict : '',
+  };
+}
+
+// Where the song is now (seconds), counted on from the last reading while it plays.
+function songPosition() {
+  const t = state.track;
+  if (!t || !(t.pos >= 0)) return -1;
+  return t.pos + (t.playing ? (Date.now() - (t.at || Date.now())) / 1000 : 0);
+}
+
+// The lines around the one being sung, for her model ('' when there are none).
+function wordsNow() {
+  const lines = state.words?.lines;
+  if (!lines || songKey(state.track) !== state.song) return '';
+  const at = lyrics.lineAt(lines, songPosition());
+  if (at < 0) return '';
+  return lines.slice(Math.max(0, at - 2), at + 2).map((l) => `${l === lines[at] ? '> ' : '  '}${l.text || '(music)'}`).join('\n');
+}
+
+// What she thinks of a song: 'love' (hers, songs from home), 'like' or 'meh', kept so she likes the same songs
+// every time. She's into loud and fast (Night City), bored by slow and sleepy: her model is asked what the song
+// sounds like (a plain fact it knows better than a taste), twice with the answers swapped round, and believed only
+// when it says the same both times (a small model just picks the first answer). Otherwise, her whim.
+const TASTE_MAX = 400;
+async function sound(track) {
+  if (!askPlain) return '';
+  const song = `"${track.title}"${track.artist ? ` by ${track.artist}` : ''}`;
+  const one = async (first, second) => {
+    const ask = `What does the song ${song} sound like? Is it ${first} or ${second}? Answer with ONE word only: ${first.split(' ')[0]} or ${second.split(' ')[0]}.`;
+    const answer = await Promise.race([askPlain([{ role: 'user', content: ask }]).catch(() => ''), new Promise((r) => setTimeout(() => r(''), 25000))]);
+    return /\b(energetic|calm)\b/i.exec(String(answer).replace(/<think>[\s\S]*?<\/think>/g, ''))?.[1]?.toLowerCase() || '';
+  };
+  const LOUD = 'energetic (fast, loud, danceable, upbeat)';
+  const SOFT = 'calm (slow, soft, sleepy, a ballad)';
+  const a = await one(LOUD, SOFT);
+  const b = a && (await one(SOFT, LOUD));
+  return a && a === b ? a : '';
+}
+
+async function taste(track) {
+  if (songNote(track)) return 'love';
+  const key = `${String(track.title).toLowerCase()}|${String(track.artist || '').toLowerCase()}`;
+  const known = cfg().tastes?.[key];
+  if (known) return known;
+  // her whim, the same for a song every time: which energetic songs she loves, what she makes of an unknown one
+  let h = 0;
+  for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const heard = await sound(track);
+  const verdict = heard === 'energetic' ? (h % 10 < 3 ? 'love' : 'like') : heard === 'calm' ? 'meh' : h % 10 < 7 ? 'like' : 'meh';
+  const tastes = { ...(cfg().tastes || {}), [key]: verdict };
+  const keys = Object.keys(tastes);
+  for (const old of keys.slice(0, Math.max(0, keys.length - TASTE_MAX))) delete tastes[old];
+  config.save({ tastes });
+  return verdict;
 }
 
 // Songs from home (the Edgerunners soundtracks, Johnny's band Samurai), and hers above all: what her
@@ -333,15 +454,17 @@ function songNote(track) {
 }
 
 // Her word on a song, from her model ('' when it doesn't answer in time).
-async function songOpinion(track, wait) {
+const FEELS = { love: ' You LOVE it.', like: ' You like it.', meh: ' It bores you.' };
+async function songOpinion(track, wait, verdict = '') {
   if (!askModel) return { text: '', emotion: 'happy' };
   const known = songNote(track)?.note || '';
-  const ask = `[A song playing on their PC: "${track.title}"${track.artist ? ` by ${track.artist}` : ''}${track.app ? ` (in ${track.app})` : ''}.${known ? ` ${known}` : ''} React to it in ONE short sentence, in character: your opinion of it, a tease about their taste, or something you know about the song or the artist. Start with one emotion tag.]`;
+  const ask = `[A song playing on their PC: "${track.title}"${track.artist ? ` by ${track.artist}` : ''}${track.app ? ` (in ${track.app})` : ''}.${known ? ` ${known}` : ''}${FEELS[verdict] || ''} React to it in ONE short sentence, in character: your opinion of it, a tease about their taste, or something you know about the song or the artist. Start with one emotion tag.]`;
   const answer = await Promise.race([askModel([{ role: 'user', content: ask }]).catch(() => ''), new Promise((r) => setTimeout(() => r(''), wait))]);
   const emotion = /\[(happy|jealous|bored|glitch|annoyed)\]/i.exec(answer)?.[1]?.toLowerCase() || 'happy';
   // without her tags ("[Happy, nostalgic]" from a small model too), and short: whole sentences, ~160 chars
   const sentences = String(answer || '').replace(/<think>[\s\S]*?<\/think>/g, '').replace(/\[[^\]\n]{0,40}\]\s*/g, '').replace(/[*_`#]+/g, '')
-    .trim().split('\n')[0].split(/(?<=[.!?])\s+/);
+    .trim().replace(/^\[([^\]\n]+)\]$/, '$1') // a whole answer in brackets, like a stage direction
+    .split('\n')[0].split(/(?<=[.!?])\s+/);
   let text = sentences[0].slice(0, 220);
   for (const s of sentences.slice(1)) {
     if (`${text} ${s}`.length > 160) break;
@@ -350,8 +473,8 @@ async function songOpinion(track, wait) {
   return { text: text.length < 4 ? '' : text, emotion };
 }
 
-async function commentOn(track) {
-  const { text, emotion } = await songOpinion(track, 20000);
+async function commentOn(track, verdict = '') {
+  const { text, emotion } = await songOpinion(track, 20000, verdict);
   say({ text: text || T(pick(SAY.music)), quote: `♪ ${brief(track)}`, emotion, kind: 'music', hold: 7000 });
 }
 
@@ -521,6 +644,12 @@ function recordGame(stats) {
   config.save({ gameStats: g });
 }
 
+// What each errand needs from you in settings › Access, and what she says when it's off.
+const NEEDS = { code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media' };
+const ACCESS_NAMES = { apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code' };
+const allowed = (what) => config.allowed(what);
+const denied = (what) => ({ handled: true, reply: F("I'm not allowed to do that. Settings › Access › {0}.", T(ACCESS_NAMES[what])), emotion: 'annoyed' });
+
 async function run(said) {
   const c = cfg();
   // her games first: in the middle of one, "batu" or "50" is a move
@@ -533,6 +662,8 @@ async function run(said) {
   const canonical = errands.canon(said);
   if (canonical) return { handled: true, reply: T(canonical.line), emotion: canonical.emotion };
   const e = errands.parse(said);
+  const need = e.kind === 'open' ? (/^https?:/i.test(e.target) ? 'web' : /^[a-z]+\.exe$|^ms-settings/i.test(e.target) ? 'apps' : 'files') : NEEDS[e.kind];
+  if (need && !allowed(need)) return denied(need);
   switch (e.kind) {
     case 'move': {
       const lines = {
@@ -545,6 +676,22 @@ async function run(said) {
       // a gesture is its own move: no emotion's hop on top of it
       const gesture = ['dance', 'wave', 'bow'].includes(e.move);
       return { handled: true, reply: T(lines[e.move] || 'Going!'), emotion: e.move === 'sleep' ? 'bored' : gesture ? null : 'happy', move: e.move };
+    }
+    case 'code': { // code you asked for: Claude Code in a terminal, or her own, in a file
+      if (!coder) return { handled: false };
+      const who = e.via || c.coder || 'auto';
+      if (who !== 'self') {
+        const handed = coder.claude(e.task);
+        if (handed) return { handled: true, reply: T("Claude Code's on it, in a terminal. Say yes to its edits there, I'll keep an eye on it."), emotion: 'happy', zap: true };
+      }
+      const missing = who === 'claude' ? T("Claude Code isn't installed here, so I wrote it myself.") + ' ' : '';
+      try {
+        const made = await coder.self(e.task);
+        return { handled: true, reply: missing + F('Done: {0}, {1} lines, open in {2}. It\'s in your Capri Code folder.', made.name, made.lines, made.editor), emotion: 'happy', zap: true };
+      } catch (err) {
+        if (err.code === 'nomodel') return { handled: true, reply: T('I need a brain for that: set one up in my settings, AI brain.'), emotion: 'annoyed' };
+        return { handled: true, reply: T('My code came out garbled. Ask me again?'), emotion: 'glitch' };
+      }
     }
     case 'clock': { // the time or the date, exactly: her model only guesses them
       const now = new Date();
@@ -564,6 +711,39 @@ async function run(said) {
       // and what she thinks of it
       const { text, emotion } = t.playing ? await songOpinion(t, 12000) : { text: '', emotion: 'happy' };
       return { handled: true, reply: text ? `${line} ${text}` : line, emotion };
+    }
+    case 'lyrics': {
+      const t = state.track;
+      if (e.action !== 'now') {
+        const on = e.action === 'show';
+        if (on && c.music === 'off') return { handled: true, reply: T("I'm not watching what you play. Turn it on in Settings, Behavior."), emotion: 'bored' };
+        emit({ type: 'setConfig', patch: { lyrics: on } }); // main.js: saved, and her window and settings told
+        if (!on) return { handled: true, reply: T('Lyrics off. I still know the words.'), emotion: 'happy' };
+        return { handled: true, reply: T(t?.playing ? "Lyrics on. I'll follow along, line by line." : "Lyrics on. Play something and I'll follow along."), emotion: 'happy' };
+      }
+      if (c.music === 'off' || !t?.title) return { handled: true, reply: T("Nothing's playing right now. Or it's hiding from me."), emotion: 'bored' };
+      if (songKey(t) !== state.song || !state.words) return { handled: true, reply: T("I can't find the words to this one."), emotion: 'bored' };
+      if (state.words.instrumental) return { handled: true, reply: T('No words in this one. Just vibes.'), emotion: 'happy' };
+      const lines = state.words.lines;
+      if (!lines) return { handled: true, reply: T("I know the words, but not when they're sung."), emotion: 'bored' };
+      const at = lyrics.lineAt(lines, songPosition());
+      const line = at >= 0 ? lines.slice(0, at + 1).reverse().find((l) => l.text)?.text : '';
+      if (!line) return { handled: true, reply: T("Nobody's singing yet. Wait for it."), emotion: 'happy' };
+      return { handled: true, reply: `♪ "${line}"`, emotion: 'happy' };
+    }
+    case 'listen': { // "dengarkan lagu ini": she listens along, says what she makes of it, and follows its words
+      const t = state.track;
+      if (c.music === 'off') return { handled: true, reply: T("I'm not watching what you play. Turn it on in Settings, Behavior."), emotion: 'bored' };
+      if (!t?.title || !t.playing) return { handled: true, reply: T("Nothing's playing right now. Or it's hiding from me."), emotion: 'bored' };
+      const verdict = c.musicMood !== false ? await taste(t) : '';
+      if (verdict) {
+        state.verdict = { song: songKey(t), verdict };
+        emit({ type: 'taste', ...state.verdict });
+      }
+      emit({ type: 'listenNow', song: songKey(t), lyrics: Boolean(state.words?.lines) && c.lyrics !== false });
+      const { text, emotion } = await songOpinion(t, 15000, verdict);
+      const lead = F("Okay, I'm listening: {0}.", brief(t));
+      return { handled: true, reply: text ? `${lead} ${text}` : lead, emotion: verdict === 'meh' ? 'bored' : emotion };
     }
     case 'spotifySearch': // searched, and the top match played right away
       return { handled: true, reply: await playOnSpotify(e.text), emotion: 'happy', zap: true };
@@ -694,7 +874,12 @@ function brainContext({ cloud = false } = {}) {
   if (c.memoryOn && facts.length && (!cloud || c.cloudMemory)) {
     parts.push(`WHAT THE USER HAS TOLD YOU (use one only when it really fits what they said; never list them or say you keep notes):\n${facts.slice(-25).map((f) => `- ${f}`).join('\n')}`);
   }
-  if (state.track?.playing && c.music !== 'off') parts.push(`Playing right now on their PC: ${brief(state.track)}.`);
+  if (state.track?.playing && c.music !== 'off') {
+    parts.push(`Playing right now on their PC: ${brief(state.track)}.`);
+    // the words being sung (LRCLIB), so she can talk about the song as it goes
+    const words = wordsNow();
+    if (words) parts.push(`ITS LYRICS AROUND THIS MOMENT (">" marks the line being sung now; quote one only when they ask about the words):\n${words}`);
+  }
   if (state.front) parts.push(`The program in front of them: ${state.front}.`);
   if (state.study.phase === 'focus') parts.push('They are in a focus session right now: keep it very short and push them back to work.');
   return parts.join('\n\n');
@@ -705,9 +890,11 @@ function hackLine() {
 }
 
 let ticker = null;
-function start({ onEvent, model, look, shot }) {
+function start({ onEvent, model, raw, look, shot, coder: coders }) {
+  coder = coders || null;
   emit = onEvent;
   askModel = model;
+  askPlain = raw || model;
   canLook = look;
   snapshot = shot;
   clearInterval(ticker);
@@ -731,6 +918,6 @@ const quiet = (ms) => { state.quietUntil = Date.now() + ms; };
 
 module.exports = {
   findPath, browserPath, start, stop, startSenses, run, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
-  addAlarm, removeAlarm, clearAlarms, startStudy, stopStudy, pauseStudy, studyStatus, hackLine, giveDare, quiet, playSong,
+  addAlarm, removeAlarm, clearAlarms, startStudy, stopStudy, pauseStudy, studyStatus, hackLine, giveDare, quiet, playSong, lyricsChanged, songNow,
   get track() { return state.track; }, get front() { return state.front; }, get fullscreen() { return Boolean(state.fullscreen); },
 };
