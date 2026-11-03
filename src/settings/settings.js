@@ -76,7 +76,43 @@ function toggle(path, { onChange } = {}) {
   return el('span', { class: 'switch' }, input, el('span'));
 }
 
+// A choice: ◁ the value ▷, the way Night City's menus do it (←/→ too, its marks under it), or a drop-down
+// for a long list.
 function select(path, options, { onChange } = {}) {
+  if (options.length > 8) return dropdown(path, options, { onChange });
+  const at = () => Math.max(0, options.findIndex(([v]) => String(v) === String(get(path) ?? '')));
+  const value = el('span', { class: 'step__value' });
+  const pips = el('span', { class: 'step__pips', 'aria-hidden': 'true' }, options.map(() => el('i')));
+  const wrap = el('div', { class: 'step', role: 'spinbutton', tabindex: '0', 'aria-valuemin': '0', 'aria-valuemax': String(options.length - 1) });
+  const paint = () => {
+    const i = at();
+    value.textContent = T(options[i][1]);
+    wrap.setAttribute('aria-valuenow', String(i));
+    wrap.setAttribute('aria-valuetext', value.textContent);
+    pips.querySelectorAll('i').forEach((p, j) => p.classList.toggle('is-on', j === i));
+  };
+  const go = async (by) => {
+    const next = options[(at() + by + options.length) % options.length];
+    await save(patchFor(path, next[0]));
+    paint();
+    onChange?.(String(next[0]));
+  };
+  wrap.append(
+    el('button', { type: 'button', class: 'step__arrow', tabindex: '-1', 'aria-label': T('Previous'), onclick: () => go(-1) }, '◁'),
+    el('span', { class: 'step__mid' }, value, pips),
+    el('button', { type: 'button', class: 'step__arrow', tabindex: '-1', 'aria-label': T('Next'), onclick: () => go(1) }, '▷'),
+  );
+  wrap.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      go(e.key === 'ArrowLeft' ? -1 : 1);
+    }
+  });
+  paint();
+  return wrap;
+}
+
+function dropdown(path, options, { onChange } = {}) {
   const s = el('select', {}, options.map(([value, label]) => el('option', { value, text: T(label) })));
   s.value = String(get(path) ?? '');
   s.addEventListener('change', async () => {
@@ -108,7 +144,10 @@ function range(path, min, max, step, show = (v) => v) {
   const input = el('input', { type: 'range', min, max, step });
   input.value = get(path);
   const out = el('span', { class: 'range__value', text: show(Number(input.value)) });
-  input.addEventListener('input', () => { out.textContent = show(Number(input.value)); });
+  // the cyan part of the bar, up to the handle
+  const fill = () => input.style.setProperty('--fill', `${((Number(input.value) - min) / (max - min || 1)) * 100}%`);
+  fill();
+  input.addEventListener('input', () => { out.textContent = show(Number(input.value)); fill(); });
   input.addEventListener('change', () => save(patchFor(path, Number(input.value))));
   return [input, out];
 }
@@ -587,6 +626,10 @@ function pageBrain() {
       row('Max answer length', 'In tokens.', ...range('maxTokens', 60, 1500, 20, (v) => `${v}`)),
       row('Conversation memory', 'How many recent messages she keeps in mind.', ...range('contextMessages', 4, 60, 2, (v) => `${v}`))),
     localBrainCard(),
+    card('Coding',
+      row('Who writes the code', '"buatkan kode…", "code a script that…": Claude Code in a terminal (you approve its edits there), or Capri herself with her model, one file opened in your editor (never run).',
+        select('coder', [['auto', 'Claude Code if installed, else her'], ['claude', 'Claude Code'], ['self', 'Capri herself']])),
+      row('Coding folder', 'Where the code goes. Empty: Documents\\Capri Code.', text('codeFolder', { placeholder: 'Documents\\Capri Code' }))),
     card('Her eyes (Look)',
       row('Let her look when I ask', 'Ctrl+Alt+L or "what am I looking at?": one screenshot, kept in memory only, sent to her model, then dropped.', toggle('lookOn')),
       row('Also with a cloud model', 'Off: she only looks through a model on this PC.', toggle('cloudLook')),
@@ -622,11 +665,13 @@ function pageBehavior() {
       row('Animations', null, select('motion', [['auto', 'Like Windows'], ['full', 'Full'], ['reduced', 'Reduced']])),
       row('Head pats', 'Pet her: stroke her head back and forth with your pointer.', toggle('pats')),
       row('Hide in fullscreen', 'She steps aside while a game or a full screen video is in front, and comes back after. Alarms become Windows notifications meanwhile.', toggle('hideInFullscreen')),
-      row('Perch on cursor', 'Double-click her: she sits on your pointer and rides along, and clicks go right through her. Ctrl+Alt+C to hop off.', button('Perch on cursor', () => act('ride')))),
+      row('Perch on cursor', 'Or say "sit on my cursor": she sits on your pointer and rides along, and clicks go right through her. Move it too fast and she falls off. Ctrl+Alt+C to hop off.', button('Perch on cursor', () => act('ride')))),
     card('She notices things',
       row('Remarks', 'A long break, a late night, a low battery, a busy CPU, hours in one app. Only the clock, idle time, CPU, battery and the program name are read.', toggle('notices')),
       row('Jealous of other AIs', 'She checks whether the window in front is ChatGPT, Gemini, Copilot… (only that name, never the title, leaves her senses).', toggle('jealous')),
-      row('What\'s playing', 'What Windows shows as now playing.', select('music', [['off', 'Off'], ['show', 'Show what\'s playing'], ['comment', 'Show and comment']]))),
+      row('What\'s playing', 'What Windows shows as now playing.', select('music', [['off', 'Off'], ['show', 'Show what\'s playing'], ['comment', 'Show and comment']])),
+      row('Song lyrics', 'The words of the song over her head as they\'re sung, from LRCLIB (lrclib.net, free, no account). Only the title, artist, album and length go out to look them up.', toggle('lyrics')),
+      row('She listens along', 'Her head goes with the song, she dances to the ones she likes, and a boring one sends her to sleep until a better one wakes her.', toggle('musicMood'))),
     card('Dares',
       row('She dares me', 'After about ten minutes in one app, something quick and harmless. Say "done" when you did it.', toggle('dares')),
       row('She looks when she dares', 'One screenshot so the dare fits your screen (only to a model allowed to look).', toggle('visionDares', { onChange: (on) => on && !confirm(T('Each time she dares you (every half hour or so) she will take one screenshot of your screen, keep it in memory only, and send it to your model. Turn this on?')) && save({ visionDares: false }).then(render) })),
@@ -843,6 +888,51 @@ function pageAdvanced() {
   ];
 }
 
+// Everything she can see, hear and do on your PC, in one place (the same switches as on the other pages, and
+// the ones only here: what she may do with your apps, files, sites, media, Spotify and code).
+function pageAccess() {
+  const kept = el('span', { class: 'mono', text: '…' });
+  const showKept = (info) => {
+    const kb = Math.max(0, Math.round((info?.bytes || 0) / 1024));
+    kept.textContent = info ? F('{0} songs · {1} KB', info.songs, kb) : '—';
+  };
+  api.lyricsCache().then(showKept, () => showKept(null));
+  const clear = async () => {
+    const res = await api.clearLyrics().catch(() => null);
+    showKept(res);
+    toast(res ? F('Forgot the lyrics of {0} songs.', res.cleared) : T('Could not clear them.'), !res);
+  };
+  return [
+    note('Everything Capri can see, hear and do on this PC, in one place. Switch off what she must not touch: when you ask for it anyway, she tells you it is off here.'),
+    card('What she can see',
+      row('Let her look when I ask', 'Ctrl+Alt+L or "what am I looking at?": one screenshot, kept in memory only, sent to her model, then dropped.', toggle('lookOn')),
+      row('Also with a cloud model', 'Off: she only looks through a model on this PC.', toggle('cloudLook')),
+      row('Remarks', 'A long break, a late night, a low battery, a busy CPU, hours in one app. Only the clock, idle time, CPU, battery and the program name are read.', toggle('notices')),
+      row('Jealous of other AIs', 'She checks whether the window in front is ChatGPT, Gemini, Copilot… (only that name, never the title, leaves her senses).', toggle('jealous')),
+      row('What\'s playing', 'What Windows shows as now playing.', select('music', [['off', 'Off'], ['show', 'Show what\'s playing'], ['comment', 'Show and comment']])),
+      row('Watch my coding AI', 'Claude Code, Codex or Antigravity, through their hooks: the tool, the file, the command, its last message. Never your files\' contents.', toggle('claude'))),
+    card('What she can hear',
+      row('How she listens', 'Push to talk: click the mic by her, or the hotkey. Always: hands-free, she hears everything that starts with her name.', select('listen', [['off', 'Off'], ['push', 'Push to talk'], ['always', 'Always listening']]))),
+    card('What she can do on your PC',
+      row('Open apps', 'Apps, games and Store apps you name ("open Spotify", "buka kalkulator").', toggle('access.apps')),
+      row('Folders and files', 'Open your folders, find files and folders, and point at them ("open my downloads").', toggle('access.files')),
+      row('Close apps', 'Close an app you name, always behind a button, like its own close button.', toggle('access.close')),
+      row('Websites', 'Open sites and searches in your browser ("buka youtube di chrome", "search…").', toggle('access.web')),
+      row('Media keys', 'Pause, next, previous, volume: the keys on your keyboard, pressed for you.', toggle('access.media')),
+      row('Spotify', 'Search Spotify and press Play on the song you ask for.', toggle('access.spotify')),
+      row('Write code', 'Write code into her Code folder (never run), or open Claude Code with your task.', toggle('access.code')),
+      row('Possess my windows', 'Now and then she dives into the window she sits on: it only looks taken over, nothing in it is touched.', toggle('possess'))),
+    card('What goes online',
+      row('Song lyrics', 'The words of the song over her head as they\'re sung, from LRCLIB (lrclib.net, free, no account). Only the title, artist, album and length go out to look them up.', toggle('lyrics')),
+      row('Her notes with a cloud model', 'Off: her notes about you, the story so far and her self-improvement only use a model on this PC. On: they also go to your cloud AI (needed for an online brain that remembers you).', toggle('cloudMemory'))),
+    card('What she keeps on this PC',
+      row('Memory', 'She keeps what you tell her to remember ("remember that…", "ingat bahwa…") and uses it in chat.', toggle('memoryOn')),
+      row('Keep my chats', 'Every chat turn, typed or spoken, kept on this PC (a file a day). Off: nothing new is kept, and she can\'t learn from your chats.', toggle('historyOn')),
+      row('Song verdicts', 'What she thinks of each song she has heard (loves it, likes it, bored by it), so she feels the same next time.', button('Forget them', async () => { await save({ tastes: {} }); toast(T('She will make up her mind again.')); }, 'danger')),
+      row('Lyrics cache', 'The words of songs you\'ve played, kept so they show at once next time without asking LRCLIB again.', kept, button('Clear', clear, 'danger'))),
+  ];
+}
+
 function pageAbout() {
   return [
     card('Capri',
@@ -862,6 +952,7 @@ const PAGES = [
   ['voice', '◉', 'Voice', 'Her ears (your microphone) and her voice.', pageVoice],
   ['brain', '▣', 'AI brain', 'Which AI she talks through, and her eyes.', pageBrain],
   ['behavior', '✦', 'Behavior', 'What she does on her own: remarks, dares, mischief, sync.', pageBehavior],
+  ['access', '◎', 'Access', 'What she can see, hear and do on your PC, and what she keeps.', pageAccess],
   ['timers', '◷', 'Timers', 'Alarms, timers and the study timer.', pageTimers],
   ['history', '☰', 'History', 'Your chats with her, and her long-term memory of them.', pageHistory],
   ['advanced', '⚙', 'Advanced', 'Language, hotkeys, system, your data.', pageAdvanced],
@@ -870,12 +961,35 @@ const PAGES = [
 
 // ---- drawing ---------------------------------------------------------------------------------------
 
+function go(id) {
+  page = id;
+  location.hash = id;
+  render();
+  document.getElementById('main').scrollTop = 0;
+}
+
+// the tabs along the top; Q and E (or the keys at the ends) for the one before and after
 function renderNav() {
   const nav = document.getElementById('nav');
   nav.replaceChildren(...PAGES.map(([id, icon, title]) => el('button', {
-    type: 'button', 'aria-current': id === page ? 'page' : null,
-    onclick: () => { page = id; location.hash = id; render(); },
+    type: 'button', 'aria-current': id === page ? 'page' : null, onclick: () => go(id),
   }, el('span', { class: 'nav__icon', text: icon }), el('span', { class: 'nav__text', text: T(title) }))));
+  nav.querySelector('[aria-current]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+}
+
+function step(by) {
+  const i = PAGES.findIndex(([id]) => id === page);
+  go(PAGES[(i + by + PAGES.length) % PAGES.length][0]);
+}
+
+// The bar at the bottom: what the setting under your pointer (or your keyboard) does, else what the page is for.
+function describe(row) {
+  const def = PAGES.find(([id]) => id === page) || PAGES[0];
+  const label = row?.querySelector('.row__label');
+  const name = label ? [...label.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE).map((n) => n.textContent).join('').trim() : '';
+  const help = row?.querySelector('.row__help')?.textContent || '';
+  document.getElementById('infoName').textContent = name || T(def[2]);
+  document.getElementById('infoHelp').textContent = name ? help : T(def[3]);
 }
 
 function renderSync() {
@@ -899,6 +1013,7 @@ function render() {
   document.querySelectorAll('[data-t]').forEach((n) => { n.textContent = T(n.dataset.t); });
   renderNav();
   renderSync();
+  describe(null);
 }
 
 // typing somewhere: don't redraw under the cursor
@@ -929,6 +1044,20 @@ async function boot() {
   });
   api.onTab((tab) => { page = tab; render(); });
   api.onEarsProgress((p) => earsProgress?.(p));
+  const main = document.getElementById('main');
+  main.addEventListener('mouseover', (e) => describe(e.target.closest('.row')));
+  main.addEventListener('focusin', (e) => describe(e.target.closest('.row')));
+  main.addEventListener('mouseleave', () => describe(main.contains(document.activeElement) ? document.activeElement.closest('.row') : null));
+  document.getElementById('prevTab').addEventListener('click', () => step(-1));
+  document.getElementById('nextTab').addEventListener('click', () => step(1));
+  window.addEventListener('keydown', (e) => {
+    if (typing() || e.ctrlKey || e.altKey || e.metaKey) {
+      if (e.ctrlKey && (e.key === 'PageUp' || e.key === 'PageDown')) step(e.key === 'PageUp' ? -1 : 1);
+      return;
+    }
+    if (e.key === 'q' || e.key === 'Q') step(-1);
+    else if (e.key === 'e' || e.key === 'E') step(1);
+  });
   window.addEventListener('hashchange', () => {
     const id = location.hash.slice(1);
     if (id && id !== page) { page = id; render(); }
