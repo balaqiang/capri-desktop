@@ -21,9 +21,12 @@ export const FACES = {
 // with Capri Desktop 2.4 (assets/art), or in her own faces when that art is switched off (settings).
 const ART_FACES = {
   happy: 'art/happyface.png', jealous: 'art/eyes-left.png', bored: 'art/eyes-closed.png', glitch: 'art/eyes-glitch.png',
-  annoyed: 'art/scream.png', eyes: 'art/eyes.png', manyEyes: 'art/eyes-many.png', content: 'art/content.png',
+  // content (petted, a song on, a stretch): her face with her eyes shut, smiling (happy.png). Not content.png: that
+  // one is her whole body, not a face, and showed up in the portrait at every new song.
+  annoyed: 'art/scream.png', eyes: 'art/eyes.png', manyEyes: 'art/eyes-many.png', content: 'art/happy.png',
+  mischief: 'art/mouth.png',
 };
-const PLAIN_FACES = { happy: 'laugh', jealous: 'aside', bored: 'calm', glitch: 'many', annoyed: 'wide', eyes: 'look', manyEyes: 'many', content: 'smug' };
+const PLAIN_FACES = { happy: 'laugh', jealous: 'aside', bored: 'calm', glitch: 'many', annoyed: 'wide', eyes: 'look', manyEyes: 'many', content: 'smug', mischief: 'smug' };
 const MOUTH = ['art/talk-open.png', 'art/talk-closed.png']; // her portrait while she talks (2.4's "Face in bubbles")
 const MOUTH_MS = 120;
 const KIND_FACE = { alert: 'many', done: 'look', error: 'laugh', work: 'calm', idle: 'calm', report: 'smug', chat: 'look' };
