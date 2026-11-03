@@ -1687,3 +1687,59 @@ Lirik nyala. Putar sesuatu dan aku ikut nyanyi.
 Oke, aku dengerin: {0}.
 > Lyrics? Look over my head: they show line by line, as they're sung.
 Lirik? Lihat di atas kepalaku: muncul baris demi baris, pas dinyanyikan.
+
+# ---- what she thinks of the song playing; lyrics she can't find ----
+> This one? I love it.
+Yang ini? Aku suka banget.
+> Yeah, I like it. You've got taste. Sometimes.
+Iya, aku suka. Seleramu bagus. Kadang-kadang.
+> Honestly? It bores me.
+Jujur? Bikin aku bosan.
+> Lyrics on, but I can't find the words to this one. LRCLIB doesn't have it (yet).
+Lirik nyala, tapi aku nggak nemu lirik lagu ini. LRCLIB belum punya.
+> Lyrics on. No words in this one, though. Just vibes.
+Lirik nyala. Tapi lagu ini nggak ada liriknya. Cuma vibes.
+> Lyrics on, but this one only has words without timing, so I can't follow it line by line.
+Lirik nyala, tapi lagu ini cuma punya lirik tanpa timing, jadi aku nggak bisa ngikutin baris demi baris.
+
+# ---- song controls, looking things up, being bored of a song (0.5.5) ----
+> From the top!
+Dari awal lagi!
+> On repeat. This one again, and again.
+Di-repeat. Lagu ini lagi, dan lagi.
+> Repeating the whole playlist.
+Mengulang seluruh playlist.
+> Repeat off.
+Repeat mati.
+> Shuffle on. Chaos, my favorite.
+Shuffle nyala. Kacau, kesukaanku.
+> Shuffle off. In order. How boring.
+Shuffle mati. Berurutan. Membosankan.
+> Back {0} seconds.
+Mundur {0} detik.
+> Skipped ahead {0} seconds.
+Maju {0} detik.
+> {0} won't let me do that.
+{0} nggak ngizinin aku ngelakuin itu.
+> Hm, that didn't work.
+Hm, nggak berhasil.
+> *yawn* This one's a snooze.
+*nguap* Lagu ini bikin ngantuk.
+> Boring. But fine, I'm still listening.
+Ngebosenin. Tapi oke, aku masih dengerin.
+> Next song, please. I am begging.
+Lagu berikutnya dong. Aku mohon.
+> Who picked this? Oh. You did.
+Siapa yang milih ini? Oh. Kamu.
+> Ooh! Music!
+Ooh! Musik!
+> I'm up, I'm up! What are we listening to?
+Aku bangun, aku bangun! Kita dengerin apa?
+> Music? I was only resting my eyes.
+Musik? Aku cuma merem sebentar kok.
+> Look things up online
+Cari di internet
+> Questions about the world ("siapa presiden indonesia", "who is the CEO of Nvidia") are looked up on Wikipedia and Bing first, a second or so, so she answers from today's web. Only your question goes out.
+Pertanyaan tentang dunia ("siapa presiden indonesia", "who is the CEO of Nvidia") dicari dulu di Wikipedia dan Bing, sekitar satu detik, jadi dia menjawab dari web hari ini. Yang dikirim cuma pertanyaanmu.
+> Her word on your songs, her dares: fast and free, without spending your online quota. (With Ollama as her main brain, they use that same model: two models at once push each other out of your graphics card.)
+Komentarnya soal lagumu, tantangannya: cepat dan gratis, tanpa memakai kuota online-mu. (Kalau otak utamanya Ollama, tugas-tugas ini memakai model yang sama: dua model sekaligus saling mendorong keluar dari kartu grafismu.)
