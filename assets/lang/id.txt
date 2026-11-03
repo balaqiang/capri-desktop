@@ -1505,3 +1505,15 @@ Haiii!
 Makasih, makasih.
 > Pet her: stroke her head back and forth with your pointer.
 Elus dia: gerakkan kursor bolak-balik di kepalanya.
+
+# ---- riding your cursor, shaken off; her favorite song (app.js, main/life.js) ----
+> Comfy! Shake me off, or {0} to hop off.
+Nyaman! Goyang aku biar jatuh, atau {0} buat turun.
+> Whoa! Too fast, choom!
+Woi! Kecepetan, choom!
+> Hey! I was sitting there!
+Eh! Aku lagi duduk di situ!
+> Rude. Drive slower.
+Nggak sopan. Pelan-pelan dong nyetirnya.
+> My song! "In Love With Myself". Obviously.
+Lagu aku! "In Love With Myself". Jelas dong.
