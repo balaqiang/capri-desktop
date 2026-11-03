@@ -1,8 +1,9 @@
 // Her with your music (what's playing, from Windows: main/life.js). The words of the song over her head
 // as they're sung (LRCLIB, main/lyrics.js), and how she takes the song (her verdict, main/life.js): her
 // head going with it at its pace and notes coming off her, a dance now and then to one she likes, hearts
-// for one she loves, and for one that bores her a yawn and a nap (Z's rising), until a song she likes
-// wakes her up.
+// for one she loves, and for one that bores her a yawn and a sigh now and then. She stays awake through
+// every song (asleep, the words would go): music starting wakes her, and she only sleeps when she's bored
+// with nothing on (capri.js).
 
 import { pick, rand, clamp, reducedMotion } from './util.js';
 import { T } from './i18n.js';
@@ -10,8 +11,8 @@ import { T } from './i18n.js';
 const LEAD_S = 0.2;   // a line shows a moment before it's sung
 const SNAP_S = 1.2;   // a reading this far from her own count of the song: a seek, she jumps there
 const LAST_S = 9;     // the last line goes after this long
-const NAP_LINES = ["*yawn* Wake me when this one's over.", 'This song is a sedative. Night.', "Boring. I'm taking a nap.", 'Zzz… tell me when it gets good.'];
-const WAKE_LINES = ['Ooh! Now THIS one!', "I'm up, I'm up! This one's good.", 'Finally, a real song!'];
+const BORED_LINES = ["*yawn* This one's a snooze.", "Boring. But fine, I'm still listening.", 'Next song, please. I am begging.', 'Who picked this? Oh. You did.'];
+const WAKE_LINES = ['Ooh! Music!', "I'm up, I'm up! What are we listening to?", 'Music? I was only resting my eyes.'];
 const LOVE_LINES = ['Oh, I LOVE this one!', 'Turn it up. Now.', 'This one. This one is the one.'];
 
 // her pace for a song, the same every time it plays: 0.85 to 1.15 of her own (about 100 to 140 beats a minute)
@@ -42,7 +43,7 @@ export class Listening {
     this.words = { song: '', lines: null }; // its timed lyrics, when LRCLIB has them
     this.shown = -1;     // the line on screen (-1: none)
     this.verdict = '';   // what she thinks of it: love | like | meh ('' until she's decided)
-    this.dozeAt = 0;     // a boring one: when she gives up on it and naps
+    this.sighAt = 0;     // a boring one: when she next yawns at it (awake all the same)
     this.nextNote = 0;
     this.nextDance = 0;
     this.anchor = null;
@@ -57,7 +58,7 @@ export class Listening {
     return this.playing && Boolean(this.song) && this.cfg.music !== 'off' && this.cfg.musicMood !== false;
   }
 
-  // free to dance or doze off: idle, not talking, not being handled, nothing else going on
+  // free to dance or sigh: idle, not talking, not being handled, nothing else going on
   get free() {
     const { capri } = this;
     return !this.panel.visible && capri.mode === 'idle' && !capri.busy && !capri.act && !capri.stowed && !capri.dormant
@@ -77,7 +78,7 @@ export class Listening {
   tuneIn() {
     const { capri } = this;
     if (capri.mode === 'sleep' || capri.dormant) capri.wake();
-    this.dozeAt = 0;
+    this.sighAt = 0;
     this.nextNote = 0;
     this.nextDance = performance.now() + rand(4000, 9000);
     capri.gesture('nod');
@@ -96,14 +97,17 @@ export class Listening {
   heard(track) {
     const song = track?.title ? `${track.title}|${track.artist || ''}` : '';
     const now = performance.now();
-    if (song !== this.song) {
+    const fresh = song !== this.song;
+    if (fresh) {
       this.song = song;
       this.verdict = '';
-      this.dozeAt = 0;
+      this.sighAt = 0;
       this.clock = null;
     }
     const was = this.playing;
     this.playing = Boolean(track?.playing);
+    // music starting (a song, or one resumed) while she sleeps: she wakes up to listen, her lyrics with her
+    if (this.playing && (!was || fresh) && this.cfg.music !== 'off' && (this.cfg.musicMood !== false || this.cfg.lyrics !== false)) this.wakeUp();
     if (track && track.pos >= 0) {
       // her own count runs smooth between readings; one far off it is a seek, a skip back, a pause
       const counted = this.position(was);
@@ -112,30 +116,31 @@ export class Listening {
     }
   }
 
+  wakeUp() {
+    const { capri, panel } = this;
+    if (capri.stowed || !(capri.mode === 'sleep' || capri.dormant)) return;
+    capri.wake();
+    this.notes(3);
+    if (!panel.visible && Math.random() < 0.5) panel.say({ kind: 'info', face: 'happy', badge: '♪', line: T(pick(WAKE_LINES)), hold: 3200 });
+  }
+
   position(playing = this.playing) {
     if (!this.clock) return -1;
     return this.clock.pos + (playing ? (performance.now() - this.clock.at) / 1000 : 0);
   }
 
-  // Her verdict on the song (main/life.js): she settles in, gets into it, or starts to drift off.
+  // Her verdict on the song (main/life.js): she settles in, gets into it, or gets bored of it (awake all the same).
   judged(song, verdict) {
     if (song !== this.song) return;
     this.verdict = verdict;
     const now = performance.now();
-    const { capri, panel } = this;
     if (verdict === 'meh') {
-      this.dozeAt = now + rand(30000, 50000);
+      this.sighAt = now + rand(30000, 50000);
       return;
     }
     this.nextDance = now + (verdict === 'love' ? rand(6000, 14000) : rand(20000, 45000));
-    if (capri.napping) {
-      // a song she likes wakes her from a boring one
-      capri.wake();
-      capri.perform('hop');
-      this.notes(3);
-      if (!panel.visible && Math.random() < 0.6) panel.say({ kind: 'info', face: 'happy', badge: '♪', line: T(pick(WAKE_LINES)), hold: 3200 });
-    } else if (verdict === 'love' && this.free && this.cfg.music !== 'comment' && Math.random() < 0.5) {
-      panel.say({ kind: 'info', face: 'happy', badge: '♪', line: T(pick(LOVE_LINES)), hold: 3200 });
+    if (verdict === 'love' && this.free && this.cfg.music !== 'comment' && Math.random() < 0.5) {
+      this.panel.say({ kind: 'info', face: 'happy', badge: '♪', line: T(pick(LOVE_LINES)), hold: 3200 });
     }
   }
 
@@ -145,6 +150,8 @@ export class Listening {
     const { capri } = this;
     const now = performance.now();
     const mood = this.mood;
+    // music on (any song, liked or not): she's listening, so she doesn't nod off from boredom (capri.js)
+    capri.hearing = this.playing && Boolean(this.song) && this.cfg.music !== 'off';
     // her stance goes with the song: her head along with one she's into, bouncing to one she loves, still for a boring one
     const kind = !mood || reducedMotion.matches || capri.mode === 'work' || this.verdict === 'meh' ? null : this.verdict === 'love' ? 'groove' : 'listen';
     capri.setGroove(kind ? { kind, rate: tempo(this.song) } : null);
@@ -159,16 +166,16 @@ export class Listening {
       capri.gesture('dance');
     }
 
-    // a boring song: she lasts a while, yawns, and dozes off; woken up while it still plays, she gives it another go
-    if (mood && this.verdict === 'meh' && !capri.napping) {
-      if (!this.dozeAt) this.dozeAt = now + rand(90000, 150000);
-      else if (now > this.dozeAt && this.free) {
-        this.dozeAt = 0;
-        this.doze();
+    // a boring song: a big yawn and a sigh now and then, but she stays awake (and her lyrics stay up)
+    if (mood && this.verdict === 'meh') {
+      if (!this.sighAt) this.sighAt = now + rand(60000, 120000);
+      else if (now > this.sighAt && this.free) {
+        this.sighAt = now + rand(60000, 120000);
+        this.sigh();
       }
     }
 
-    this.follow(awake && !this.panel.visible && capri.mode !== 'work');
+    this.follow(awake && capri.mode !== 'work');
   }
 
   notes(count) {
@@ -182,20 +189,18 @@ export class Listening {
     if (this.verdict === 'love' && Math.random() < 0.3) this.fx.hearts(h.x, h.top + 6, { count: 1 });
   }
 
-  async doze() {
+  // bored by the song: a yawn, maybe a word about it
+  sigh() {
     const { capri, panel } = this;
-    await capri.perform('yawn', capri.towardCenter());
-    if (capri.mode !== 'idle' || !this.playing || this.verdict !== 'meh' || capri.busy) return;
+    capri.perform('yawn', capri.towardCenter());
     this.voice.say('yawn');
-    if (!panel.visible && Math.random() < 0.75) panel.say({ kind: 'info', face: 'bored', badge: '♪', line: T(pick(NAP_LINES)), hold: 3600 });
-    if (capri.nap() && !reducedMotion.matches) {
-      this.fx.zzz(() => (capri.napping && !capri.hidden && !capri.dormant ? { ...capri.head(), dir: capri.towardCenter() } : null));
-    }
+    if (!panel.visible && Math.random() < 0.6) panel.say({ kind: 'info', face: 'bored', badge: '♪', line: T(pick(BORED_LINES)), hold: 3600 });
   }
 
   // ---- the words ----
 
-  // The line being sung, over her head (not while she talks, works or sleeps: she isn't following then).
+  // The line being sung, over her head (above her bubble while she talks; not while she works or sleeps: she
+  // isn't following then).
   follow(free) {
     const lines = this.words.song === this.song && this.cfg.lyrics !== false && this.playing && this.cfg.music !== 'off' ? this.words.lines : null;
     let at = -1;
@@ -227,8 +232,16 @@ export class Listening {
     const w = this.el.offsetWidth;
     const h = this.el.offsetHeight;
     const left = clamp(anchor.x - w / 2, margin, innerWidth - w - margin);
+    let x = left;
     let top = anchor.top - this.capri.bob - h - 12;
+    // her bubble up there (you're chatting with her): the words float just above it instead
+    const bubble = this.panel.rect();
+    if (bubble && top + h > bubble.top - 4 && top < bubble.bottom && x + w > bubble.left && x < bubble.right) {
+      x = clamp(bubble.left + bubble.width / 2 - w / 2, margin, innerWidth - w - margin);
+      top = bubble.top - h - 8;
+      if (top < margin) top = bubble.bottom + 8;
+    }
     if (top < margin) top = anchor.y + 60 * this.capri.scale + 40;
-    this.el.style.transform = `translate3d(${Math.round(left)}px, ${Math.round(top)}px, 0)`;
+    this.el.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(top)}px, 0)`;
   }
 }
