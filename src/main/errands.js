@@ -211,6 +211,28 @@ function moveIn(text) {
 }
 
 // ---- what you're listening to, Spotify searches, a browser of your choice, where a file is ----
+// The song playing, handled (life.js, through Windows' media session): next, previous, repeat, shuffle, back to the
+// start, a jump forward or back. Checked before "play X", which would take "putar ulang lagu ini" for a song to find.
+const SONG_CONTROLS = [
+  ['repeat-off', /^(?:stop (?:repeating|looping)|(?:turn |switch )?(?:repeat|loop)(?:ing)? off|(?:turn|switch) off (?:the )?(?:repeat|loop)|no (?:more )?(?:repeat|loop)(?:ing)?|(?:matikan|matiin|stop|berhenti|udahan|jangan) (?:repeat|loop|ngulang|mengulang|ulang(?:-ulang|i)?)(?: lagu(?:nya)?(?: ini)?)?|jangan diulang(?:-ulang)?(?: lagi)?)$/],
+  ['repeat-all', /^(?:(?:repeat|loop) (?:all|everything|the (?:playlist|album|queue)|(?:my |this )?playlist|semua(?:nya)?)|ulang(?:i)? (?:semua(?:nya)?|playlist(?:nya)?|album(?:nya)?))$/],
+  ['repeat-one', /^(?:(?:repeat|loop)(?: (?:this|the|that|current))?(?: (?:song|track|one))?(?: (?:on|again|forever|terus))?|put (?:this|it|the song) on (?:repeat|loop)|(?:ulang-ulang|repeat|loop|ulang(?:i)? terus)(?: lagu(?:nya)?(?: ini)?)?(?: terus)?|(?:putar|setel) (?:terus|berulang)(?: lagu(?:nya)?(?: ini)?)?)$/],
+  ['shuffle-off', /^(?:(?:turn |switch )?(?:off|stop) (?:the )?shuffl(?:e|ing)|shuffle off|stop shuffling|no (?:more )?shuffle|(?:matikan|matiin|stop|jangan) (?:shuffle|acak(?:-acak)?|diacak)(?: lagu(?:nya)?)?|jangan (?:di)?acak(?: lagi)?)$/],
+  ['shuffle-on', /^(?:shuffle(?: (?:on|it|the (?:songs|playlist|music)|my (?:music|playlist)))?|(?:turn|switch) on (?:the )?shuffle|(?:acak|acakin|shuffle) (?:lagu(?:nya)?|playlist(?:nya)?|musik(?:nya)?)|putar acak|(?:nyalakan|nyalain|aktifkan) (?:shuffle|acak))$/],
+  ['restart', /^(?:restart(?: (?:the|this) (?:song|track))?|(?:play|start) (?:it|this(?: song)?|the song) (?:from the (?:start|beginning|top)|over|again from the (?:start|beginning))|from the (?:start|beginning|top)|start (?:it |this song )?over|putar ulang(?: lagu(?:nya)?(?: ini)?)?|ulangi lagu(?:nya)?(?: ini)?|(?:ulang|mulai|putar) (?:lagi )?dari awal(?: lagi)?|dari awal(?: lagi)?)$/],
+  ['next', /^(?:next(?: one| song| track| lagu)?|skip(?: it| this(?: one)?| lagu(?:nya)?(?: ini)?)?|(?:play )?(?:the )?next (?:one|song|track)|another (?:song|one)|ganti lagu(?:nya)?(?: lain)?|lagu lain|(?:putar |lanjut(?: ke)? )?lagu (?:berikut(?:nya)?|selanjutnya)|lewati(?: lagu(?:nya)?(?: ini)?)?)$/],
+  ['previous', /^(?:prev(?:ious)?(?: one| song| track)?|(?:play |go back to )?(?:the )?(?:previous|last) (?:one|song|track)(?: again)?|back to the (?:previous|last) (?:song|track)|go back (?:a|one) (?:song|track)|(?:putar |balik(?: ke)? |kembali(?: ke)? )?lagu (?:sebelum(?:nya)?|tadi|yang tadi))$/],
+];
+const SEEK = /^(?:(?:skip|forward|fast forward|jump|go)(?: ahead| forward)?|maju(?:in|kan)?|lompat|majuin)(?: lagu(?:nya)?)?(?: (\d{1,3}) ?(?:s|sec|secs|seconds?|detik|dtk))?(?: (?:ahead|forward))?$|^(?:rewind|go back|jump back|back|mundur(?:in|kan)?)(?: lagu(?:nya)?)?(?: by)?(?: (\d{1,3}) ?(?:s|sec|secs|seconds?|detik|dtk))?$/;
+function songControl(text) {
+  for (const [action, re] of SONG_CONTROLS) if (re.test(text)) return { kind: 'media', action };
+  const m = SEEK.exec(text);
+  // a jump needs a number ("go back" alone is something else), or a word for a bit: ten seconds
+  if (m && (m[1] || m[2])) return { kind: 'media', action: 'seek', seconds: m[1] ? Number(m[1]) : -Number(m[2]) };
+  const soft = /^(maju|mundur|skip ahead|rewind|forward)(?: lagu(?:nya)?)? (?:sedikit|dikit|a bit|a little)$/.exec(text);
+  return soft ? { kind: 'media', action: 'seek', seconds: /mundur|rewind/.test(soft[1]) ? -10 : 10 } : null;
+}
+
 // her lyrics (the song's words under her, lyrics.js): on, off, or the line being sung now
 // what you want done with her lyrics, from what's in your words, however you put it: a word for lyrics ("lyrics",
 // "lirik"), and one for showing ("show", "tampilkan", "munculin", "display"…) or stopping ("stop", "hide", "matikan",
@@ -230,6 +252,9 @@ function lyricsIntent(text) {
 // listen along with you: what she makes of the song, and her following it
 const LISTEN_ASK = /^(?:(?:let'?s |come )?listen(?: to)?(?: this| it| that)(?: song| track| one)?(?: with me)?|listen with me|(?:ayo |yuk |coba )?(?:dengarkan|dengerin|dengar|denger|simak)(?: deh| bareng| sama aku| juga)? (?:lagu|musik) (?:ini|itu)(?: deh| bareng| sama aku| juga)?|(?:ayo |yuk )?(?:dengerin|dengarkan) bareng(?: aku)?)$/;
 const LYRICS_NOW = /^(?:what(?:'s| is| are)(?: the)? (?:lyrics?|line|words)(?: now| right now| here)?|what (?:are|is) (?:they|he|she) (?:singing|saying)(?: now| right now)?|apa lirik(?:nya)?(?: sekarang| barusan)?|lirik(?:nya)?(?: apa| gimana| sekarang| barusan)+|lagi nyanyi(?:in)? apa(?: (?:dia|mereka))?|(?:dia|mereka) (?:nyanyi|bilang) apa(?: barusan)?)$/;
+// what she thinks of the song playing ("do you like this song?", "kamu suka lagu ini?", "bagus gak lagunya"): about that
+// song, never her own favorite
+const SONG_OPINION = /^(?:(?:do|did|don'?t) (?:you|u|ya) (?:like|love|dig|enjoy|hate)(?: this| the| that| my) (?:song|track|tune|music|one)(?: playing| now| right now)?|(?:you|u) (?:like|love|hate)(?: this| the| that) (?:song|track|music)|what(?:'s| is| do) (?:you(?:r)?|ur) (?:think|thoughts?|opinion|take|verdict)(?: of| on| about)?(?: this| the| that| my) (?:song|track|music|one)(?: playing| now)?|how do you (?:like|feel about)(?: this| the| that) (?:song|track|music)|is (?:this|the|that) (?:song|track|music) (?:good|any good|bad|okay|ok|nice|cool)|(?:rate|judge) (?:this|the|that|my) (?:song|track|music)|thoughts on (?:this|the|that) (?:song|track|music)|(?:apa )?(?:kamu|lu|lo|km|capri)? ?(?:suka|seneng|demen|benci|cinta)(?: (?:gak|nggak|ngga|ga|enggak|tidak))?(?: (?:sama|dengan|ama))? (?:lagu|musik)(?:nya| ini| itu| yang (?:lagi |sedang )?(?:diputar|aku dengerin|main))(?: (?:gak|nggak|ngga|ga|enggak|tidak|kah))?|(?:gimana|bagaimana) (?:menurut ?(?:mu|kamu|lu|lo) )?(?:lagu|musik) ?(?:nya|ini|itu)|(?:menurut ?(?:mu|kamu|lu|lo)|pendapat ?(?:mu|kamu)(?: (?:tentang|soal|sama))?) (?:lagu|musik) ?(?:nya|ini|itu)(?: (?:gimana|bagaimana|bagus|enak|apa))?|(?:lagu|musik) ?(?:nya|ini|itu) (?:bagus|enak|keren|jelek|oke|asik|seru)(?: (?:gak|nggak|ngga|ga|enggak|tidak|kah|ya|kan))?|(?:bagus|enak|keren|jelek|oke|asik) (?:gak|nggak|ngga|ga|enggak|tidak) (?:lagu|musik) ?(?:nya|ini|itu))$/;
 const NOW_PLAYING = /\b(?:lagu apa|what song|what(?:'s| is) playing|what am i listening to|lagi (?:dengerin|dengar|muter|putar|mainin) apa|apa yang (?:aku|lagi|sedang|ku) ?(?:mainin|dengerin|putar|dengar|setel)|lagu yang (?:aku|lagi|sedang) (?:dengerin|dengar|putar|mainin|setel)|(?:liat|lihat|tau|tahu) (?:aku|ku)?\s*(?:lagi )?(?:dengerin|dengar|muter|putar|mainin) apa)\b/;
 // her favorite song asked for ("play your favorite song", "putar lagu favoritmu", "setel lagu kesukaan kamu")
 const FAVORITE = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan|nyalain)\s+(?:(?:your|ur|yer)\s+(?:favou?rite|fav|fave)(?:\s+(?:song|track|music|one))?|(?:lagu|musik)\s+(?:favorit|favorite|kesukaan)\s*(?:mu|kamu|lu|lo|capri|nya)|(?:lagu|musik)(?:mu| kamu)\s+(?:yang\s+)?(?:favorit|kesukaan|paling (?:kamu )?suka))\b/i;
@@ -264,7 +289,7 @@ const FIND = /^(?:di ?mana(?:kah)?|where(?:'s| is| are| did i (?:put|save))|tunj
 const CODE_ASK = /^(?:(?:suruh|minta|ask|tell)\s+claude(?:\s+code)?\s+(?:to\s+|untuk\s+)?)?(?:(?:tolong|coba|please|bisa|can you|could you)\s+)?(?:(?:buat(?:kan|in)?|bikin(?:in|kan)?|tulis(?:kan|in)?|write|make|create|build|generate|program(?:kan)?|code)\s+(?:me\s+|aku\s+|saya\s+|untukku\s+)?(?:a\s+|an\s+|the\s+|sebuah\s+|satu\s+)?(?:(?:simple|sederhana|small|kecil|quick|cepat)\s+)?(?:(?:python|javascript|js|typescript|html|css|java|c\+\+|c#|php|go|rust|bash|powershell|batch|lua)\s+)?(?:kode|code|script|skrip|program|function|fungsi|class|aplikasi|app|website|web ?page|webpage|halaman(?:s+(?:web|html|website))?|landing page|page|situs|game|bot|kalkulator|calculator|tool|alat|form|formulir|api|server|extension|ekstensi|plugin)\b|(?:ngoding|koding|ngoding(?:in|kan))\b)/;
 
 // "jam berapa?", "what time is it?", "hari apa sekarang?", "tanggal berapa?"
-const CLOCK_ASK = /^(?:(?:sekarang )?jam berapa(?: sekarang)?|what(?:'s| is) the time(?: now)?|what time is it(?: now)?|time\?|(?:hari ini|sekarang) hari apa|hari apa (?:ini|sekarang)|what day is (?:it|today)|what(?:'s| is) (?:the date|today'?s date)(?: today)?|(?:hari ini |sekarang )?tanggal berapa(?: (?:hari ini|sekarang))?|what(?:'s| is) today)\??$/;
+const CLOCK_ASK = /^(?:(?:sekarang )?jam berapa(?: sekarang)?|what(?:'s| is) the time(?: now)?|what time is it(?: now)?|time\?|(?:hari ini|sekarang) hari apa|hari apa(?: (?:ini|sekarang|hari ini))?|what day is (?:it|today)(?: today)?|what(?:'s| is) (?:the date|today'?s date)(?: today)?|(?:hari ini |sekarang )?tanggal berapa(?: (?:hari ini|sekarang))?|what(?:'s| is) today)\??$/;
 
 // A sum asked for: "berapa 25 x 4", "what is 12*7", "hitung 15% dari 200", "100 / 8". { expr, value } or null.
 function arithmetic(text) {
@@ -298,8 +323,11 @@ function parse(said) {
   if (move) return { kind: 'move', move };
   const lyricsAsked = lyricsIntent(text);
   if (lyricsAsked) return { kind: 'lyrics', action: lyricsAsked };
+  const control = songControl(text);
+  if (control) return control;
   if (LYRICS_NOW.test(text)) return { kind: 'lyrics', action: 'now' };
   if (LISTEN_ASK.test(text)) return { kind: 'listen' };
+  if (SONG_OPINION.test(text)) return { kind: 'songOpinion' };
   if (NOW_PLAYING.test(text)) return { kind: 'nowPlaying' };
   m = CODE_ASK.exec(text);
   if (m) {
@@ -408,6 +436,8 @@ function parse(said) {
   if (/^(?:skip|next|lewati|ganti)(?: this| the)?(?: song| track| one| lagu(?:nya)?)?$|^(?:play )?(?:the )?next (?:song|track)$|^lagu (?:berikut(?:nya)?|selanjutnya)$/.test(text)) return { kind: 'media', action: 'next' };
   if (/^(?:play )?(?:the )?previous (?:song|track)$|^go back (?:a|one) (?:song|track)$|^lagu sebelum(?:nya)?$/.test(text)) return { kind: 'media', action: 'previous' };
   if (/^(?:mute|unmute|bisukan|senyapkan)(?: the| my)?(?: sound| volume| pc| computer| audio| music| suara(?:nya)?)?$/.test(text)) return { kind: 'media', action: 'mute' };
+  if (/^(?:louder|lebih (?:keras|kencang)|kerasin|gedein)$/.test(text)) return { kind: 'media', action: 'volup' };
+  if (/^(?:quieter|softer|lebih (?:pelan|kecil)|pelanin|kecilin)$/.test(text)) return { kind: 'media', action: 'voldown' };
   m = /^(?:(?:turn|make) (?:it|the (?:volume|sound|music))|volume|turn (up|down) the (?:volume|sound|music))\s*(up|down|louder|quieter|softer)?$/.exec(text);
   if (m && (m[1] || m[2])) return { kind: 'media', action: /up|louder/.test(m[1] || m[2]) ? 'volup' : 'voldown' };
   if (/^(?:besarkan|keraskan|naikkan|gedein|kerasin)(?: volume| suara)(?:nya)?$|^volume(?:nya)? (?:naik|naikin|gedein)$/.test(text)) return { kind: 'media', action: 'volup' };
