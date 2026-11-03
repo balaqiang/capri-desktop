@@ -187,6 +187,7 @@ const MOVES = [
   ['top', /\b(?:atas|top)\b/],
 ];
 const MOVE_WORDS = [
+  ['here', /^(?:where (?:are|r) (?:you|u)(?: now| right now| at)?|where(?:'d| did) you go|where(?:'s| is) capri|show me where you are|(?:kamu|lu|lo|kau) (?:di ?mana|dmn|ke ?mana)(?: sih| sekarang)?|di ?mana (?:kamu|kau|lu|lo)(?: sekarang)?|(?:di ?mana|dmn|ke ?mana)(?: aja| sih| sekarang| dong)?|kemari(?:lah)?|come to me|over here|datang(?:lah)?(?: kemari| ke aku| ke saya)?|sini(?: dong| deh|lah)?|ke ?sini(?: dong| deh)?)$/],
   ['hide', /^(?:sembunyi(?:lah)?|hide(?: yourself)?|go away|pergi(?: sana)?|ngumpet|minggat)$/],
   ['show', /^(?:muncul(?:lah)?|come back|keluar(?:lah)?|show yourself|balik(?: lagi)?)$/],
   ['sleep', /^(?:tidur(?:lah)?|go to sleep|sleep|bobo|bobok)$/],
@@ -222,6 +223,14 @@ const SITES = {
   netflix: 'https://www.netflix.com', reddit: 'https://www.reddit.com', wikipedia: 'https://www.wikipedia.org', chatgpt: 'https://chatgpt.com',
   whatsapp: 'https://web.whatsapp.com', spotify: 'https://open.spotify.com', shopee: 'https://shopee.co.id', tokopedia: 'https://www.tokopedia.com',
   twitch: 'https://www.twitch.tv', discord: 'https://discord.com/app', 'google drive': 'https://drive.google.com', drive: 'https://drive.google.com',
+  'youtube music': 'https://music.youtube.com', 'yt music': 'https://music.youtube.com', ytmusic: 'https://music.youtube.com', yt: 'https://www.youtube.com',
+  'google maps': 'https://maps.google.com', maps: 'https://maps.google.com', 'google translate': 'https://translate.google.com', translate: 'https://translate.google.com',
+  'google docs': 'https://docs.google.com', 'google sheets': 'https://sheets.google.com', 'google calendar': 'https://calendar.google.com', calendar: 'https://calendar.google.com',
+  gemini: 'https://gemini.google.com', claude: 'https://claude.ai', 'chat gpt': 'https://chatgpt.com', 'spotify web': 'https://open.spotify.com',
+  'whatsapp web': 'https://web.whatsapp.com', wa: 'https://web.whatsapp.com', ig: 'https://www.instagram.com', fb: 'https://www.facebook.com',
+  linkedin: 'https://www.linkedin.com', pinterest: 'https://www.pinterest.com', soundcloud: 'https://soundcloud.com', crunchyroll: 'https://www.crunchyroll.com',
+  canva: 'https://www.canva.com', notion: 'https://www.notion.so', figma: 'https://www.figma.com', outlook: 'https://outlook.live.com',
+  lazada: 'https://www.lazada.co.id', 'github copilot': 'https://github.com/copilot', 'cyberpunk wiki': 'https://cyberpunk.fandom.com',
 };
 const siteFor = (what) => {
   const w = String(what || '').trim().toLowerCase().replace(/^(?:web(?:site)?|situs|halaman)\s+/, '');
@@ -230,6 +239,30 @@ const siteFor = (what) => {
   return null;
 };
 const FIND = /^(?:di ?mana(?:kah)?|where(?:'s| is| are| did i (?:put|save))|tunjuk(?:kan|in)(?: (?:aku|ke aku|saya))?(?: letak| lokasi| tempat)?|kasih (?:tau|tahu)(?: aku)?(?: letak| lokasi)?|show me(?: where)?|find(?: me)?|cari(?:kan|in)?|lokasi|letak)\s+(?:(?:the|my|letak|lokasi|tempat|si)\s+)?(folder|file|dokumen)?\s*(.{2,60}?)(?:\s+(?:folder|file))?(?:\s*(?:ku|saya|aku|my|nya))?(?:\s+(?:ada|berada|disimpan|di ?mana|is|are))?$/;
+
+// "jam berapa?", "what time is it?", "hari apa sekarang?", "tanggal berapa?"
+const CLOCK_ASK = /^(?:(?:sekarang )?jam berapa(?: sekarang)?|what(?:'s| is) the time(?: now)?|what time is it(?: now)?|time\?|(?:hari ini|sekarang) hari apa|hari apa (?:ini|sekarang)|what day is (?:it|today)|what(?:'s| is) (?:the date|today'?s date)(?: today)?|(?:hari ini |sekarang )?tanggal berapa(?: (?:hari ini|sekarang))?|what(?:'s| is) today)\??$/;
+
+// A sum asked for: "berapa 25 x 4", "what is 12*7", "hitung 15% dari 200", "100 / 8". { expr, value } or null.
+function arithmetic(text) {
+  const m = /^(?:berapa|hitung(?:kan|in)?|what(?:'s| is)|calculate|how much is|compute)?\s*(.+?)\s*(?:=|\?)?\s*$/.exec(text);
+  if (!m) return null;
+  let e = m[1].replace(/,/g, '.').replace(/\s+/g, ' ').trim();
+  // "15% dari 200", "15% of 200"
+  const pct = /^(\d+(?:\.\d+)?)\s*%\s*(?:dari|of)\s*(\d+(?:\.\d+)?)$/.exec(e);
+  if (pct) return { expr: `${pct[1]}% of ${pct[2]}`, value: (Number(pct[1]) / 100) * Number(pct[2]) };
+  e = e.replace(/\b(?:x|kali|times)\b|×/g, '*').replace(/\b(?:bagi|divided by)\b|÷|:/g, '/').replace(/\b(?:tambah|plus)\b/g, '+')
+    .replace(/\b(?:kurang|minus)\b/g, '-').replace(/\^|\bpangkat\b/g, '**');
+  if (!/^[\d\s.+\-*/()]+$/.test(e) || !/\d\s*(?:\*\*|[+\-*/])\s*[(\d.-]/.test(e)) return null; // digits and operators only, and one at least
+  let value;
+  try {
+    value = Function(`"use strict"; return (${e});`)(); // nothing but numbers and + - * / ** ( ) can be in it
+  } catch {
+    return null;
+  }
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  return { expr: e.replace(/\*\*/g, '^').replace(/\*/g, '×').replace(/\//g, '÷'), value: Math.round(value * 1e8) / 1e8 };
+}
 
 function parse(said) {
   const cased = plain(said);
@@ -241,6 +274,9 @@ function parse(said) {
   const move = moveIn(text);
   if (move) return { kind: 'move', move };
   if (NOW_PLAYING.test(text)) return { kind: 'nowPlaying' };
+  if (CLOCK_ASK.test(text)) return { kind: 'clock', what: /tanggal|date|hari apa|what day|day is it|bulan|month|tahun|year/.test(text) ? 'date' : 'time' };
+  const sum = arithmetic(text);
+  if (sum) return { kind: 'math', ...sum };
 
   m = /^(?:cari(?:kan|in)?|search(?: for)?|find)\s+(?:lagu\s+|song\s+|musik\s+)?(.{2,80}?)\s+(?:di|on|in)\s+spotify$/i.exec(cased);
   if (m) return { kind: 'spotifySearch', text: m[1].trim() };
@@ -370,4 +406,4 @@ async function firstVideo(query) {
   }
 }
 
-module.exports = { parse, canon, sensitive, describe, firstVideo, dareCategory, checkDare, friendly, DARES, length, nextClock, plain, place, BROWSERS };
+module.exports = { parse, canon, sensitive, describe, firstVideo, dareCategory, checkDare, friendly, DARES, length, nextClock, plain, place, siteFor, BROWSERS };
