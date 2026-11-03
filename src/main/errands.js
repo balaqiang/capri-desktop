@@ -211,6 +211,25 @@ function moveIn(text) {
 }
 
 // ---- what you're listening to, Spotify searches, a browser of your choice, where a file is ----
+// her lyrics (the song's words under her, lyrics.js): on, off, or the line being sung now
+// what you want done with her lyrics, from what's in your words, however you put it: a word for lyrics ("lyrics",
+// "lirik"), and one for showing ("show", "tampilkan", "munculin", "display"…) or stopping ("stop", "hide", "matikan",
+// "berhenti"…), or a question ("apa", "what"). Writing lyrics, what they mean, a long sentence: a chat, not a command.
+const LYRIC_WORD = /\b(?:lyrics?|lirik(?:nya)?|lyric(?:nya)?)\b/;
+const LYRIC_CHAT = /\b(?:write|make|create|compose|bikin(?:in)?|buat(?:kan|in)?|tulis\w*|karang\w*|mean(?:s|ing)?|arti(?:nya)?|makna\w*|translate|terjemah\w*|about|tentang|favou?rite|favorit\w*|best|terbaik)\b/;
+const LYRIC_STOP = /\b(?:hide|stop|turn off|disable|close|remove|no more|enough|matikan|matiin|mati|sembunyi\w*|tutup|berhenti|jangan|hapus|udah(?:an)?|cukup|ilangin|hilangkan|off|nonaktifkan)\b/;
+const LYRIC_SHOW = /\b(?:show|display|turn on|enable|put|give|see|view|open|tampil\w*|perlihat\w*|lihat\w*|liat\w*|tunjuk\w*|muncul\w*|nyala\w*|aktifkan|hidupkan|keluar\w*|kasih|buka|on|again|lagi)\b/;
+const LYRIC_ASK = /\b(?:what|which|apa|gimana|bagaimana|singing|nyanyi\w*|bilang|sing|said|says|line)\b/;
+function lyricsIntent(text) {
+  if (!LYRIC_WORD.test(text) || LYRIC_CHAT.test(text) || text.split(/\s+/).length > 12) return null;
+  if (LYRIC_STOP.test(text)) return 'hide';
+  if (LYRIC_SHOW.test(text)) return 'show';
+  if (LYRIC_ASK.test(text)) return 'now';
+  return 'show'; // just "lyrics", "lirik dong"
+}
+// listen along with you: what she makes of the song, and her following it
+const LISTEN_ASK = /^(?:(?:let'?s |come )?listen(?: to)?(?: this| it| that)(?: song| track| one)?(?: with me)?|listen with me|(?:ayo |yuk |coba )?(?:dengarkan|dengerin|dengar|denger|simak)(?: deh| bareng| sama aku| juga)? (?:lagu|musik) (?:ini|itu)(?: deh| bareng| sama aku| juga)?|(?:ayo |yuk )?(?:dengerin|dengarkan) bareng(?: aku)?)$/;
+const LYRICS_NOW = /^(?:what(?:'s| is| are)(?: the)? (?:lyrics?|line|words)(?: now| right now| here)?|what (?:are|is) (?:they|he|she) (?:singing|saying)(?: now| right now)?|apa lirik(?:nya)?(?: sekarang| barusan)?|lirik(?:nya)?(?: apa| gimana| sekarang| barusan)+|lagi nyanyi(?:in)? apa(?: (?:dia|mereka))?|(?:dia|mereka) (?:nyanyi|bilang) apa(?: barusan)?)$/;
 const NOW_PLAYING = /\b(?:lagu apa|what song|what(?:'s| is) playing|what am i listening to|lagi (?:dengerin|dengar|muter|putar|mainin) apa|apa yang (?:aku|lagi|sedang|ku) ?(?:mainin|dengerin|putar|dengar|setel)|lagu yang (?:aku|lagi|sedang) (?:dengerin|dengar|putar|mainin|setel)|(?:liat|lihat|tau|tahu) (?:aku|ku)?\s*(?:lagi )?(?:dengerin|dengar|muter|putar|mainin) apa)\b/;
 // her favorite song asked for ("play your favorite song", "putar lagu favoritmu", "setel lagu kesukaan kamu")
 const FAVORITE = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan|nyalain)\s+(?:(?:your|ur|yer)\s+(?:favou?rite|fav|fave)(?:\s+(?:song|track|music|one))?|(?:lagu|musik)\s+(?:favorit|favorite|kesukaan)\s*(?:mu|kamu|lu|lo|capri|nya)|(?:lagu|musik)(?:mu| kamu)\s+(?:yang\s+)?(?:favorit|kesukaan|paling (?:kamu )?suka))\b/i;
@@ -239,6 +258,10 @@ const siteFor = (what) => {
   return null;
 };
 const FIND = /^(?:di ?mana(?:kah)?|where(?:'s| is| are| did i (?:put|save))|tunjuk(?:kan|in)(?: (?:aku|ke aku|saya))?(?: letak| lokasi| tempat)?|kasih (?:tau|tahu)(?: aku)?(?: letak| lokasi)?|show me(?: where)?|find(?: me)?|cari(?:kan|in)?|lokasi|letak)\s+(?:(?:the|my|letak|lokasi|tempat|si)\s+)?(folder|file|dokumen)?\s*(.{2,60}?)(?:\s+(?:folder|file))?(?:\s*(?:ku|saya|aku|my|nya))?(?:\s+(?:ada|berada|disimpan|di ?mana|is|are))?$/;
+
+// code to write: "buatkan kode python untuk…", "bikin game snake", "write a script that…", "ngoding kalkulator",
+// "suruh claude code bikin…" (who: "pakai claude code", "sendiri")
+const CODE_ASK = /^(?:(?:suruh|minta|ask|tell)\s+claude(?:\s+code)?\s+(?:to\s+|untuk\s+)?)?(?:(?:tolong|coba|please|bisa|can you|could you)\s+)?(?:(?:buat(?:kan|in)?|bikin(?:in|kan)?|tulis(?:kan|in)?|write|make|create|build|generate|program(?:kan)?|code)\s+(?:me\s+|aku\s+|saya\s+|untukku\s+)?(?:a\s+|an\s+|the\s+|sebuah\s+|satu\s+)?(?:(?:simple|sederhana|small|kecil|quick|cepat)\s+)?(?:(?:python|javascript|js|typescript|html|css|java|c\+\+|c#|php|go|rust|bash|powershell|batch|lua)\s+)?(?:kode|code|script|skrip|program|function|fungsi|class|aplikasi|app|website|web ?page|webpage|halaman(?:s+(?:web|html|website))?|landing page|page|situs|game|bot|kalkulator|calculator|tool|alat|form|formulir|api|server|extension|ekstensi|plugin)\b|(?:ngoding|koding|ngoding(?:in|kan))\b)/;
 
 // "jam berapa?", "what time is it?", "hari apa sekarang?", "tanggal berapa?"
 const CLOCK_ASK = /^(?:(?:sekarang )?jam berapa(?: sekarang)?|what(?:'s| is) the time(?: now)?|what time is it(?: now)?|time\?|(?:hari ini|sekarang) hari apa|hari apa (?:ini|sekarang)|what day is (?:it|today)|what(?:'s| is) (?:the date|today'?s date)(?: today)?|(?:hari ini |sekarang )?tanggal berapa(?: (?:hari ini|sekarang))?|what(?:'s| is) today)\??$/;
@@ -273,7 +296,20 @@ function parse(said) {
   if (LOOK_ASK.test(text)) return { kind: 'look', text: String(said).trim() };
   const move = moveIn(text);
   if (move) return { kind: 'move', move };
+  const lyricsAsked = lyricsIntent(text);
+  if (lyricsAsked) return { kind: 'lyrics', action: lyricsAsked };
+  if (LYRICS_NOW.test(text)) return { kind: 'lyrics', action: 'now' };
+  if (LISTEN_ASK.test(text)) return { kind: 'listen' };
   if (NOW_PLAYING.test(text)) return { kind: 'nowPlaying' };
+  m = CODE_ASK.exec(text);
+  if (m) {
+    // the whole request is the task (what to write, the language, the details), without asking whom
+    const task = cased.replace(/^(?:suruh|minta|ask|tell)\s+claude(?:\s+code)?\s+(?:to\s+|untuk\s+)?/i, '')
+      .replace(/\s*(?:,\s*)?(?:pakai|pake|with|using|via|lewat|by)\s+claude(?:\s+code)?\b/i, '')
+      .replace(/\s*(?:,\s*)?(?:sendiri|yourself|by yourself|kamu aja)\b/i, '').trim();
+    const via = /\bclaude\b/.test(text) ? 'claude' : /\b(?:sendiri|yourself|kamu aja)\b/.test(text) ? 'self' : null;
+    return { kind: 'code', task, via };
+  }
   if (CLOCK_ASK.test(text)) return { kind: 'clock', what: /tanggal|date|hari apa|what day|day is it|bulan|month|tahun|year/.test(text) ? 'date' : 'time' };
   const sum = arithmetic(text);
   if (sum) return { kind: 'math', ...sum };
