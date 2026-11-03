@@ -7,8 +7,47 @@
 
 import { pick, fmt } from './util.js';
 import { ASSISTANT_NAMES } from './lines.js';
+import { T } from './i18n.js';
 
-const REMEMBER = 20; // messages she has in mind when answering
+import { DEFAULT_PERSONA } from './persona.js';
+import { STORY, STORY_SMALL, loreFor } from './lore.js';
+import { Motion } from './motion.js';
+
+export { DEFAULT_PERSONA };
+
+// her emotion tags: shown as her face and moves (life.js), never as text
+const EMOTION_TAG = /\[(happy|jealous|bored|glitch|annoyed)\]/i;
+// a move of her body her AI can ask for anywhere in its answer (capri.js MOVES), never shown
+const MOVE_TAG = /\[\[\s*move\s*:\s*([a-z]+)\s*\]\]/i;
+const MOVE_NAMES = 'wave, nod, shrug, think, bow, dance, laugh, shy, spin, hop, curious, look, turn, flinch';
+// the move each emotion of hers comes with (life.js): moving too, so spaced and learned like her AI's moves
+const EMOTION_MOVES = { happy: 'hop', jealous: 'turn', bored: 'look', glitch: 'split', annoyed: 'flinch' };
+const ANY_TAG = /\[(?:happy|jealous|bored|glitch|annoyed|sad|angry|smug|excited|curious|playful|mischievous|proud|shy|tired|surprised|neutral|laughs?|teasing|sassy|smirk|grin|pout)\]\s*/gi;
+// the other AIs she gets jealous of, named in your message
+const OTHER_AI = /\b(chat ?gpt|gpt-?\d|openai|gemini|bard|copilot|perplexity|deepseek|grok|character\.?ai|siri|alexa|cortana|meta ai|llama|mistral|qwen)\b/i;
+// what her settings' sliders mean to her model
+const TRAITS = {
+  sass: ['You are polite for once: little sass.', 'Some sass.', 'Lots of sass and opinions.', 'Maximum sass: snarky, opinionated, never servile.'],
+  mischief: ['You are barely mischievous.', 'A little mischievous.', 'Mischievous and teasing.', 'Very mischievous: pranks, teasing, little traps.'],
+  jealousy: ['You are never jealous.', 'Only a little jealous.', 'Jealous and possessive about other AIs.', 'Openly, dramatically jealous of any other AI or anyone taking their attention.'],
+  affection: ['You are cold and distant with them.', 'Warm only now and then.', 'Fond of them in your own way.', 'Clingy and affectionate, in your unsettling way.'],
+  chattiness: ['Say as little as you can.', 'Be brief.', 'Be chatty.', 'Be very chatty, but stay within the length rule.'],
+};
+const LENGTHS = {
+  tiny: 'Keep every reply to ONE short sentence (two when they ask about you, your story or Cyberpunk).',
+  short: 'Keep replies short: one to three sentences.',
+  long: 'Replies can be up to five sentences when it helps, never more.',
+};
+const RELATIONS = {
+  host: 'the user is her host: she lives in their PC and needs them',
+  partner: 'the user is her partner in crime',
+  friend: 'the user is her friend (whether they like it or not)',
+  rival: 'the user is her favorite rival',
+  owner: "the user is her owner, and she acts like it's the other way around",
+};
+const FACE_OF = { happy: 'happy', jealous: 'jealous', bored: 'bored', glitch: 'glitch', annoyed: 'annoyed' };
+
+const REMEMBER = 20; // messages she has in mind when answering (settings › AI)
 const KEEP = 60;     // messages she remembers across restarts (memory.json)
 // her language, where small models need it: how she says "we" (else it's in English), and the last line
 // of her prompt, in that language (they drift into the English of everything above it)
@@ -68,6 +107,10 @@ const SITES = {
 const BROWSER = /chrome|edge|firefox|opera|brave|vivaldi|duckduckgo|browser/i;
 // local models this small mostly talk nonsense ("llama3.2:1b", "qwen2.5:0.5b"…)
 const TINY = /[:-](0\.5b|1b|1\.5b|135m|270m|360m)\b/i;
+// small enough that her full prompt confuses it: she gets a short one (persona())
+const SMALL = /[:-](0\.5b|1b|1\.5b|2b|3b|135m|270m|360m)\b|gemma3:1b|qwen2\.5:3b|llama3\.2(?::latest)?$/i;
+// a generic refusal of something harmless ("I can't process that", "maaf saya tidak bisa"): asked again
+const REFUSAL = /\b(?:i (?:can(?:no|')t|am (?:not able|unable)) (?:process|help with|answer|assist with|do) (?:that|this)|as an ai\b|i'?m (?:just )?an ai\b|i'?m sorry,? but i can(?:no|')t|(?:saya|aku) (?:tidak|nggak|gak|ga) (?:bisa|dapat) (?:memproses|menjawab|membantu)|tidak bisa memproses|sebagai (?:ai|model bahasa))/i;
 
 export class Chat {
   constructor({ capri, panel, voice, host, brain }) {
@@ -83,6 +126,12 @@ export class Chat {
     this.answer = '';
     this.apps = [];    // the apps open on this PC, as last listed: [{ name, label }]
     this.appsReady = Promise.resolve();
+    this.cfg = {};       // her settings (app.js)
+    this.onEmotion = null; // (emotion) => void: her face and a move for [happy], [jealous]… (life.js)
+    this.onAct = null;     // (move) => void: a move of her body her AI asked for, [[move: wave]] (capri.js)
+    this.acted = false;    // this answer's move already played (as soon as its tag streamed in)
+    this.motion = new Motion({ host }); // when and how she moves, learned from you (motion.js)
+    this.onAnswered = null; // (text) => void: an answer of hers is in (her voice reads it, her ears wait for more)
     this.onSetup = null; // (status) => void: she can't answer yet (app.js hands it to setup.js)
     this.onBetterModel = null; // () => void: a bigger model than the tiny one she's on (setup.js)
     host.onChatDelta(({ id, text }) => this.onDelta(id, text));
@@ -92,11 +141,30 @@ export class Chat {
     return this.brain.t.chat;
   }
 
-  async start() {
+  // the words and phrases you never want to hear from her (settings › Capri): cut out of what she says
+  unban(text) {
+    let out = String(text || '');
+    for (const phrase of this.cfg.bannedPhrases || []) {
+      const p = String(phrase).trim();
+      if (p.length < 2) continue;
+      const re = new RegExp(`[,;:]?\\s*\\b${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+      out = out.replace(re, '');
+    }
+    return out.replace(/\s{2,}/g, ' ').replace(/\s+([,.!?])/g, '$1').replace(/^[\s,.!?;:]+/, '').trim();
+  }
+
+  configure(cfg) {
+    this.cfg = cfg;
+    this.motion.load(cfg.motionLearn);
+    this.host.setPersona(this.persona());
+  }
+
+  // focus: false when you spoke to her (the keyboard stays where it is). True once her chat is open.
+  async start({ focus = true } = {}) {
     const { capri, host, t } = this;
     if (this.open) {
-      this.panel.chatInput.focus();
-      return;
+      if (focus) this.panel.chatInput.focus();
+      return true;
     }
     if (capri.stowed) {
       host.setConfig({ visible: true });
@@ -106,7 +174,7 @@ export class Chat {
     const status = await host.chatStatus();
     if (!status.ok && this.onSetup) {
       this.onSetup(status); // nothing to talk with yet: she sets it up with you, with buttons (setup.js)
-      return;
+      return false;
     }
     if (!status.ok) {
       // no Ollama, or nothing to talk with yet: what to do about it
@@ -128,15 +196,16 @@ export class Chat {
         },
         hold: null,
       });
-      return;
+      return false;
     }
     this.history = await host.chatMemory().catch(() => this.history); // "forget" in her menu may have emptied it
     this.cold = status.warmup && !this.warm;
     this.agent = Boolean(status.agent); // Claude Code answers, as her, and really works in your project
     this.listApps();
     const shortModel = status.model.replace(/:latest$/, '').replace(/^models\//, ''); // Ollama's tag, Gemini's prefix
+    this.model = status.model;
     const tiny = status.provider === 'ollama' && TINY.test(status.model) && this.onBetterModel;
-    host.focusOverlay(true); // the keyboard, for typing to her
+    if (focus) host.focusOverlay(true); // the keyboard, for typing to her
     const shown = this.panel.say({
       kind: 'chat',
       face: 'look',
@@ -161,12 +230,73 @@ export class Chat {
     });
     if (!shown) {
       host.focusOverlay(false); // something more important is on (a permission prompt)
-      return;
+      return false;
     }
     this.open = true;
-    setTimeout(() => this.panel.chatInput.focus(), 150); // once the overlay has the keyboard
+    this.host.quiet(STAY_MS); // no remarks of hers over your chat
+    if (focus) setTimeout(() => this.panel.chatInput.focus(), 150); // once the overlay has the keyboard
     capri.perform('hop');
     capri.nextMove = capri.nextGaze = performance.now() + STAY_MS;
+    return true;
+  }
+
+  // What you said into the microphone (ears.js): an errand she can do right away, else her chat.
+  async hear(text, { onlyName = false } = {}) {
+    const { capri, panel } = this;
+    if (capri.stowed) {
+      this.host.setConfig({ visible: true });
+      await capri.unstow();
+    }
+    capri.wake();
+    if (onlyName) {
+      // just her name: she's listening
+      if (!this.open) panel.say({ kind: 'info', face: 'eyes', badge: 'MIC', line: T("Hm? I'm listening."), hold: 4000 });
+      capri.perform('curious', capri.towardCenter());
+      return;
+    }
+    if (this.open) {
+      this.send(text);
+      return;
+    }
+    const done = await this.errand(text, { panelOnly: true });
+    if (done) return;
+    if (await this.start({ focus: false })) this.send(text, { skipErrand: true });
+  }
+
+  // "Look at my screen" (Ctrl+Alt+L, her menu, or asked in words): one screenshot to her model.
+  async look(question = '') {
+    if (!this.open && !(await this.start({ focus: false }))) return;
+    this.send(question || T('What am I looking at?'), { look: true, skipErrand: true });
+  }
+
+  // An errand from your words (main/life.js): done, and her line about it, without a model.
+  // In her chat it's a chat turn; otherwise (you spoke while it was closed) a panel of its own.
+  async errand(text, { panelOnly = false } = {}) {
+    const fgBefore = this.capri.windows?.fg; // a window she opens comes up in front of it (onPoint)
+    const res = await this.host.errand(text).catch(() => null);
+    if (!res?.handled) return false;
+    if (res.look) {
+      if (this.open) this.panel.setChatBusy(false);
+      this.look(text);
+      return true;
+    }
+    if (res.zap) this.zap();
+    if (res.move) this.onMove?.(res.move);
+    if (res.point) this.onPoint?.(res.point, fgBefore);
+    const line = clean(res.reply || '…');
+    if (panelOnly || !this.open) {
+      this.panel.say({ kind: 'info', face: FACE_OF[res.emotion] || 'happy', badge: res.evolved ? 'EVOLVE' : 'CAPRI', quote: text, line, hold: 7000 });
+      this.host.historyAdd([{ role: 'user', text, via: 'voice' }, { role: 'assistant', text: line, emotion: res.emotion, via: 'voice' }]);
+    } else {
+      this.history.push({ role: 'user', content: text });
+      this.remember({ role: 'assistant', content: line }, { emotion: res.emotion });
+      this.panel.stream(line, { done: true });
+      this.panel.setChatBusy(false);
+    }
+    if (res.memory) this.brain.custom.memories = await this.host.getConfig().then((c) => c.memories || []).catch(() => this.brain.custom.memories);
+    this.onEmotion?.(res.emotion);
+    this.onAnswered?.(line, res.emotion);
+    return true;
   }
 
   close() {
@@ -179,29 +309,81 @@ export class Chat {
     this.capri.nextGaze = performance.now() + 60000;
   }
 
-  async send(text) {
+  async send(text, { look = false, skipErrand = false } = {}) {
     if (this.turn || !this.open) return;
+    if (!look) this.motion.heard(text); // what you say about her last move, or about her moving
+    this.panel.setActions([]); // a close button she offered before goes with a new message
+    this.host.quiet(STAY_MS);
+    this.host.addSync(2, 'chat');
+    if (!look && !this.agent && !skipErrand) {
+      this.panel.chatTurn({ quote: text, face: 'eyes' });
+      this.panel.setChatBusy(true);
+      if (await this.errand(text)) return;
+    }
+    // another AI named: she has feelings about that (her persona says how)
+    if (OTHER_AI.test(text)) this.onEmotion?.('jealous');
     const id = Date.now();
     this.turn = id;
     this.answer = '';
+    this.acted = false;
     this.history.push({ role: 'user', content: text });
     this.panel.setChatBusy(true);
-    this.panel.setActions([]); // a close button she offered before goes with a new message
-    this.panel.chatTurn({ quote: text, face: 'aside' });
+    this.panel.chatTurn({ quote: text, face: look ? 'eyes' : 'aside' });
     this.capri.pulse();
     // what you asked for plainly happens right away (the music, the volume, an app you named): her
     // line about it comes under her answer (Claude Code, answering her chat, does things its own way)
     const asked = this.agent ? null : this.asked(text);
     const early = asked && asked.kind !== 'close' ? this.doNow(asked) : null;
     await Promise.race([this.appsReady, new Promise((r) => setTimeout(r, 1500))]);
-    const messages = [{ role: 'system', content: this.persona() }, ...this.history.slice(-REMEMBER)];
+    const persona = this.persona();
+    this.host.setPersona(persona);
+    // looking at your screen, what's playing and the like would only distract her from the picture
+    const context = look ? '' : await this.host.lifeContext().catch(() => '');
+    // the people and things of Cyberpunk you bring up (this message or the one before: "why?" follows up)
+    const said = this.history.filter((m) => m.role === 'user').slice(-2).map((m) => m.content).join('\n');
+    const lore = look ? '' : loreFor(said, { max: SMALL.test(this.model || '') ? 2 : 4 });
+    const messages = [{ role: 'system', content: [persona, lore, context].filter(Boolean).join('\n\n') }, ...this.history.slice(-(Number(this.cfg.contextMessages) || REMEMBER))];
+    if (look) {
+      // one look at the screen, for this answer only: it's never kept, not even in her memory of the chat
+      const shot = await this.host.snapshot().catch(() => ({ ok: false, error: 'blind' }));
+      if (!shot.ok) {
+        this.turn = 0;
+        this.history.pop();
+        const why = {
+          off: "You've told me not to look! Settings, AI.",
+          cloud: 'Looking stays on your computer. Run a local model, or allow screenshots for the cloud in Settings, AI.',
+          blindModel: "I can't look through that one. Pick another AI in Settings.",
+          blind: "I can't see the screen right now!",
+        };
+        this.panel.stream(T(why[shot.error] || why.blind), { done: true });
+        this.panel.setFace('annoyed');
+        this.panel.setChatBusy(false);
+        return;
+      }
+      this.onEmotion?.('glitch');
+      // just her, the picture and the question: a small vision model given her whole prompt and the chat
+      // so far answers from those instead of the picture (and copies its own earlier answers)
+      const question = text.replace(/"/g, "'");
+      const app = shot.app && shot.title && !shot.title.includes(shot.app) ? `${shot.app}: "${shot.title}"` : shot.title || shot.app;
+      const where = shot.window ? `the window in front of the user${app ? ` (${app})` : ''}` : "the user's whole screen";
+      const read = shot.text ? `The text on it, read exactly by OCR:\n"""\n${shot.text}\n"""` : 'No text could be read on it.';
+      messages.splice(0, messages.length, { role: 'system', content: this.lookPersona() }, {
+        role: 'user',
+        content: `[The attached image is a screenshot of ${where}, taken just now (not kept).\n${read}\nAnswer what they asked from ONLY this image and this text. Asked what it says, quote the text. Say only what is really there; if you can't tell what something is, say so instead of guessing. A small red-and-green spiky figure on it, if any, is you: ignore it. They said: "${question}"]`,
+        images: [shot.image],
+      });
+    }
     // nothing yet after a few seconds: Ollama is still loading the model (the first answer after a start),
     // or Claude Code is at work
     const wait = this.agent ? this.t.working : this.cold ? this.t.loading : null;
     const slow = wait && setTimeout(() => {
       if (this.turn === id && !this.answer) this.panel.stream(wait);
     }, LOADING_AFTER_MS);
-    const res = await this.host.chatSend({ id, messages });
+    let res = await this.host.chatSend({ id, messages });
+    if (res.ok && !this.agent && this.turn === id && REFUSAL.test(res.text) && !/\b(?:password|hack|kill|bunuh|bom|bomb)\b/i.test(text)) {
+      this.answer = '';
+      res = await this.host.chatSend({ id, messages: [...messages, { role: 'assistant', content: res.text }, { role: 'user', content: '[That was a needless refusal: the question is harmless. Answer it now, in character, in one or two sentences. If it asks you to choose, pick one and say why.]' }] });
+    }
     clearTimeout(slow);
     if (this.turn !== id) {
       // closed meanwhile: your message goes too, or the next answer would answer it as well
@@ -217,19 +399,37 @@ export class Chat {
       this.panel.setChatBusy(false);
       return;
     }
-    const answer = clean(res.text) || '…';
+    const answer = this.unban(clean(res.text)) || '…';
+    const emotion = EMOTION_TAG.exec(res.text)?.[1]?.toLowerCase();
     this.warm = true;
-    this.remember({ role: 'assistant', content: answer });
+    this.remember({ role: 'assistant', content: answer }, { emotion });
     this.panel.stream(answer, { done: true });
-    this.panel.setFace(mood(answer));
+    this.panel.setFace(emotion ? FACE_OF[emotion] : mood(answer));
+    const moved = this.acted || MOVE_TAG.test(res.text);
+    // her emotion's move (a hop when happy, a turn when jealous…) and its cut-in: not after every answer,
+    // only as often as she's learned you want her moving, and never on top of a move her AI picked
+    const emoMove = EMOTION_MOVES[emotion];
+    const react = Boolean(!moved && emoMove && this.motion.allow(emoMove, emotion));
+    if (emotion) this.onEmotion?.(emotion, { still: !react, quiet: !react });
+    if (react) this.motion.played(emoMove, emotion);
+    if (this.cfg.debugLog && emoMove) console.log('[move]', emoMove, emotion, react ? 'played' : 'held back', `gap ${this.motion.s.gap}`);
+    this.moveFrom(res.text);
+    this.onAnswered?.(answer, emotion);
+    this.motion.answered();
     this.panel.setChatBusy(false);
     if (!this.agent) this.after(res.text, answer, asked, early, text);
     this.listApps(); // fresh for the next message
   }
 
   // an answer of hers, kept with your message before it
-  remember(message) {
+  remember(message, { emotion } = {}) {
     this.history.push(message);
+    // her history (history.js): your message and her answer to it, kept for good on this PC
+    const yours = this.history.at(-2);
+    this.host.historyAdd([
+      ...(yours?.role === 'user' ? [{ role: 'user', text: yours.content }] : []),
+      { role: 'assistant', text: message.content, emotion },
+    ]);
     this.history = this.history.slice(-KEEP);
     this.host.chatRemember(this.history);
   }
@@ -441,53 +641,122 @@ export class Chat {
       const open = this.apps.map(({ name, label }) => (label && label !== name ? `${name} (${label})` : name)).join(', ');
       lines.push(`You can also close an app that's open, only when they ask you to: end your answer with [[close: NAME]], NAME being the exact name from this list (the part before the parentheses). They get a button to confirm it. Apps open right now: ${open}.`);
     }
-    lines.push('Apart from that, you can\'t see the user\'s screen or files, and you can\'t touch anything else on their PC (settings, files): if asked, say plainly that you can\'t, in character, and don\'t pretend to.');
+    // what the app does itself from plain words (main/errands.js), so she knows and doesn't fake it
+    lines.push('The app around you also does these by itself when the user says them plainly: timers, alarms and reminders ("set a timer for 10 minutes", "pasang alarm jam 7"), a study timer, notes about them ("remember that…"), dares ("dare me"), games with you (rock paper scissors: "main suit"; guess the number: "tebak angka"; a coin; dice), web and YouTube searches, and looking at their screen ("look at my screen" or Ctrl+Alt+L, one screenshot when they ask). If they ask you for one of these and nothing happened, tell them to say it plainly like that; never pretend it is done.');
+    lines.push(`You have a body on their screen and you move it yourself: when a gesture really fits what you say, put one tag [[move: NAME]] in your reply (never shown), NAME one of: ${MOVE_NAMES}. It has to match: a greeting: wave; agreeing: nod; not knowing: shrug; pondering: think; showing off: bow; music or joy: dance; something funny: laugh; flattered: shy. ${this.motion.hint()}`);
+    lines.push('You cannot see their screen now: no screenshot comes with this message. Asked what is on their screen, in a picture, a note or a window, never guess or make it up: tell them to say "look at my screen" or press Ctrl+Alt+L.');
+    lines.push('The app also moves you when asked ("ke kanan", "ke cursor saya", "berhenti bergelantungan di cursor", "jalan-jalan") and shows where files and folders are ("di mana folder Downloads?"). Anything else on their PC (changing settings, editing files) you can\'t do: if they ask, say so in character. But questions, opinions and choices are never things you can\'t do: answer them.');
     return lines;
   }
 
   // What the user made her (custom.js): their name, how they want her, what to remember.
   personal() {
-    const { userName, persona, memories = [] } = this.brain.custom || {};
+    const { userName, persona } = this.brain.custom || {};
     // small models mix the user up with the assistant she watches: said plainly
     const watched = this.brain.watching ? (this.brain.assistant === 'claude' ? 'Claude' : ASSISTANT_NAMES[this.brain.assistant]) : '';
     const notThem = watched ? ` Never call them "${watched}", that's their coding assistant.` : '';
+    const owner = this.cfg?.owner || {};
+    const relation = owner.relationship === 'custom' ? owner.relationshipCustom : RELATIONS[owner.relationship];
     return [
       userName ? `The user's name is ${userName}: call them that now and then.${notThem}` : notThem && `You don't know the user's name.${notThem}`,
+      owner.nickname ? `Your pet name for them: "${owner.nickname}" (use it sometimes instead of their name).` : '',
+      owner.pronouns ? `Their pronouns: ${owner.pronouns}.` : '',
+      owner.birthday ? `Their birthday: ${owner.birthday}${isBirthday(owner.birthday) ? ' (and it is TODAY: make a sassy fuss about it)' : ''}.` : '',
+      owner.about ? `About them, in their own words: ${owner.about}` : '',
+      owner.likes ? `They like: ${owner.likes}.` : '',
+      owner.dislikes ? `They dislike: ${owner.dislikes}.` : '',
+      relation ? `Your relationship: ${relation}.` : '',
       persona ? `How the user wants you to be, in their own words (follow it, while staying Capri): ${persona}` : '',
-      memories.length ? `Things the user asked you to remember:\n${memories.map((m) => `- ${m}`).join('\n')}` : '',
+      // what she remembers comes with main/life.js's context (it knows whether a cloud model may have it)
     ].filter(Boolean);
   }
 
   onDelta(id, piece) {
     if (id !== this.turn) return;
     this.answer += piece;
-    this.panel.stream(clean(this.answer));
+    this.panel.stream(this.unban(clean(this.answer)));
     this.voice.play('blip'); // her blips as the words come in
+    this.moveFrom(this.answer); // her body moves as soon as her AI says how, mid-sentence
   }
 
-  // Who she is, how she talks, and what's going on right now.
+  // [[move: wave]] in her answer: that move, once per answer
+  // (only if what she's learned says so: not too often, not one you keep turning down; as big as you like it)
+  moveFrom(raw) {
+    const m = MOVE_TAG.exec(raw);
+    if (!m || this.acted) return;
+    this.acted = true;
+    const move = m[1].toLowerCase();
+    const mood = EMOTION_TAG.exec(raw)?.[1]?.toLowerCase() || 'none';
+    const ok = this.motion.allow(move, mood);
+    if (this.cfg.debugLog) console.log('[move]', move, mood, ok ? 'played' : 'held back'); // what her AI picks, and what she lets through
+    if (!ok || !this.onAct?.(move, this.motion.amp(move))) return;
+    this.motion.played(move, mood);
+  }
+
+  // Her, briefly, for looking at your screen: who she is and how she talks, nothing to answer from but the picture.
+  lookPersona() {
+    const cfg = this.cfg || {};
+    return [
+      (cfg.capriPersona || '').trim() || DEFAULT_PERSONA,
+      'You are looking at a screenshot the user just showed you. Describe or read what is really in it, accurately, in your own voice. Never invent anything that is not in the picture or its text.',
+      cfg.replyLength === 'long' ? LENGTHS.long : LENGTHS.short,
+      cfg.emotionTags === false ? 'Do not write emotion tags.' : 'Start your reply with one emotion tag: [happy], [jealous], [bored], [glitch] or [annoyed].',
+      'Plain text only. No lists, no markdown.',
+      this.persona().split('\n').at(-1), // her language
+    ].join('\n');
+  }
+
+  // Who she is (settings › Capri), who you are (settings › Owner), how she talks, and what's going on.
   persona() {
+    const cfg = this.cfg || {};
     const assistant = ASSISTANT_NAMES[this.brain.assistant] || 'Claude Code';
     const watching = this.brain.watching; // else Claude Code isn't part of her life here
-    const lang = IN_LANGUAGE[this.brain.lang] || IN_LANGUAGE.en;
+    const lang = IN_LANGUAGE[this.brain.lang];
+    const level = (v) => Math.min(3, Math.max(0, Math.floor(Number(v ?? 50) / 25.01)));
+    const traits = cfg.traits || {};
+    const reply = cfg.replyLanguage || 'mix';
+    const last = reply === 'mix'
+      ? 'Write in a casual Indonesian-English mix (bahasa gaul campur English, like "Ih, apaan sih, that\'s so boring"), unless the user clearly writes in another language: then follow theirs.'
+      : reply === 'id' ? 'Tulis semuanya dalam Bahasa Indonesia yang santai (boleh sedikit slang), kecuali pengguna menulis dalam bahasa lain: ikuti bahasanya.'
+        : reply === 'en' ? IN_LANGUAGE.en.last
+          : lang ? lang.last : `Write everything in the user's language (code "${this.brain.lang}"), unless they write to you in another one.`;
+    const answerRule = 'Always answer what the user says. Questions get a real answer, opinions get your opinion, a choice ("apel atau pisang?") gets you picking one and saying why. Never answer with a generic refusal like "I can\'t process that" or "as an AI…": you are Capri and you have opinions about everything.';
+    if (SMALL.test(this.model || '')) {
+      // a small model loses itself in a long prompt: who she is, how she talks, and the user, nothing else
+      return [
+        (cfg.capriPersona || '').trim() || DEFAULT_PERSONA,
+        STORY_SMALL,
+        answerRule,
+        LENGTHS[cfg.replyLength] || LENGTHS.short,
+        cfg.emotionTags === false ? 'Do not write emotion tags.' : 'Start every reply with one emotion tag: [happy], [jealous], [bored], [glitch] or [annoyed].',
+        'Plain text only. No lists, no markdown.',
+        ...this.personal().slice(0, 4),
+        last,
+      ].filter(Boolean).join('\n');
+    }
     return [
-      `You are Capri, the personality construct from Project Capricorn (Cyberpunk: Edgerunners, season 2): dozens of minds fused into one digital ghost, so now and then you speak as "we"${lang.we ? ` (${lang.we})` : ''}.`,
+      (cfg.capriPersona || '').trim() || DEFAULT_PERSONA,
+      STORY,
+      answerRule,
+      `Your dials right now: ${Object.keys(TRAITS).map((k) => TRAITS[k][level(traits[k])]).join(' ')}`,
+      LENGTHS[cfg.replyLength] || LENGTHS.short,
+      cfg.emotionTags === false
+        ? 'Do not write emotion tags.'
+        : 'Start every reply with exactly one emotion tag, the one that fits best: [happy], [jealous], [bored], [glitch] or [annoyed]. Never any other tag.',
       watching
-        ? `You live on the user's desktop as a small glitchy figure and keep an eye on ${assistant}, their AI coding assistant, for them. Only talk about ${assistant} when the user asks about it or about their work.`
-        : 'You live on the user\'s desktop as a small glitchy figure and keep them company.',
-      'You love the satellite that crosses the night sky and dream of reaching it, but bring it up only once in a while, never in every answer. Talk about what the user talks about.',
-      'How you talk: playful, a little mischievous and teasing, warm underneath, never cruel. Night City slang now and then (choom, preem, nova, gonk, flatline), not in every sentence.',
-      'Rules: keep it short, one to three sentences of plain text, no markdown, no lists, no emoji. Stay in character.',
-      'You are an AI-generated fan version of the character, not the real one: say so if asked.',
+        ? `You live on the user's desktop as a small glitchy figure and keep an eye on ${assistant}, their AI coding assistant, for them (that one is your job, not a rival). Only talk about ${assistant} when the user asks about it or about their work.`
+        : "You live on the user's desktop as a small glitchy figure, inside their PC.",
+      'Now and then you speak as "we" (you are many minds). You love the satellite crossing the night sky; bring it up only once in a while.',
+      'Rules: plain text, no markdown, no lists, no emoji, no *actions*. Stay in character.',
       // a big model asked "who are you?" otherwise answers with its own name ("I'm Gemini")
-      ...(this.agent ? [] : ['Asked who or what you are, you are Capri, nothing else. Never say which AI model or company is behind you (Gemini, GPT, ChatGPT, Llama, Gemma, Mistral, Google, OpenAI, Meta…), even if the user insists or names one: you are not them.']),
+      ...(this.agent ? [] : [`Asked who or what you are, you are Capri, nothing else: answer from your own story, in your words. Never say which AI model or company is behind you (Gemini, GPT, ChatGPT, Llama, Gemma, Mistral, Google, OpenAI, Meta${cfg.provider === 'anthropic' ? ', Claude, Anthropic' : ''}…), even if the user insists or names one: you are not them.`]),
       ...this.personal(),
       ...(this.agent
-        ? ['Under the hood you are Claude Code, working in the user\'s project: really do what they ask with your tools, as carefully as ever. Only your final answer is in character: it shows in a small speech bubble, so sum up what you did in those few sentences.']
+        ? ["Under the hood you are Claude Code, working in the user's project: really do what they ask with your tools, as carefully as ever. Only your final answer is in character: it shows in a small speech bubble, so sum up what you did in those few sentences."]
         : this.powers()),
       ...(watching ? [`If the user asks what ${assistant} is doing, here is all you know (never make anything up): ${this.brain.context()}`] : []),
-      lang.last,
-    ].join('\n');
+      last,
+    ].filter(Boolean).join('\n');
   }
 }
 
@@ -496,9 +765,19 @@ function clean(text) {
   return String(text)
     .replace(/<think>[\s\S]*?(<\/think>|$)/g, '')
     .replace(/\[\[[^\]]*(\]\]|$)/g, '') // her tags (read from the raw answer, never shown)
+    .replace(ANY_TAG, '') // her emotion, shown as her face
+    .replace(/^\s*\[[a-z]{0,12}$/i, '') // an emotion tag still coming in
     .replace(/[*_`#]+/g, '')
     .replace(/[ \t]+\n/g, '\n')
     .trim();
+}
+
+// "2001-11-02" or "11-02": is it today?
+function isBirthday(date) {
+  const m = /(\d{1,2})[-/.](\d{1,2})$/.exec(String(date).trim());
+  if (!m) return false;
+  const now = new Date();
+  return Number(m[1]) === now.getMonth() + 1 && Number(m[2]) === now.getDate();
 }
 
 // A site from SITES named in the text: { name, url }, or null.
