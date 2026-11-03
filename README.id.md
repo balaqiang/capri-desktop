@@ -25,6 +25,7 @@ bagaimana kamu suka dia bergerak.
 - [Perintah di PC-mu](#perintah-di-pc-mu)
 - [Dia melihat layarmu](#dia-melihat-layarmu)
 - [Hidupnya di desktop](#hidupnya-di-desktop)
+- [Dia ikut mendengarkan musikmu](#dia-ikut-mendengarkan-musikmu)
 - [Elus, pegang, lempar](#elus-pegang-lempar)
 - [Tubuhnya: rig, gestur, dan yang dia pelajari](#tubuhnya-rig-gestur-dan-yang-dia-pelajari)
 - [Dia mengawasi AI coding-mu](#dia-mengawasi-ai-coding-mu)
@@ -52,11 +53,14 @@ Di atas capri-desktop 0.4.4 karya mochiiwuff (rig-nya, animasinya, narasi Claude
 - **Dia memperbaiki dirinya sendiri** dari reaksimu, dan menyimpan riwayat obrolan.
 - **Perintah**: gerakkan dia dengan kata-kata, buka aplikasi dan folder (dia menunjuknya), browser, file, musik, lagu
   Spotify langsung diputar, lagu yang sedang kamu dengarkan.
+- **Dia ikut mendengarkan musikmu**: lirik lagu yang kamu putar muncul di atas kepalanya, baris demi baris sesuai yang
+  sedang dinyanyikan (LRCLIB), kepalanya ikut goyang, joget kalau dia suka lagunya, dan ketiduran kalau lagunya membosankan.
 - **Look** sungguhan: jendela yang ada di depan, dibaca dengan OCR Windows.
 - **Tubuh yang lebih hidup**: berjalan, dielus, bisa dipegang kapan saja, dilempar, pusing, gestur baru yang dipakai
   AI-nya saat bicara, dan sistem belajar kapan dan bagaimana dia bergerak.
 - **Aplikasi Windows**: installer dan exe portable, jalan otomatis saat Windows menyala, selalu di atas dan bisa
-  diklik, launcher `.bat`, dan jendela pengaturan lengkap.
+  diklik, launcher `.bat`, dan jendela pengaturan lengkap bergaya menu Cyberpunk 2077, dengan halaman **Access**
+  untuk semua yang boleh dia lihat, dengar, dan lakukan di PC-mu.
 
 ## Siapa dia
 
@@ -131,8 +135,15 @@ Diketik atau diucapkan, dalam bahasa Inggris atau Indonesia, tanpa perlu AI: lih
 - **Musik**: tombol media ("pause", "lagu berikutnya", "louder"), lagu yang sedang diputar ("lagu apa yang aku
   dengerin?") lengkap dengan opininya, dan **lagu yang langsung diputar di Spotify**: "putar lagu X", "setel lagu X dari
   Y", "play X", "search X on Spotify". Dia mencari di Spotify lalu menekan Play pada lagunya (atau Top result) lewat
-  antarmuka aksesibilitas Windows.
+  antarmuka aksesibilitas Windows. Juga **liriknya**: "tampilkan lirik", "matikan lirik", "liriknya apa?" (lihat
+  [Dia ikut mendengarkan musikmu](#dia-ikut-mendengarkan-musikmu)).
 - **Tutup aplikasi** ("close Discord"): selalu lewat tombol konfirmasi, seperti tombol close aplikasinya sendiri.
+- **Ngoding untukmu**: "buatkan kode python untuk menghitung BMI", "bikin game snake pakai html", "write a script that…".
+  Kalau [Claude Code](https://code.claude.com/docs/en/quickstart) terpasang, dia membukanya di terminal di folder kodemu
+  dengan tugasmu sudah terisi: kamu melihat pekerjaannya dan menyetujui perubahannya di sana, sambil dia mengomentarinya.
+  Tanpa itu (atau "…sendiri", "…yourself"), dia menulisnya sendiri dengan modelnya: satu file di `Documents\Capri Code`,
+  dibuka di VS Code atau Notepad, tidak pernah dijalankan. "pakai claude code" memilih Claude Code. Pengaturan › AI brain
+  › Coding: siapa yang menulis, dan di mana.
 - **Timer, alarm, pengingat, timer belajar** (Pomodoro), pencarian web dan YouTube, catatan, dare ("tantang aku"),
   game: suit ("main suit"), tebak angka ("tebak angka"), lempar koin, dadu.
 
@@ -171,6 +182,31 @@ Gemini, GPT-4o…); model cloud hanya kalau kamu izinkan di pengaturan.
 
 ![Merasuki jendela](docs/possess.png)
 
+## Dia ikut mendengarkan musikmu
+
+Apa pun yang Windows tampilkan sebagai sedang diputar (Spotify, browser, pemutar apa saja yang muncul di flyout volume),
+tanpa login ke apa pun:
+
+- **Liriknya, pas dinyanyikan**: baris yang sedang dinyanyikan melayang di atas kepalanya, sinkron dengan lagunya, dari
+  [LRCLIB](https://lrclib.net) (gratis, terbuka, tanpa akun; yang dikirim untuk mencarinya cuma judul, artis, album, dan
+  durasi). Dia mengikuti lagu yang di-skip, di-seek, dan di-pause, dan AI-nya tahu baris-baris di sekitar saat itu, jadi
+  kamu bisa menanyakannya. "perlihatkan lirik lagu ini", "berhenti tampilkan lirik", "liriknya apa?" ("show the song
+  lyrics", "stop showing lyrics", "what's the lyric?"), atau kalimat lain apa pun yang ada kata lirik-nya: dia membaca
+  maksudmu, dan AI-nya juga bisa menyalakan atau mematikannya. Dia tidak pernah menulis lirik lagu di gelembung chatnya.
+- **Disimpan di PC-mu**: lirik sebuah lagu diambil sekali lalu disimpan (`lyrics-cache.json`), jadi saat lagu itu
+  diputar lagi liriknya langsung muncul tanpa bertanya ke LRCLIB (bahkan saat LRCLIB sedang down). Pengaturan › Access ›
+  Lyrics cache untuk menghapusnya.
+- **"Dengarkan lagu ini"** ("listen to this song"): dia ikut mendengarkan, bilang pendapatnya, dan mengikuti lagunya.
+- **Dia menilai** tiap lagu, sekali, dan konsisten: lagu yang keras, glitchy, synth, dan apa saja yang terdengar seperti
+  Night City dia suka; yang pelan, bikin ngantuk, dan monoton bikin dia bosan. Lagunya sendiri dan soundtrack
+  Edgerunners selalu dia suka banget.
+- **Lagu yang dia suka**: kepalanya ikut goyang (kakinya menendang-nendang sesuai ketukan kalau dia sedang duduk), not
+  musik keluar dari dirinya, dan sesekali dia joget. Lagu yang dia suka banget bikin dia loncat-loncat, dengan hati.
+- **Lagu yang membosankan**: dia bertahan sebentar, menguap lebar, lalu tertidur di tempatnya dengan huruf Z
+  melayang, sampai lagu yang dia suka membangunkannya (atau kamu).
+
+Pengaturan › Behavior › She notices things (atau Pengaturan › Access): **Song lyrics**, **She listens along**.
+
 ## Elus, pegang, lempar
 
 - **Elus dia**: gerakkan kursor bolak-balik di kepalanya (tanpa klik). Dia condong ke tanganmu, hati kecil
@@ -181,6 +217,12 @@ Gemini, GPT-4o…); model cloud hanya kalau kamu izinkan di pengaturan.
   dan hijau, memantul di sisi layar. Dilempar keras ke lantai dia jadi gepeng (splat), berkunang-kunang, lalu memantul
   berdiri, agak tersinggung.
 - **Guncang dia** dan dia pusing. Kepalanya menoleh ke kursormu saat dekat, dan sesekali dia melirik kursormu.
+- **Dia elastis, seperti di anime-nya**: tubuhnya seperti karet di atas gambarnya (pegas yang memantul lalu tenang).
+  Klik dia dan dia membal menjauh dari klikmu dengan percikan api dari titik itu; saat diangkat dia molor keluar dari
+  jarimu; saat mendarat dia gepeng lalu memantul ke tinggi semula; dia molor tinggi dan kurus saat teleport pergi dan
+  muncul lagi dengan kilauan; tiap usapan elusan membuatnya bergoyang. Dia condong ke arah kursormu, rambutnya
+  mengembang dan dia meliuk menghindar saat kursor melesat di depan wajahnya, kilauan di rambutnya sesekali berkelip,
+  dan kalau kursormu berlama-lama di dekatnya, mata-mata pikirannya yang lain terbuka di sekitar rambutnya menatapnya.
 
 ## Tubuhnya: rig, gestur, dan yang dia pelajari
 
@@ -226,8 +268,10 @@ Ucapkan atau ketik; tidak perlu AI untuk ini.
 | Cari | "di mana folder Downloads?", "dimana file laporan" | "where is my Downloads folder?" |
 | Musik | "lagu berikutnya", "lagu apa yang aku dengerin?" | "pause", "next", "what am I listening to?" |
 | Spotify | "putar lagu Sorai", "setel lagu X dari Y", "putar lagu favoritmu" | "play Die For You", "search X on Spotify", "play your favorite song" |
+| Lirik | "perlihatkan lirik lagu ini", "berhenti tampilkan lirik", "liriknya apa?", "dengarkan lagu ini" | "show the song lyrics", "stop showing lyrics", "what's the lyric?", "listen to this song" |
 | Lihat | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" | "what's on my screen?", "read what's in my notes" |
 | Waktu | "pasang timer 10 menit", "pasang alarm jam 7" | "set a timer for 10 minutes", "wake me at 7am" |
+| Kode | "buatkan kode python untuk…", "bikin landing page sendiri", "suruh claude code bikin…" | "write a script that sorts my files", "make a snake game in html with claude code" |
 | Game | "main suit", "tebak angka", "lempar koin" | "rock paper scissors", "guess the number" |
 | Dia | "tantang aku", "improve dirimu", "kamu udah belajar apa?" | "dare me", "how's our sync?", "who are you?" |
 | Bergerak | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" | "move less", "you can move again" |
@@ -276,10 +320,23 @@ Antigravity: menu › **Watch**, atau `npm run hooks:codex:install` / `npm run h
 
 ## Pengaturan dan hotkey
 
-Pengaturannya (Ctrl+Alt+S, atau dari menu): **Capri** (persona, slider, kata terlarang, belajar sendiri), **Owner**
-(kamu), **Voice** (telinga, suaranya, efek), **AI brain** (layanan, model, otak lokal, Look), **Behavior** (jalan-jalan,
-notifikasi, musik, dare, elus, layar penuh), **Timers**, **History**, **Advanced** (hotkey, shortcut, jalan saat
-Windows menyala, tampilan), **About**.
+Pengaturannya (Ctrl+Alt+S, atau dari menu), bergaya Cyberpunk 2077: tab di bagian atas (**Q** / **E** untuk
+pindah), pilihan ◁ ▷, saklar ON / OFF, dan penjelasan pengaturan yang ditunjuk kursormu di bar bawah. **Capri**
+(persona, slider, kata terlarang, belajar sendiri), **Owner** (kamu), **Voice** (telinga, suaranya, efek), **AI brain**
+(layanan, model, otak lokal, Look), **Behavior** (jalan-jalan, notifikasi, musik, dare, elus, layar penuh), **Access**,
+**Timers**, **History**, **Advanced** (hotkey, shortcut, jalan saat Windows menyala, tampilan), **About**.
+
+**Access** berisi semua yang boleh dia sentuh, di satu tempat, masing-masing dengan saklarnya sendiri:
+
+- **Yang bisa dia lihat**: layarmu saat kamu minta (Look), lewat model cloud atau tidak; program di depan, waktu idle,
+  CPU, dan baterai (untuk komentarnya); apakah ada AI lain di depan; lagu yang diputar; AI coding-mu.
+- **Yang bisa dia dengar**: mikrofonmu (mati, push to talk, selalu).
+- **Yang bisa dia lakukan di PC-mu**: membuka aplikasi, membuka folder dan mencari file, menutup aplikasi, membuka
+  situs, menekan tombol media, memutar lagu di Spotify, menulis kode, merasuki jendela. Kalau kamu meminta sesuatu yang
+  dimatikan, dia akan bilang.
+- **Yang dikirim ke internet**: lirik lagu (LRCLIB), catatannya dengan model cloud.
+- **Yang dia simpan di PC ini**: ingatannya tentangmu, obrolanmu, penilaiannya tentang lagu ("Lupakan"), dan cache
+  lirik ("Hapus").
 
 | Hotkey | Fungsinya |
 | --- | --- |
@@ -293,12 +350,14 @@ Semuanya bisa diganti di pengaturan › Advanced.
 
 ## Privasi: apa yang keluar dari PC-mu
 
-- **Secara default, tidak ada**: otaknya bisa Ollama di PC-mu, telinganya Whisper di PC-mu, suaranya Windows atau Piper.
+- **Secara default, hampir tidak ada**: otaknya bisa Ollama di PC-mu, telinganya Whisper di PC-mu, suaranya Windows atau
+  Piper. Satu-satunya yang keluar dengan sendirinya: judul, artis, album, dan durasi lagu yang sedang kamu putar, ke
+  [LRCLIB](https://lrclib.net) untuk mencari liriknya (Pengaturan › Behavior › Song lyrics untuk mematikannya).
 - **Hanya yang kamu nyalakan yang online**, ke layanan yang kamu pilih, dengan key-mu: pesan chat ke otak cloud,
   kalimat-kalimatnya (bukan suaramu) ke suara cloud, ucapanmu ke Groq atau OpenAI kalau kamu memilihnya untuk
   telinganya, dan screenshot jendela di depan hanya saat kamu memintanya melihat dan mengizinkannya untuk model cloud.
-- **Disimpan di PC-mu**: riwayat, catatannya, pelajarannya, apa yang dia pelajari soal bergerak, dan key-mu (dienkripsi
-  dengan akun Windows-mu). Catatan dan pelajarannya hanya dikirim ke model cloud kalau kamu menyalakan "Also with a
+- **Disimpan di PC-mu**: riwayat, catatannya, pelajarannya, apa yang dia pelajari soal bergerak, penilaiannya tentang
+  lagu, lirik yang sudah diambil, dan key-mu (dienkripsi dengan akun Windows-mu). Catatan dan pelajarannya hanya dikirim ke model cloud kalau kamu menyalakan "Also with a
   cloud model".
 - **Hook Claude Code** hanya mengirim yang perlu ditampilkan (nama tool, path file, perintah, pesan terakhir Claude)
   ke `127.0.0.1`, tidak pernah isi file-mu.
@@ -315,6 +374,8 @@ Semuanya bisa diganti di pengaturan › Advanced.
   **Animations** › **Full**. Atau dia belajar kamu tidak suka dia bergerak: bilang "boleh gerak lagi".
 - **Look menjawab salah.** Pakai model yang bisa melihat (gemma3, Gemini, GPT-4o); model kecil yang hanya teks tidak bisa.
 - **Spotify cuma mencari.** Biarkan aplikasi Spotify terbuka; dia menekan Play lewat antarmuka aksesibilitas Windows.
+- **Lirik tidak muncul di atas kepalanya.** LRCLIB tidak punya semua lagu, dan sebagian hanya tanpa timing (dia tetap
+  tahu liriknya). Liriknya disembunyikan saat dia bicara, bekerja, atau tidur. Pemutarnya harus muncul di flyout volume Windows.
 - **Mac, Linux, HP?** Dia dibuat untuk Windows; dari source dia mungkin jalan di tempat lain, tanpa trik khusus Windows.
 
 ## Struktur kode
@@ -325,6 +386,7 @@ src/main/                 Electron: jendela transparan tembus-klik, tray, pengat
   llm.js, ollama.js       otaknya: Ollama, kompatibel OpenAI (Gemini…), Anthropic, Claude Code
   errands.js              apa yang dia lakukan dari kata-kata biasa (gerak, buka, cari, musik, Spotify, look, timer…)
   life.js                 timer, sync, catatan, notifikasi, dare, lagu yang diputar, komentar lagu, menjalankan perintah
+  lyrics.js               lirik lagu yang ber-timing, dari LRCLIB
   launch.js, apps.js      membuka dan menutup aplikasi, game, situs
   hearing.js, mouth.js    telinganya (Whisper, Groq, OpenAI, Windows) dan suaranya (ElevenLabs, OpenAI, Piper…)
   growth.js, history.js   dia memperbaiki dirinya; obrolanmu, satu file per hari, cerita sejauh ini
@@ -339,6 +401,7 @@ src/renderer/js/
   chat.js, persona.js     ngobrol dengannya: percakapan, personanya, gerakan dari AI-nya
   lore.js                 kisahnya dan pengetahuannya soal Cyberpunk
   life.js, glitch.js      elus, emosi, kejahilan, enam gaya glitch-nya
+  listen.js               dia dan musikmu: lirik di atas kepalanya, goyang, joget, ketiduran
   ears.js, tts.js         mikrofon; suaranya, efek dan bibirnya
   fx.js, panel.js         serpihan, petir, cut-in, hati; panelnya dan wajah-wajahnya
   brain.js, guide.js      event Claude jadi kalimat; pemandunya
@@ -362,6 +425,7 @@ Proyek ini berdiri di atas karya orang lain. Semua kredit untuk karya aslinya mi
 | Kontributor Capri Desktop | Kode capri-desktop sampai 0.4.3, di bawah lisensi MIT |
 | Capri Desktop 2.4 (C#) | Fitur-fitur yang digabung di sini, art-nya (`assets/art`), terjemahannya (`assets/lang`), dan persona klasiknya; berawal dari versi 0.2.0 karya lachydotmcg |
 | [**lachydotmcg**](https://github.com/lachydotmcg) · [capri-desktop](https://github.com/lachydotmcg/capri-desktop) | Capri pertama di desktop (C#), dengan kontribusi dari [tuno473](https://github.com/tuno473), [tob7as](https://github.com/tob7as), dan [super-cr4SH](https://github.com/super-cr4SH); terinspirasi video TikTok jpartnma_ |
+| [LRCLIB](https://lrclib.net) | Perpustakaan lirik ber-timing yang gratis dan terbuka (beserta API-nya), sumber liriknya |
 | Font | Chakra Petch dan JetBrains Mono, SIL Open Font License, lewat Fontsource |
 
 Capri / Project Capricorn, Cyberpunk, dan Cyberpunk: Edgerunners milik CD PROJEKT RED, Studio Trigger, dan Netflix.
