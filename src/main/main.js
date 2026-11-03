@@ -25,6 +25,7 @@ const setup = require('./setup');
 const apps = require('./apps');
 const launch = require('./launch');
 const lyrics = require('./lyrics');
+const web = require('./web');
 const { ASSISTANTS, assistant } = require('./assistants');
 const activeAssistant = () => assistant(config.load().assistant); // Claude Code or Codex
 const activeHooks = () => activeAssistant().hooks;
@@ -748,9 +749,29 @@ function makeShortcuts() {
   return made.length ? { ok: true, made } : { ok: false, error: 'Windows would not let me.' };
 }
 
-async function askOnce(messages) {
+// Her quick jobs on her model (a word on a song, her verdict on it, a dare, her lessons): one at a time, and never
+// while you're chatting with her (they wait for her answer to be done). Two prompts at once only make both slow,
+// all the more on Ollama, on your own PC.
+let quickJobs = Promise.resolve();
+function quickJob(run) {
+  const job = quickJobs.then(async () => {
+    for (let waited = 0; chats.size && waited < 90000; waited += 250) await new Promise((r) => setTimeout(r, 250));
+    return run();
+  });
+  quickJobs = job.catch(() => {});
+  return job;
+}
+
+function askOnce(messages) {
+  return quickJob(() => askOnceNow(messages));
+}
+
+async function askOnceNow(messages) {
   const cfg = config.load();
-  if (cfg.localBackground !== false && (await localBrain(cfg))) {
+  // her small local brain for quick jobs, except when her main brain is on Ollama too: two models loaded at once
+  // push each other out of your graphics card, and loading one back is the slowest thing there is
+  const mainOnOllama = cfg.provider === 'ollama' && Boolean(chatModels?.length);
+  if (cfg.localBackground !== false && !mainOnOllama && (await localBrain(cfg))) {
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 45000);
     try {
@@ -1152,6 +1173,9 @@ function registerIpc() {
   });
   // her answer, streamed to the overlay piece by piece as `chat:delta`
   ipcMain.handle('chat:send', async (_e, { id, messages }) => {
+    // one answer at a time: a new message stops one still being written (you've moved on, and two at once
+    // would only make both slow)
+    for (const [other, stop] of chats) if (other !== id) stop.abort();
     const abort = new AbortController();
     chats.set(id, abort);
     try {
@@ -1182,6 +1206,8 @@ function registerIpc() {
     }
   });
   ipcMain.on('chat:stop', (_e, id) => chats.get(id)?.abort());
+  // questions about the world, looked up on the web first (web.js), when settings › Access allows it
+  ipcMain.handle('web:lookup', (_e, question) => (config.allowed('search') ? web.lookup(String(question || '')).catch(() => null) : null));
   ipcMain.handle('chat:memory', () => readMemory().history || []);
   ipcMain.on('chat:remember', (_e, history) => Array.isArray(history) && saveMemory({ history }));
   ipcMain.on('chat:ollama', () => shell.openExternal(OLLAMA_SITE));
@@ -1255,6 +1281,7 @@ function registerIpc() {
     if (!overlay) return;
     overlay.setFocusable(Boolean(on));
     if (on) overlay.focus();
+    if (on && config.allowed('search')) web.warm(); // her chat open: her web lookups ready to go
     else overlay.blur();
     // on Windows, changing whether a window can take the keyboard can drop it out of the always-on-top band:
     // after her chat, she ended up behind your windows (and so unclickable). Put back on top.
@@ -1658,7 +1685,7 @@ function main() {
     registerHotkeys();
     watchVoices();
     growth.init({
-      ask: (messages) => askRaw(messages),
+      ask: (messages) => quickJob(() => askRaw(messages)), // her lessons: one quick job at a time, after your chat
       // her chats only go to a model on this PC, or to a cloud one you allowed (settings › Owner)
       allowed: () => {
         const cfg = config.load();
@@ -1700,7 +1727,7 @@ function main() {
         }
       },
       model: (messages) => askOnce(messages),
-      raw: (messages) => askRaw(messages, { timeout: 25000 }), // plain questions, no persona (what a song sounds like)
+      raw: (messages) => quickJob(() => askRaw(messages, { timeout: 25000 })), // plain questions, no persona (what a song sounds like)
       coder: { claude: codeWithClaude, self: codeHerself }, // code you ask for (errands)
       look: () => lookAllowed().ok,
       shot: snapshot,
