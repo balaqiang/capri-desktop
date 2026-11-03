@@ -1,13 +1,20 @@
 {
   "name": "capri-desktop",
-  "version": "0.4.4",
-  "description": "Capri, the Project Capricorn construct, living on your desktop and narrating what Claude Code is doing.",
-  "author": "mochiiwuff",
-  "repository": "github:mochiiwuff/capri-desktop",
+  "version": "0.5.0",
+  "description": "Capri, the Project Capricorn construct, living on your desktop: narrates Claude Code, hears you through the mic, runs errands, dares you and glitches your screen (merged with Capri Desktop 2.4).",
+  "author": "balaqiang",
+  "contributors": [
+    {
+      "name": "mochiiwuff",
+      "url": "https://github.com/mochiiwuff/capri-desktop"
+    }
+  ],
+  "repository": "github:balaqiang/capri-desktop",
   "main": "src/main/main.js",
   "private": true,
   "scripts": {
-    "start": "electron .",
+    "start": "node scripts/start.js",
+    "attached": "electron .",
     "dev": "electron . --dev",
     "demo": "node scripts/demo.js",
     "hooks:install": "node scripts/install-hooks.js",
@@ -27,7 +34,7 @@
     "cyberpunk",
     "edgerunners"
   ],
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=20"
   },
@@ -48,14 +55,21 @@
       "hooks/**",
       "scripts/**",
       "package.json",
-      "LICENSE"
+      "LICENSE",
+      "LICENSES/**"
     ],
     "asarUnpack": [
       "hooks/**",
-      "src/main/windows.ps1"
+      "src/main/windows.ps1",
+      "src/main/senses.ps1",
+      "src/main/spotify.ps1",
+      "src/main/ocr.ps1"
     ],
     "win": {
-      "target": "nsis",
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "assets/icons/capri.ico"
     },
     "nsis": {
@@ -64,7 +78,15 @@
       "runAfterFinish": true,
       "createDesktopShortcut": true,
       "shortcutName": "Capri",
-      "artifactName": "Capri-Setup-${version}.${ext}"
-    }
+      "artifactName": "Capri-Setup-${version}.${ext}",
+      "createStartMenuShortcut": true
+    },
+    "portable": {
+      "artifactName": "Capri-Portable-${version}.${ext}"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "copyright": "Copyright (c) 2026 balaqiang. Based on capri-desktop, copyright (c) 2026 mochiiwuff."
   }
 }
