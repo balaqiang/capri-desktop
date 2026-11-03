@@ -111,7 +111,15 @@ function ReadMedia {
       $app = $app -replace '\.exe$', ''
       if ($app -eq 'MSEdge') { $app = 'Edge' }
       $playing = [int]$session.GetPlaybackInfo().PlaybackStatus -eq 4
-      $track = @{ t = 'media'; title = $props.Title.Trim(); artist = ([string]$props.Artist).Trim(); app = $app; playing = $playing }
+      # where in the song it is (for her lyrics): the player's last reading, moved on by the time since, and how long it is
+      $pos = -1; $dur = 0
+      try {
+        $tl = $session.GetTimelineProperties()
+        $pos = $tl.Position.TotalSeconds
+        if ($playing -and $tl.LastUpdatedTime.Year -gt 2000) { $pos += ([DateTimeOffset]::Now - $tl.LastUpdatedTime).TotalSeconds }
+        $dur = ($tl.EndTime - $tl.StartTime).TotalSeconds
+      } catch { }
+      $track = @{ t = 'media'; title = $props.Title.Trim(); artist = ([string]$props.Artist).Trim(); album = ([string]$props.AlbumTitle).Trim(); app = $app; playing = $playing; pos = [Math]::Round($pos, 2); dur = [Math]::Round($dur, 1) }
       if (-not $chosen -or ($playing -and -not $chosen.playing)) { $chosen = $track }
     }
     return $chosen
@@ -138,7 +146,7 @@ while ($true) {
     $full = [CapriSenses]::Fullscreen($hwnd, [uint32]$ParentPid)
     if ($full -ne $lastFull) { $lastFull = $full; @{ t = 'full'; on = $full; why = [CapriSenses]::Why } | ConvertTo-Json -Compress }
   } catch { }
-  if ($i % 5 -eq 0 -and $Media -eq 1) {
+  if ($Media -eq 1) { # every reading: her lyrics follow the song (a new one, a skip, a pause)
     $track = ReadMedia
     if ($track) { $track | ConvertTo-Json -Compress } else { @{ t = 'media' } | ConvertTo-Json -Compress }
   }
