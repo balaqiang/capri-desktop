@@ -97,6 +97,15 @@ defaultnya campuran Indonesia-Inggris.
   "mulai sekarang, jangan panggil aku bos".
 - **Riwayatnya** (pengaturan › History): setiap obrolan disimpan di PC-mu, satu file per hari, bisa dicari dan dihapus.
   Obrolan lama jadi "cerita sejauh ini", ringkasan yang dia tulis sendiri, jadi dia ingat kamu sampai berminggu-minggu.
+- **Pertanyaan tentang dunia dicari dulu**: "siapa presiden indonesia", "who is the CEO of Nvidia", "harga emas hari
+  ini?": sekitar satu detik di Wikipedia dan Bing (safe search, hasil disaring), lalu dia menjawab dari web hari ini,
+  bukan dari ingatan modelnya. Header-nya menampilkan SEARCHING… selama itu. Yang dikirim cuma pertanyaanmu (Pengaturan ›
+  Access › Look things up online).
+- **Satu pesan sekali jalan, ringan untuk PC-mu**: selama dia memproses satu pesan, pesan lain menunggu; pesan baru
+  menghentikan jawaban yang masih ditulis; tugas-tugas kecilnya (komentar lagu, penilaian lagu, pelajarannya) menunggu
+  sampai dia selesai menjawabmu, satu per satu; dengan Ollama sebagai otaknya, semuanya memakai model yang sama (dua
+  model sekaligus saling mendorong keluar dari kartu grafismu); dan prompt-nya disusun supaya Ollama memakai ulang yang
+  sudah dibaca, bukan membaca semuanya lagi.
 - **Catatan tentangmu**: "ingat bahwa kucingku namanya Neko", "lupakan soal…".
 - **Header chat-nya** menampilkan suasana hatinya, bukan nama model: CAPRI / NIGHT CITY, / THINKING…, / WATCHING,
   / VIBING, / HAPPY, / JEALOUS, / BORED, / GLITCHING, / ANGRY. Jawabannya ditulis oleh model AI: versi fan dari dirinya.
@@ -132,8 +141,10 @@ Diketik atau diucapkan, dalam bahasa Inggris atau Indonesia, tanpa perlu AI: lih
 - **Buka** aplikasi dan game (Start menu, aplikasi Store, Steam, Epic), folder ("open my download file": Explorer
   terbuka dan dia menunjuk jendelanya), situs di browser yang kamu sebut ("buka youtube di chrome"), dan **cari** file
   serta folder.
-- **Musik**: tombol media ("pause", "lagu berikutnya", "louder"), lagu yang sedang diputar ("lagu apa yang aku
-  dengerin?") lengkap dengan opininya, dan **lagu yang langsung diputar di Spotify**: "putar lagu X", "setel lagu X dari
+- **Musik**: lagu yang sedang diputar, lewat media session Windows (Spotify duluan): "ganti lagu", "next", "lagu
+  sebelumnya", "ulang terus lagunya", "repeat this song", "ulangi semua", "matikan repeat", "acak lagunya", "shuffle",
+  "putar ulang" (dari awal), "maju 10 detik", "mundur 15 detik"; "pause", "louder", "quieter"; lagu yang sedang diputar
+  ("lagu apa yang aku dengerin?") dan "kamu suka lagu ini?" ("do you like this song?") lengkap dengan opininya, dan **lagu yang langsung diputar di Spotify**: "putar lagu X", "setel lagu X dari
   Y", "play X", "search X on Spotify". Dia mencari di Spotify lalu menekan Play pada lagunya (atau Top result) lewat
   antarmuka aksesibilitas Windows. Juga **liriknya**: "tampilkan lirik", "matikan lirik", "liriknya apa?" (lihat
   [Dia ikut mendengarkan musikmu](#dia-ikut-mendengarkan-musikmu)).
@@ -202,8 +213,9 @@ tanpa login ke apa pun:
   Edgerunners selalu dia suka banget.
 - **Lagu yang dia suka**: kepalanya ikut goyang (kakinya menendang-nendang sesuai ketukan kalau dia sedang duduk), not
   musik keluar dari dirinya, dan sesekali dia joget. Lagu yang dia suka banget bikin dia loncat-loncat, dengan hati.
-- **Lagu yang membosankan**: dia bertahan sebentar, menguap lebar, lalu tertidur di tempatnya dengan huruf Z
-  melayang, sampai lagu yang dia suka membangunkannya (atau kamu).
+- **Lagu yang membosankan**: sesekali dia menguap lebar dan mengeluh, tapi tetap terjaga sepanjang lagu, jadi liriknya
+  tetap tampil. Musik yang mulai diputar membangunkannya kalau dia sedang tidur; dia hanya tidur kalau bosan dan tidak
+  ada apa-apa (menguap, lalu huruf Z melayang).
 
 Pengaturan › Behavior › She notices things (atau Pengaturan › Access): **Song lyrics**, **She listens along**.
 
@@ -261,12 +273,12 @@ Ucapkan atau ketik; tidak perlu AI untuk ini.
 | Apa | Bahasa Indonesia | English |
 | --- | --- | --- |
 | Gerak | "ke samping kanan", "ke tengah", "ke cursor saya", "kamu di mana?", "kemari" | "move left", "go to the middle", "come to my cursor", "Capri, where are you?" |
-| Tanya | "jam berapa?", "hari apa?", "berapa 25 x 4", "hitung 15% dari 200" | "what time is it?", "what's the date today?", "what is 12*7" |
+| Tanya | "jam berapa?", "hari apa?", "berapa 25 x 4", "hitung 15% dari 200", "siapa presiden indonesia?" | "what time is it?", "what's the date today?", "what is 12*7" |
 | Kursor | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" (atau gerakkan cepat) | "sit on my cursor", "get off my cursor" |
 | Gaya | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" | "dance", "wave", "take a bow", "sleep", "hide" |
 | Buka | "buka folder downloadku", "buka kalkulator", "buka youtube music", "buka youtube di chrome" | "open my download file", "open Spotify", "open youtube music" |
 | Cari | "di mana folder Downloads?", "dimana file laporan" | "where is my Downloads folder?" |
-| Musik | "lagu berikutnya", "lagu apa yang aku dengerin?" | "pause", "next", "what am I listening to?" |
+| Musik | "ganti lagu", "lagu sebelumnya", "ulang terus lagunya", "acak lagunya", "putar ulang", "maju 10 detik", "lagu apa yang aku dengerin?", "kamu suka lagu ini?" | "next", "previous", "repeat this song", "shuffle", "restart the song", "skip 30 seconds", "pause", "louder", "do you like this song?" |
 | Spotify | "putar lagu Sorai", "setel lagu X dari Y", "putar lagu favoritmu" | "play Die For You", "search X on Spotify", "play your favorite song" |
 | Lirik | "perlihatkan lirik lagu ini", "berhenti tampilkan lirik", "liriknya apa?", "dengarkan lagu ini" | "show the song lyrics", "stop showing lyrics", "what's the lyric?", "listen to this song" |
 | Lihat | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" | "what's on my screen?", "read what's in my notes" |
@@ -352,7 +364,8 @@ Semuanya bisa diganti di pengaturan › Advanced.
 
 - **Secara default, hampir tidak ada**: otaknya bisa Ollama di PC-mu, telinganya Whisper di PC-mu, suaranya Windows atau
   Piper. Satu-satunya yang keluar dengan sendirinya: judul, artis, album, dan durasi lagu yang sedang kamu putar, ke
-  [LRCLIB](https://lrclib.net) untuk mencari liriknya (Pengaturan › Behavior › Song lyrics untuk mematikannya).
+  [LRCLIB](https://lrclib.net) untuk mencari liriknya (Pengaturan › Behavior › Song lyrics untuk mematikannya), dan
+  pertanyaan tentang dunia, ke Wikipedia dan Bing untuk dicari (Pengaturan › Access › Look things up online).
 - **Hanya yang kamu nyalakan yang online**, ke layanan yang kamu pilih, dengan key-mu: pesan chat ke otak cloud,
   kalimat-kalimatnya (bukan suaramu) ke suara cloud, ucapanmu ke Groq atau OpenAI kalau kamu memilihnya untuk
   telinganya, dan screenshot jendela di depan hanya saat kamu memintanya melihat dan mengizinkannya untuk model cloud.
@@ -394,6 +407,7 @@ src/main/                 Electron: jendela transparan tembus-klik, tray, pengat
   senses.ps1              aplikasi di depan, AI lain di depan, baterai, lagu yang diputar, layar penuh
   windows.ps1             posisi jendela lain, supaya dia bisa duduk di atasnya
   spotify.ps1, ocr.ps1    menekan Play di Spotify; membaca teks di gambar (OCR Windows)
+  media.ps1, web.js       lagu yang diputar (repeat, shuffle, seek); pertanyaan yang dicari di web
 src/renderer/js/
   sprite.js, acting.js    rig-nya (shader WebGL) dan gerakannya, gambar demi gambar
   capri.js                karakternya: sikap, berjalan, teleport, dipegang, dilempar, dielus, gestur
