@@ -178,7 +178,7 @@ const LOOK_ASK = new RegExp([
 const MOVE_CUE = /^(?:pindah|geser|jalan|pergi|move|go|walk|berada|berdiri|stand|duduk|sit|ke|be|stay|diam|minggir|datang|come|get|lari|run|nongkrong|tunggu)\b/;
 const MOVES = [
   ['unride', /\b(?:berhenti|stop|jangan|udahan|turun|lepas\w*|get off|hop off)\b.{0,25}\b(?:gelantung\w*|nempel|naik|ride|riding|kursor|cursor|mouse)\b|^(?:hop off|get off|turun(?: dari kursor)?)$/],
-  ['ride', /\b(?:naik|nempel|gelantung\w*|bergelantungan|duduk|ikut(?:in)?|ride|perch|hang|numpang)\b.{0,20}\b(?:kursor|cursor|mouse)\b/],
+  ['ride', /\b(?:naik|nempel|gelantung\w*|bergelantungan|duduk|ikut(?:in)?|ride|perch|hang|numpang|hinggap|bertengger|sit|hop on|get on|jump on|climb on|stay on)\b.{0,20}\b(?:kursor|cursor|mouse|pointer)\b/],
   ['cursor', /\b(?:ke|to|di|by|next to|near|dekat|deket)\s+(?:my |the |your |aku |saya |ku )?(?:kursor|cursor|mouse|pointer|tetikus)(?:ku|mu| aku| saya| ku)?\b|^(?:ke ?sini|sini|come here|datang ke ?sini|come over)$/],
   ['left', /\b(?:samping |sebelah |sisi |pojok |ujung )?kiri\b|\bleft\b/],
   ['right', /\b(?:samping |sebelah |sisi |pojok |ujung )?kanan\b|(?<!\ball |that'?s |is )\bright\b(?!\s+(?:now|away|here|there|back|after|before))/],
@@ -211,8 +211,10 @@ function moveIn(text) {
 
 // ---- what you're listening to, Spotify searches, a browser of your choice, where a file is ----
 const NOW_PLAYING = /\b(?:lagu apa|what song|what(?:'s| is) playing|what am i listening to|lagi (?:dengerin|dengar|muter|putar|mainin) apa|apa yang (?:aku|lagi|sedang|ku) ?(?:mainin|dengerin|putar|dengar|setel)|lagu yang (?:aku|lagi|sedang) (?:dengerin|dengar|putar|mainin|setel)|(?:liat|lihat|tau|tahu) (?:aku|ku)?\s*(?:lagi )?(?:dengerin|dengar|muter|putar|mainin) apa)\b/;
+// her favorite song asked for ("play your favorite song", "putar lagu favoritmu", "setel lagu kesukaan kamu")
+const FAVORITE = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan|nyalain)\s+(?:(?:your|ur|yer)\s+(?:favou?rite|fav|fave)(?:\s+(?:song|track|music|one))?|(?:lagu|musik)\s+(?:favorit|favorite|kesukaan)\s*(?:mu|kamu|lu|lo|capri|nya)|(?:lagu|musik)(?:mu| kamu)\s+(?:yang\s+)?(?:favorit|kesukaan|paling (?:kamu )?suka))\b/i;
 // what comes after "play" when it isn't a song: the music already there, a game with her
-const NOT_A_SONG = /^(?:it|this|that|ini|itu|lagi|again|music|musik|songs?|lagu(?:nya)?|something|anything|sesuatu|apa aja|next|previous|the next one|a game|games?|game|with me|rock|rps|suit|suwit|janken|tebak|guess|coin|dice|dadu|truth|hide and seek|petak umpet|batu|youtube|spotify)\b/i;
+const NOT_A_SONG = /^(?:(?:my|our)\s+(?:favou?rite|fav|fave)|(?:lagu\s+)?(?:favorit|kesukaan)(?:ku| aku| saya)|it|this|that|ini|itu|lagi|again|music|musik|songs?|lagu(?:nya)?|something|anything|sesuatu|apa aja|next|previous|the next one|a game|games?|game|with me|rock|rps|suit|suwit|janken|tebak|guess|coin|dice|dadu|truth|hide and seek|petak umpet|batu|youtube|spotify)\b/i;
 const BROWSERS = { chrome: 'chrome.exe', brave: 'brave.exe', edge: 'msedge.exe', firefox: 'firefox.exe', opera: 'opera.exe' };
 const SITES = {
   youtube: 'https://www.youtube.com', google: 'https://www.google.com', gmail: 'https://mail.google.com', github: 'https://github.com',
@@ -298,6 +300,8 @@ function parse(said) {
     const song = (m[1] || m[2]).trim().replace(/[^\p{L}\p{N} '&,.!-]/gu, '').trim();
     if (song.length >= 2 && !/^(?:the |some |my )?(?:music|song|songs|something|anything|musik|lagu)$/i.test(song)) return { kind: 'song', text: song };
   }
+  // "play your favorite song", "putar lagu favoritmu": hers, not a search for those words
+  if (FAVORITE.test(cased)) return { kind: 'song', text: 'In Love With Myself Petite Meller', mine: true };
   // "(can you) play In Love With Myself", "putar lagu Die For You", "setel lagu X dari Y": that song, played
   // on Spotify (its top match), not just looked up. Not "play it again", a game, or YouTube.
   m = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan|nyalain)\s+(?:(?:the |a |some )?(?:song|track|lagu|musik)\s+)?(.{2,80}?)(?:\s+(?:by|dari|oleh|from)\s+(.{2,40}?))?$/i.exec(cased);
