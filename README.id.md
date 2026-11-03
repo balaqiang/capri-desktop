@@ -94,7 +94,8 @@ defaultnya campuran Indonesia-Inggris.
 - **Riwayatnya** (pengaturan › History): setiap obrolan disimpan di PC-mu, satu file per hari, bisa dicari dan dihapus.
   Obrolan lama jadi "cerita sejauh ini", ringkasan yang dia tulis sendiri, jadi dia ingat kamu sampai berminggu-minggu.
 - **Catatan tentangmu**: "ingat bahwa kucingku namanya Neko", "lupakan soal…".
-- **Ini AI**: jawabannya ditulis oleh model, versi fan dari dirinya; panel chat selalu menyebutkan itu.
+- **Header chat-nya** menampilkan suasana hatinya, bukan nama model: CAPRI / NIGHT CITY, / THINKING…, / WATCHING,
+  / VIBING, / HAPPY, / JEALOUS, / BORED, / GLITCHING, / ANGRY. Jawabannya ditulis oleh model AI: versi fan dari dirinya.
 
 ## Suara dan telinganya
 
@@ -217,10 +218,11 @@ Ucapkan atau ketik; tidak perlu AI untuk ini.
 
 | Apa | Bahasa Indonesia | English |
 | --- | --- | --- |
-| Gerak | "ke samping kanan", "ke tengah", "ke cursor saya" | "move left", "go to the middle", "come to my cursor" |
+| Gerak | "ke samping kanan", "ke tengah", "ke cursor saya", "kamu di mana?", "kemari" | "move left", "go to the middle", "come to my cursor", "Capri, where are you?" |
+| Tanya | "jam berapa?", "hari apa?", "berapa 25 x 4", "hitung 15% dari 200" | "what time is it?", "what's the date today?", "what is 12*7" |
 | Kursor | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" (atau gerakkan cepat) | "sit on my cursor", "get off my cursor" |
 | Gaya | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" | "dance", "wave", "take a bow", "sleep", "hide" |
-| Buka | "buka folder downloadku", "buka kalkulator", "buka youtube di chrome" | "open my download file", "open Spotify" |
+| Buka | "buka folder downloadku", "buka kalkulator", "buka youtube music", "buka youtube di chrome" | "open my download file", "open Spotify", "open youtube music" |
 | Cari | "di mana folder Downloads?", "dimana file laporan" | "where is my Downloads folder?" |
 | Musik | "lagu berikutnya", "lagu apa yang aku dengerin?" | "pause", "next", "what am I listening to?" |
 | Spotify | "putar lagu Sorai", "setel lagu X dari Y", "putar lagu favoritmu" | "play Die For You", "search X on Spotify", "play your favorite song" |
