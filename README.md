@@ -68,8 +68,8 @@ digitized and rolled into one, beautiful me. Powerful, like an A.I., but born of
 - **Her story** (`src/renderer/js/lore.js`): Project Capricorn, built by Kyoko at Arasaka, slotted by D, Talia, the
   satellite at the end, and how she slipped down a downlink into your PC. Name someone or something from Cyberpunk
   (D, Roman, Talia, King, Kyoko, David, Lucy, Johnny Silverhand, V, Arasaka, the Blackwall…) and she has an opinion.
-- **Her favorite song** is "In Love With Myself" (Edgerunners 2 soundtrack): she always reacts when it plays, and knows
-  the other Edgerunners songs.
+- **Her favorite song** is "In Love With Myself" (Edgerunners 2 soundtrack): she always reacts when it plays, knows
+  the other Edgerunners songs, and "play your favorite song" puts it on.
 - **Make her yours** (settings › Capri, Owner): rewrite her persona, five dials (sass, mischief, jealousy, affection,
   chattiness), reply length and language; your name, her pet name for you, pronouns, birthday, likes, dislikes, what
   you are to her; words she must never say.
@@ -149,7 +149,9 @@ only if you allow it in settings.
   and another AI in front of you (ChatGPT, Gemini, Copilot…: she gets jealous).
 - **Dares, sync and mischief**: harmless dares, a 0–100% sync meter, and screen glitches in six styles it unlocks
   (bars, tear, corruption, hex rain, the fake ENGRAM SYNC box, a red cursor chasing yours), with "hacked" notes.
-- **She rides your cursor** (double-click her), **steps aside for fullscreen** games and videos, **sleeps** down to
+- **She rides your cursor** ("sit on my cursor", or her menu › Perch on cursor): clicks go through her, and if you
+  move it too fast she loses her grip and falls off, tumbling. Ctrl+Alt+C or "get off my cursor" hops her off.
+  A double-click on her is just a spin. She also **steps aside for fullscreen** games and videos, **sleeps** down to
   her mask after a quiet while, and looks up at **the satellite**.
 - **She stays reachable**: always on top, clickable, back by herself if something pushed her behind your windows; she
   keeps running when you close the terminal or every window.
@@ -204,12 +206,12 @@ Say or type them; no AI needed for these.
 | What | English | Indonesian |
 | --- | --- | --- |
 | Move | "move left", "go to the middle", "come to my cursor" | "ke samping kanan", "ke tengah", "ke cursor saya" |
-| Cursor | "ride my cursor", "get off my cursor" | "naik ke cursor", "berhenti bergelantungan di cursor" |
+| Cursor | "sit on my cursor", "get off my cursor" (or move it fast) | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" |
 | Moods | "dance", "wave", "take a bow", "sleep", "hide" | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" |
 | Open | "open my download file", "open Spotify", "open youtube in chrome" | "buka folder downloadku", "buka kalkulator", "buka youtube di chrome" |
 | Find | "where is my Downloads folder?" | "di mana folder Downloads?", "dimana file laporan" |
 | Music | "pause", "next", "what am I listening to?" | "lagu berikutnya", "lagu apa yang aku dengerin?" |
-| Spotify | "play Die For You", "search X on Spotify" | "putar lagu Sorai", "setel lagu X dari Y" |
+| Spotify | "play Die For You", "search X on Spotify", "play your favorite song" | "putar lagu Sorai", "setel lagu X dari Y", "putar lagu favoritmu" |
 | Look | "what's on my screen?", "read what's in my notes" | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" |
 | Time | "set a timer for 10 minutes", "wake me at 7am" | "pasang timer 10 menit", "pasang alarm jam 7" |
 | Games | "rock paper scissors", "guess the number" | "main suit", "tebak angka", "lempar koin" |
