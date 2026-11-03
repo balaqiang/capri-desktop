@@ -974,8 +974,8 @@ Bertengger di kursor
 Turun dari kursor
 > Comfy! {0} to hop off.
 Nyaman! {0} buat turun.
-> Double-click her: she sits on your pointer and rides along, and clicks go right through her. Ctrl+Alt+C to hop off.
-Klik dua kali dia: dia duduk di atas kursormu dan ikut ke mana pun, dan klik tembus lewat dia. Ctrl+Alt+C untuk turun.
+> Or say "sit on my cursor": she sits on your pointer and rides along, and clicks go right through her. Move it too fast and she falls off. Ctrl+Alt+C to hop off.
+Atau bilang "duduk di kursorku": dia duduk di atas kursormu dan ikut ke mana pun, dan klik tembus lewat dia. Gerakkan terlalu cepat dan dia jatuh. Ctrl+Alt+C untuk turun.
 > Hide in fullscreen
 Sembunyi saat layar penuh
 > She steps aside while a game or a full screen video is in front, and comes back after. Alarms become Windows notifications meanwhile.
@@ -1529,3 +1529,161 @@ Hari ini {0}.
 Sekarang jam {0}. {1}.
 > {0} = {1}. Easy.
 {0} = {1}. Gampang.
+
+# ---- coding: Claude Code, or her own (main/life.js, settings) ----
+> Claude Code's on it, in a terminal. Say yes to its edits there, I'll keep an eye on it.
+Claude Code lagi ngerjain, di terminal. Setujui perubahannya di sana, aku pantau.
+> Claude Code isn't installed here, so I wrote it myself.
+Claude Code belum terpasang di sini, jadi aku tulis sendiri.
+> Done: {0}, {1} lines, open in {2}. It's in your Capri Code folder.
+Beres: {0}, {1} baris, terbuka di {2}. Ada di folder Capri Code-mu.
+> I need a brain for that: set one up in my settings, AI brain.
+Aku butuh otak buat itu: atur dulu di pengaturanku, AI brain.
+> My code came out garbled. Ask me again?
+Kodeku keluar berantakan. Minta lagi?
+> Coding
+Ngoding
+> Who writes the code
+Siapa yang menulis kode
+> "buatkan kode…", "code a script that…": Claude Code in a terminal (you approve its edits there), or Capri herself with her model, one file opened in your editor (never run).
+"buatkan kode…", "code a script that…": Claude Code di terminal (kamu menyetujui perubahannya di sana), atau Capri sendiri dengan modelnya, satu file dibuka di editor (tidak pernah dijalankan).
+> Claude Code if installed, else her
+Claude Code kalau terpasang, kalau tidak dia
+> Claude Code
+Claude Code
+> Capri herself
+Capri sendiri
+> Coding folder
+Folder kode
+> Where the code goes. Empty: Documents\Capri Code.
+Tempat kodenya disimpan. Kosong: Documents\Capri Code.
+
+# ---- her with your music: lyrics, listening along (listen.js, main/lyrics.js) ----
+> Song lyrics
+Lirik lagu
+> The words of the song over her head as they're sung, from LRCLIB (lrclib.net, free, no account). Only the title, artist, album and length go out to look them up.
+Lirik lagu muncul di atas kepalanya sesuai yang sedang dinyanyikan, dari LRCLIB (lrclib.net, gratis, tanpa akun). Yang dikirim untuk mencarinya cuma judul, artis, album, dan durasi.
+> She listens along
+Dia ikut mendengarkan
+> Her head goes with the song, she dances to the ones she likes, and a boring one sends her to sleep until a better one wakes her.
+Kepalanya ikut goyang sama lagunya, dia joget kalau suka lagunya, dan lagu yang membosankan bikin dia ketiduran sampai lagu yang lebih bagus membangunkannya.
+> Lyrics on. I'll follow along.
+Lirik nyala. Aku ikut nyanyi.
+> Lyrics off. I still know the words.
+Lirik mati. Aku tetap hafal kok.
+> I can't find the words to this one.
+Aku nggak nemu lirik lagu ini.
+> No words in this one. Just vibes.
+Lagu ini nggak ada liriknya. Cuma vibes.
+> I know the words, but not when they're sung.
+Aku tahu liriknya, tapi nggak tahu kapan dinyanyiinnya.
+> Nobody's singing yet. Wait for it.
+Belum ada yang nyanyi. Tunggu dulu.
+> *yawn* Wake me when this one's over.
+*nguap* Bangunin aku kalau lagu ini udah selesai.
+> This song is a sedative. Night.
+Lagu ini kayak obat tidur. Malam.
+> Boring. I'm taking a nap.
+Ngebosenin. Aku tidur dulu.
+> Zzz… tell me when it gets good.
+Zzz… kabarin kalau udah seru.
+> Ooh! Now THIS one!
+Ooh! Nah, YANG INI baru!
+> I'm up, I'm up! This one's good.
+Aku bangun, aku bangun! Yang ini bagus.
+> Finally, a real song!
+Akhirnya, lagu beneran!
+> Oh, I LOVE this one!
+Oh, aku SUKA BANGET lagu ini!
+> Turn it up. Now.
+Gedein volumenya. Sekarang.
+> This one. This one is the one.
+Yang ini. Pokoknya yang ini.
+
+# ---- settings › Access, lyrics commands, the lyrics cache ----
+> Access
+Akses
+> What she can see, hear and do on your PC, and what she keeps.
+Apa yang bisa dia lihat, dengar, dan lakukan di PC-mu, dan apa yang dia simpan.
+> Everything Capri can see, hear and do on this PC, in one place. Switch off what she must not touch: when you ask for it anyway, she tells you it is off here.
+Semua yang bisa Capri lihat, dengar, dan lakukan di PC ini, di satu tempat. Matikan yang tidak boleh dia sentuh: kalau kamu tetap memintanya, dia akan bilang kalau itu dimatikan di sini.
+> What she can see
+Yang bisa dia lihat
+> What she can hear
+Yang bisa dia dengar
+> What she can do on your PC
+Yang bisa dia lakukan di PC-mu
+> What goes online
+Yang dikirim ke internet
+> What she keeps on this PC
+Yang dia simpan di PC ini
+> Watch my coding AI
+Awasi AI coding-ku
+> Claude Code, Codex or Antigravity, through their hooks: the tool, the file, the command, its last message. Never your files' contents.
+Claude Code, Codex, atau Antigravity, lewat hook-nya: tool, file, perintah, dan pesan terakhirnya. Tidak pernah isi file-mu.
+> Open apps
+Buka aplikasi
+> Apps, games and Store apps you name ("open Spotify", "buka kalkulator").
+Aplikasi, game, dan aplikasi Store yang kamu sebut ("open Spotify", "buka kalkulator").
+> Folders and files
+Folder dan file
+> Open your folders, find files and folders, and point at them ("open my downloads").
+Membuka foldermu, mencari file dan folder, lalu menunjuknya ("buka folder downloadku").
+> Close apps
+Tutup aplikasi
+> Close an app you name, always behind a button, like its own close button.
+Menutup aplikasi yang kamu sebut, selalu lewat tombol konfirmasi, seperti tombol close aplikasinya sendiri.
+> Websites
+Situs web
+> Open sites and searches in your browser ("buka youtube di chrome", "search…").
+Membuka situs dan pencarian di browser-mu ("buka youtube di chrome", "cari…").
+> Media keys
+Tombol media
+> Pause, next, previous, volume: the keys on your keyboard, pressed for you.
+Pause, berikutnya, sebelumnya, volume: tombol di keyboard-mu, ditekan untukmu.
+> Spotify
+Spotify
+> Search Spotify and press Play on the song you ask for.
+Mencari di Spotify dan menekan Play pada lagu yang kamu minta.
+> Write code
+Menulis kode
+> Write code into her Code folder (never run), or open Claude Code with your task.
+Menulis kode ke folder Code-nya (tidak pernah dijalankan), atau membuka Claude Code dengan tugasmu.
+> Now and then she dives into the window she sits on: it only looks taken over, nothing in it is touched.
+Sesekali dia menyelam ke jendela yang dia duduki: cuma terlihat seperti dirasuki, tidak ada isinya yang disentuh.
+> Her notes with a cloud model
+Catatannya dengan model cloud
+> Song verdicts
+Penilaian lagu
+> What she thinks of each song she has heard (loves it, likes it, bored by it), so she feels the same next time.
+Pendapatnya tentang tiap lagu yang pernah dia dengar (suka banget, suka, bosan), supaya perasaannya sama di lain waktu.
+> Forget them
+Lupakan
+> She will make up her mind again.
+Dia akan menilai ulang lagunya.
+> Lyrics cache
+Cache lirik
+> The words of songs you've played, kept so they show at once next time without asking LRCLIB again.
+Lirik lagu yang pernah kamu putar, disimpan supaya langsung muncul lain kali tanpa bertanya ke LRCLIB lagi.
+> {0} songs · {1} KB
+{0} lagu · {1} KB
+> Clear
+Hapus
+> Forgot the lyrics of {0} songs.
+Lirik {0} lagu sudah dihapus.
+> Could not clear them.
+Gagal menghapusnya.
+> Previous
+Sebelumnya
+> Next
+Berikutnya
+> I'm not allowed to do that. Settings › Access › {0}.
+Aku nggak diizinkan melakukan itu. Pengaturan › Akses › {0}.
+> Lyrics on. I'll follow along, line by line.
+Lirik nyala. Aku ikutin baris demi baris.
+> Lyrics on. Play something and I'll follow along.
+Lirik nyala. Putar sesuatu dan aku ikut nyanyi.
+> Okay, I'm listening: {0}.
+Oke, aku dengerin: {0}.
+> Lyrics? Look over my head: they show line by line, as they're sung.
+Lirik? Lihat di atas kepalaku: muncul baris demi baris, pas dinyanyikan.
