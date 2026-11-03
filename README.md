@@ -24,6 +24,7 @@ your windows, teleports, glitches your screen, gets petted, thrown around, and l
 - [Errands on your PC](#errands-on-your-pc)
 - [She looks at your screen](#she-looks-at-your-screen)
 - [Her life on your desktop](#her-life-on-your-desktop)
+- [She listens to your music](#she-listens-to-your-music)
 - [Petting, grabbing, throwing](#petting-grabbing-throwing)
 - [Her body: rig, gestures, and what she learns](#her-body-rig-gestures-and-what-she-learns)
 - [She watches your coding AI](#she-watches-your-coding-ai)
@@ -50,11 +51,14 @@ On top of mochiiwuff's capri-desktop 0.4.4 (her rig, her animation, Claude Code 
 - **She improves herself** from how you react, and keeps a history of your chats.
 - **Errands**: move her by words, open apps and folders (she points at them), browsers, files, music, Spotify songs
   played for you, what's playing.
+- **She listens to your music**: the lyrics of what you play over her head, line by line as they're sung (LRCLIB),
+  her head going with the song, a dance to the ones she likes, a nap through the boring ones.
 - **Look** for real: the window in front, read with Windows' OCR.
 - **A livelier body**: walking, petting, grabbing her any time, throwing, dizziness, new gestures her AI uses while she
   talks, and a learning system for when and how she moves.
 - **A Windows app**: installer and portable exe, starts with Windows, stays on top and clickable, `.bat` launchers,
-  a full settings window.
+  a full settings window dressed like Cyberpunk 2077's menus, with an **Access** page for everything she may see,
+  hear and do on your PC.
 
 ## Who she is
 
@@ -124,7 +128,13 @@ Typed or spoken, in English or Indonesian, no AI needed: see [Commands](#command
 - **Music**: media keys ("pause", "lagu berikutnya", "louder"), what's playing ("lagu apa yang aku dengerin?") with her
   opinion on it, and **songs played on Spotify**: "play X", "putar lagu X", "setel lagu X dari Y", "search X on Spotify".
   She searches Spotify and presses Play on the song (or the Top result) through Windows' accessibility interface.
+  And its **lyrics**: "show lyrics", "hide lyrics", "what's the lyric?" (see [She listens to your music](#she-listens-to-your-music)).
 - **Close an app** ("close Discord"): only behind a button, the way its own close button does.
+- **Code for you**: "buatkan kode python untuk menghitung BMI", "bikin game snake pakai html", "write a script that…".
+  With [Claude Code](https://code.claude.com/docs/en/quickstart) installed, she opens it in a terminal in your coding
+  folder with your task typed in: you see its work and approve its edits there, and she narrates it. Without it (or
+  "…sendiri", "…yourself"), she writes it herself with her own model: one file in `Documents\Capri Code`, opened in VS
+  Code or Notepad, never run. "pakai claude code" picks Claude Code. Settings › AI brain › Coding: who writes it, and where.
 - **Timers, alarms, reminders, a study timer** (Pomodoro), web and YouTube searches, notes, dares ("tantang aku"),
   games: rock paper scissors ("main suit"), guess the number ("tebak angka"), a coin, dice.
 
@@ -161,6 +171,29 @@ only if you allow it in settings.
 
 ![Possessing a window](docs/possess.png)
 
+## She listens to your music
+
+Whatever Windows shows as playing (Spotify, a browser, any player in the volume flyout), with no login to anything:
+
+- **Its lyrics, as they're sung**: the line being sung floats over her head, in time with the song, from
+  [LRCLIB](https://lrclib.net) (free, open, no account; only the title, artist, album and length are sent to find
+  them). She keeps up with skips, seeks and pauses, and her AI knows the lines around the moment, so you can ask her
+  about them. "show the song lyrics", "stop showing lyrics", "what's the lyric?" ("perlihatkan lirik lagu ini",
+  "berhenti tampilkan lirik", "liriknya apa?"), or any other wording with a word for lyrics in it: she reads what you
+  want from it, and her AI can switch them too. She never writes a song's lyrics out in her bubble.
+- **Kept on your PC**: a song's lyrics are fetched once and kept (`lyrics-cache.json`), so the next time it plays they
+  show at once, without asking LRCLIB again (and even when LRCLIB is down). Settings › Access › Lyrics cache clears them.
+- **"Listen to this song"** ("dengarkan lagu ini"): she tunes in, tells you what she makes of it, and follows it.
+- **She makes up her mind** about each song, once, and sticks to it: loud, glitchy, synth and anything that sounds
+  like Night City she likes; slow, sleepy, droning ones bore her. Her own song and the Edgerunners soundtracks she
+  always loves.
+- **A song she likes**: her head goes with it (legs kicking on the beat when she sits), music notes come off her, and
+  she dances now and then. One she loves gets her bouncing, with hearts.
+- **A boring one**: she lasts a while, gives a big yawn, and falls asleep where she is, Z's rising, until a song she
+  likes wakes her up (or you do).
+
+Settings › Behavior › She notices things (or Settings › Access): **Song lyrics**, **She listens along**.
+
 ## Petting, grabbing, throwing
 
 - **Pet her**: stroke her head back and forth with your pointer (no click). She leans into your hand, hearts float
@@ -171,6 +204,12 @@ only if you allow it in settings.
   behind her, bouncing off the screen's sides. Thrown hard into the floor she goes flat (splat), sees stars and springs
   back up, a little offended.
 - **Shake her** and she gets dizzy. Her head turns toward your pointer when it's near, and now and then she side-eyes it.
+- **She's elastic, like in the show**: her body is rubber over her drawing (springs that overshoot and wobble back).
+  Poke her and she boings away from your click, sparks flying off the spot; plucked up she stretches out of your
+  fingers; she lands squashed flat and bounces back to her height; she stretches tall and thin as she teleports out
+  and pops back in with glitter; each stroke of a pet sways her. She leans toward your pointer, her mane bristles and
+  she sways out of the way when it whooshes past her face, the glitter on her mane twinkles now and then, and when
+  your pointer lingers by her, her other minds open their eyes around her mane to stare at it.
 
 ## Her body: rig, gestures, and what she learns
 
@@ -214,8 +253,10 @@ Say or type them; no AI needed for these.
 | Find | "where is my Downloads folder?" | "di mana folder Downloads?", "dimana file laporan" |
 | Music | "pause", "next", "what am I listening to?" | "lagu berikutnya", "lagu apa yang aku dengerin?" |
 | Spotify | "play Die For You", "search X on Spotify", "play your favorite song" | "putar lagu Sorai", "setel lagu X dari Y", "putar lagu favoritmu" |
+| Lyrics | "show the song lyrics", "stop showing lyrics", "what's the lyric?", "listen to this song" | "perlihatkan lirik lagu ini", "berhenti tampilkan lirik", "liriknya apa?", "dengarkan lagu ini" |
 | Look | "what's on my screen?", "read what's in my notes" | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" |
 | Time | "set a timer for 10 minutes", "wake me at 7am" | "pasang timer 10 menit", "pasang alarm jam 7" |
+| Code | "write a script that sorts my files", "make a snake game in html with claude code" | "buatkan kode python untuk…", "bikin landing page sendiri", "suruh claude code bikin…" |
 | Games | "rock paper scissors", "guess the number" | "main suit", "tebak angka", "lempar koin" |
 | Her | "dare me", "how's our sync?", "who are you?" | "tantang aku", "improve dirimu", "kamu udah belajar apa?" |
 | Moving | "move less", "you can move again" | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" |
@@ -263,10 +304,22 @@ Antigravity: her menu › **Watch**, or `npm run hooks:codex:install` / `npm run
 
 ## Settings and hotkeys
 
-Her settings (Ctrl+Alt+S, or her menu): **Capri** (persona, dials, banned words, self-improvement), **Owner** (you),
-**Voice** (ears, her voice, effects), **AI brain** (services, models, local brain, Look), **Behavior** (wander, notices,
-music, dares, pets, fullscreen), **Timers**, **History**, **Advanced** (hotkeys, shortcuts, start with Windows,
-display), **About**.
+Her settings (Ctrl+Alt+S, or her menu), dressed like Cyberpunk 2077's: tabs along the top (**Q** / **E** to move
+between them), ◁ choices ▷, ON / OFF switches, and what the setting under your pointer does in the bar at the bottom.
+**Capri** (persona, dials, banned words, self-improvement), **Owner** (you), **Voice** (ears, her voice, effects),
+**AI brain** (services, models, local brain, Look), **Behavior** (wander, notices, music, dares, pets, fullscreen),
+**Access**, **Timers**, **History**, **Advanced** (hotkeys, shortcuts, start with Windows, display), **About**.
+
+**Access** is everything she may touch, in one place, each with its own switch:
+
+- **What she can see**: your screen when you ask (Look), and with a cloud model or not; the program in front, idle
+  time, CPU and battery (her remarks); whether another AI is in front; what's playing; your coding AI.
+- **What she can hear**: your microphone (off, push to talk, always).
+- **What she can do on your PC**: open apps, open folders and find files, close apps, open websites, press the media
+  keys, play songs on Spotify, write code, possess your windows. Ask for something that's off and she tells you so.
+- **What goes online**: song lyrics (LRCLIB), her notes with a cloud model.
+- **What she keeps on this PC**: her memory of you, your chats, her verdicts on songs ("Forget them"), the lyrics
+  cache ("Clear").
 
 | Hotkey | What it does |
 | --- | --- |
@@ -280,12 +333,14 @@ All of them can be changed in settings › Advanced.
 
 ## Privacy: what leaves your PC
 
-- **By default, nothing**: her brain can be Ollama on your PC, her ears Whisper on your PC, her voice Windows' or Piper.
+- **By default, almost nothing**: her brain can be Ollama on your PC, her ears Whisper on your PC, her voice Windows' or
+  Piper. The one thing that goes out on its own: the title, artist, album and length of the song you're playing, to
+  [LRCLIB](https://lrclib.net) to find its lyrics (Settings › Behavior › Song lyrics turns it off).
 - **Only what you switch on goes online**, to the service you picked, with your key: your chat messages to a cloud
   brain, her lines (never your voice) to a cloud voice, your speech to Groq or OpenAI if you pick them for her ears, a
   screenshot of the window in front only when you ask her to look and allowed it for cloud models.
-- **Kept on your PC**: your history, her notes, her lessons, what she learned about moving, your keys (encrypted with
-  your Windows account). Your notes and lessons go to a cloud model only if you switch on "Also with a cloud model".
+- **Kept on your PC**: your history, her notes, her lessons, what she learned about moving, her verdicts on songs, the
+  lyrics she fetched, your keys (encrypted with your Windows account). Your notes and lessons go to a cloud model only if you switch on "Also with a cloud model".
 - **Claude Code hooks** send only what the display needs (tool name, file path, command, Claude's last message) to
   `127.0.0.1`, never your file contents.
 - **What she changes on your system**: her hooks (if you install them), a startup entry, shortcuts. She uninstalls like
@@ -301,6 +356,8 @@ All of them can be changed in settings › Advanced.
   › **Full**. Or she learned you don't like her moving: say "boleh gerak lagi".
 - **Look says something wrong.** Use a model that can see (gemma3, Gemini, GPT-4o); small text-only models can't.
 - **Spotify only searches.** Keep the Spotify app open; she presses Play through Windows' accessibility interface.
+- **No lyrics over her head.** LRCLIB doesn't have every song, and has some only without timing (she still knows those).
+  She hides them while she talks, works or sleeps. The player has to show in Windows' volume flyout.
 - **Mac, Linux, phone?** Windows is what she's made for; from the source she may start elsewhere, without the Windows
   tricks.
 
@@ -312,6 +369,7 @@ src/main/                 Electron: the transparent click-through window, tray, 
   llm.js, ollama.js       her brains: Ollama, OpenAI-compatible (Gemini…), Anthropic, Claude Code
   errands.js              what she does from plain words (move, open, find, music, Spotify, look, timers…)
   life.js                 timers, sync, notes, notices, dares, what's playing, song comments, errands run
+  lyrics.js               the song's timed lyrics, from LRCLIB
   launch.js, apps.js      opening and closing apps, games, sites
   hearing.js, mouth.js    her ears (Whisper, Groq, OpenAI, Windows) and her voice (ElevenLabs, OpenAI, Piper…)
   growth.js, history.js   she improves herself; your chats, a file a day, the story so far
@@ -326,6 +384,7 @@ src/renderer/js/
   chat.js, persona.js     talking to her: the conversation, her persona, her moves from her AI
   lore.js                 her story and what she knows of Cyberpunk
   life.js, glitch.js      pets, emotions, mischief, her six glitch styles
+  listen.js               her with your music: lyrics over her head, grooving, dancing, dozing off
   ears.js, tts.js         the microphone; her voice out loud, effects and lips
   fx.js, panel.js         shards, bolts, cut-ins, hearts; her panel and her faces
   brain.js, guide.js      Claude events into lines; her guide
@@ -349,6 +408,7 @@ This project stands on the work of others. All credit for the original to them.
 | Capri Desktop contributors | The code of capri-desktop up to 0.4.3, under the MIT License |
 | Capri Desktop 2.4 (C#) | The features merged here, its art (`assets/art`), translations (`assets/lang`) and classic persona; started from lachydotmcg's 0.2.0 |
 | [**lachydotmcg**](https://github.com/lachydotmcg) · [capri-desktop](https://github.com/lachydotmcg/capri-desktop) | The first Capri on the desktop (C#), with contributions from [tuno473](https://github.com/tuno473), [tob7as](https://github.com/tob7as) and [super-cr4SH](https://github.com/super-cr4SH); inspired by jpartnma_'s TikTok video |
+| [LRCLIB](https://lrclib.net) | The free, open library of timed lyrics (and its API) her lyrics come from |
 | Fonts | Chakra Petch and JetBrains Mono, SIL Open Font License, via Fontsource |
 
 Capri / Project Capricorn, Cyberpunk and Cyberpunk: Edgerunners belong to CD PROJEKT RED, Studio Trigger and Netflix.
