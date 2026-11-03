@@ -512,6 +512,20 @@ export class FxLayer {
     return new Promise((done) => this.add({ type: 'cutin', life, x, y, dir, image, done }));
   }
 
+  // ---------- petted, dizzy ----------
+
+  // Little hearts floating up from where you pet her, swaying, flat red with their violet copy.
+  hearts(x, y, { count = 1 } = {}) {
+    for (let i = 0; i < count; i++) {
+      this.add({ type: 'heart', life: rand(800, 1150), x, y, vx: rand(-26, 26), vy: rand(-95, -70), size: rand(7, 11), sway: rand(0, 6), color: pick([COLORS.red, COLORS.red, COLORS.green]) });
+    }
+  }
+
+  // Stars going round her head: she's dizzy. `follow()`: { x, y } of her head.
+  dizzy(follow, { life = 2600, count = 4, radius = 46 } = {}) {
+    this.add({ type: 'dizzy', life, follow, count, radius, smooth: true });
+  }
+
   // ---------- her intro ----------
 
   // Her first appearance: she grabs your screen. Its edges crackle red; her left hand slams onto
@@ -959,6 +973,45 @@ export class FxLayer {
   draw(it, t, dt, now) {
     const { ctx } = this;
     switch (it.type) {
+      case 'heart': {
+        it.x += it.vx * dt;
+        it.y += it.vy * dt;
+        it.vx *= 0.92;
+        const k = t < 0.15 ? t / 0.15 : t > 0.7 ? 1 - (t - 0.7) / 0.3 : 1; // pops in, fades out
+        const r = it.size * (0.6 + 0.4 * Math.min(1, t * 6)) * k;
+        const x = it.x + Math.sin((now - it.born) / 160 + it.sway) * 5;
+        const heart = (dx, dy) => {
+          ctx.beginPath();
+          ctx.moveTo(x + dx, it.y + r * 0.9 + dy);
+          ctx.bezierCurveTo(x - r * 1.3 + dx, it.y + dy, x - r * 0.9 + dx, it.y - r * 1.1 + dy, x + dx, it.y - r * 0.35 + dy);
+          ctx.bezierCurveTo(x + r * 0.9 + dx, it.y - r * 1.1 + dy, x + r * 1.3 + dx, it.y + dy, x + dx, it.y + r * 0.9 + dy);
+          ctx.closePath();
+        };
+        heart(-2, 2);
+        ctx.fillStyle = COLORS.violet;
+        ctx.fill();
+        heart(0, 0);
+        ctx.fillStyle = it.color;
+        ctx.fill();
+        break;
+      }
+      case 'dizzy': {
+        const at = it.follow();
+        if (!at) {
+          it.life = 0;
+          break;
+        }
+        const k = t > 0.85 ? (1 - t) / 0.15 : 1;
+        const spin = (now - it.born) / 260;
+        for (let i = 0; i < it.count; i++) {
+          const a = spin + (i / it.count) * Math.PI * 2;
+          const x = at.x + Math.cos(a) * it.radius;
+          const y = at.y - 34 + Math.sin(a) * it.radius * 0.32; // a ring seen from the side
+          const front = Math.sin(a) > 0;
+          this.sparkle(x, y, (front ? 11 : 7) * k, i % 2 ? COLORS.green : COLORS.paper, front ? COLORS.red : null);
+        }
+        break;
+      }
       case 'shard': {
         it.x += it.vx * dt;
         it.y += it.vy * dt;
@@ -1408,7 +1461,8 @@ export class FxLayer {
         }
         // the close-up, pushed in a little more every frame, shaking on ones
         const zoom = ((h * 1.1) / CUTIN.h) * (1 + t * 0.08);
-        const fw = CUTIN.w * zoom, fh = CUTIN.h * zoom;
+        const aspect = it.image.width && it.image.height ? it.image.width / it.image.height : CUTIN.w / CUTIN.h;
+        const fh = CUTIN.h * zoom, fw = fh * aspect;
         const cx = x0 + w / 2 + skew / 2 + rand(-2, 2), cy = y0 + h / 2 + rand(-2, 2);
         ctx.drawImage(it.image, cx - fw / 2, cy - fh / 2, fw, fh);
         ctx.fillStyle = COLORS.red;
