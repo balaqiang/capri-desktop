@@ -310,7 +310,7 @@ function parse(said) {
     const via = /\bclaude\b/.test(text) ? 'claude' : /\b(?:sendiri|yourself|kamu aja)\b/.test(text) ? 'self' : null;
     return { kind: 'code', task, via };
   }
-  if (CLOCK_ASK.test(text)) return { kind: 'clock', what: /tanggal|date|hari apa|what day|day is it|bulan|month|tahun|year/.test(text) ? 'date' : 'time' };
+  if (CLOCK_ASK.test(text)) return { kind: 'time', what: /tanggal|date|hari apa|what day|day is it|bulan|month|tahun|year/.test(text) ? 'date' : 'time' };
   const sum = arithmetic(text);
   if (sum) return { kind: 'math', ...sum };
 
