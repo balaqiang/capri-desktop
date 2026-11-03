@@ -15,6 +15,7 @@ import { Ears } from './ears.js';
 import { Mouth } from './tts.js';
 import { Glitch } from './glitch.js';
 import { Life } from './life.js';
+import { Listening } from './listen.js';
 import { loadLang, T } from './i18n.js';
 
 const host = window.host;
@@ -108,6 +109,9 @@ async function boot() {
   capri.restOn = config.rest || 'corner';
   capri.setView(innerWidth, innerHeight, innerHeight - floorGap);
   capri.setScale(config.scale);
+  // her with your music: the song's words over her head, grooving, dancing, dozing off (listen.js)
+  const listening = new Listening({ capri, fx, panel, voice, el: document.getElementById('lyric') });
+  listening.configure(config);
 
   // from Capri Desktop 2.4: her mischief, her ears (the mic next to her), her voice out loud, her life
   const glitch = new Glitch(document.getElementById('glitch'));
@@ -230,6 +234,7 @@ async function boot() {
   capri.onMove = (head) => {
     // pointing at something: the panel goes on her other side, so it doesn't cover it
     panel.setAnchor({ ...head, lean: capri.pointing ? -capri.pointing.dir : 0 }, capri.view);
+    listening.place(head);
     // her mic rides by her head
     const side = head.x > innerWidth - 120 ? -1 : 1;
     micButton.style.transform = `translate(${Math.round(head.x + side * 70 * Math.max(0.6, capri.scale) - 17)}px, ${Math.round(head.y - 10)}px)`;
@@ -419,10 +424,15 @@ async function boot() {
       ...(code === 'nomic' || code === 'noears' ? { actions: [{ id: 'settings', label: T('Settings…'), primary: true }], onAction: () => { panel.hide(); host.openSettings('voice'); } } : {}),
     });
   };
-  host.onLife((evt) => life.onEvent(evt));
+  host.onLife((evt) => {
+    life.onEvent(evt);
+    listening.onEvent(evt);
+  });
+  host.songNow().then((now) => listening.restore(now)).catch(() => {});
   const configureLife = (cfg) => {
     chat.configure(cfg);
     life.configure(cfg);
+    listening.configure(cfg);
     mouth.configure(cfg);
     ears.configure(cfg);
   };
@@ -588,6 +598,24 @@ async function boot() {
           pos: { x: Math.round(capri.pos.x), y: Math.round(capri.pos.y) }, floor: capri.floor, stance: capri.stance,
           busy: capri.busy, dragging: capri.dragging, flight: Boolean(capri.flight), alpha: capri.p.alpha, hidden: capri.hidden,
           interactive, lastMoveAgo: Math.round(performance.now() - lastMove), riding: capri.riding,
+        }));
+        break;
+      case 'fx': { // --dev: { what: 'poke' | 'eyes' | 'whoosh' | 'land' }: her elastic body and its sparks, acted out
+        const h = capri.head();
+        if (cmd.what === 'eyes') capri.manyEyes();
+        else if (cmd.what === 'whoosh') { capri.nextWhoosh = 0; capri.whoosh(h.x, h.y - 20, 2400, 0); }
+        else if (cmd.what === 'land') capri.boing({ squash: -3.5, mane: 1.5 });
+        else capri.poke(h.x + 30, h.y);
+        break;
+      }
+      case 'listen': // --dev: her with the music, in the log (the line's number and length, not its words); { verdict, doze } to act one out
+        if (cmd.verdict) listening.judged(listening.song, cmd.verdict);
+        if (cmd.doze) listening.dozeAt = 1;
+        console.log('[listen]', JSON.stringify({
+          song: Boolean(listening.song), playing: listening.playing, pos: Math.round(listening.position() * 10) / 10, verdict: listening.verdict,
+          lines: listening.words.song === listening.song ? listening.words.lines?.length || 0 : -1, shown: listening.shown,
+          shownChars: listening.el.hidden ? 0 : listening.lineEl.textContent.length, groove: capri.groove, mode: capri.mode, napping: capri.napping,
+          base: capri.base?.name, lyricBox: listening.el.hidden ? null : listening.el.style.transform,
         }));
         break;
       case 'teleport': // --dev: { x, y } where to (her feet), else somewhere
