@@ -47,6 +47,7 @@ let demoTimer = null;
 let windowWatch = null;
 // the watcher only speaks when something changes: the overlay asks for this when it (re)loads
 let lastWindows = null;
+let lastDesktopRearm = 0; // when her pointer hook was last set up again for the desktop coming in front
 let chatModels = null; // the provider's models, as last seen (null: not reached)
 let chatError = null;  // why not, when the provider said
 let chatErrorCode = null; // 'nokey' or 'nourl': what her setup should ask for
@@ -1530,6 +1531,14 @@ function main() {
       onUpdate: (data) => {
         // a click on the taskbar brings it up over her: sitting on it, her legs would vanish behind it
         if (data.taskbar && !lastWindows?.taskbar && config.load().rest === 'taskbar') raiseOverlay();
+        // the last window closed (your desktop in front now, none of the windows): her pointer hook set up
+        // again, the moment that's known to leave her unclickable; at most every 10 seconds
+        const own = [overlay, settingsWin].filter((w) => w && !w.isDestroyed()).map(hwndOf); // her chat taking the keyboard isn't it
+        const toDesktop = data.fg !== lastWindows?.fg && !data.taskbar && !own.includes(data.fg) && !(data.wins || []).some((w) => w.id === data.fg);
+        if (toDesktop && Date.now() - lastDesktopRearm > 10000) {
+          lastDesktopRearm = Date.now();
+          rearmOverlay();
+        }
         lastWindows = data;
         overlay?.webContents.send('windows:update', data);
       },
