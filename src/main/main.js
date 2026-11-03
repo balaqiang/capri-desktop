@@ -192,7 +192,7 @@ function rearmOverlay() {
   overlay.setAlwaysOnTop(true, 'screen-saver');
   fitOverlay();
   sendCommand('rearmed'); // click-through again: she waits for the pointer to be on her
-  console.log('[capri] mouse hook set up again');
+  debugNote('mouse hook set up again');
 }
 
 // Above every window, always: something (her chat taking the keyboard and giving it back, another
@@ -296,24 +296,39 @@ function toggleVisible(force) {
 
 // A game or a full screen video in front: she steps aside (her whole window), and comes back after.
 // Alarms that go off meanwhile become Windows notifications.
+let comebackTimers = [];
 function setFullscreenAway(away) {
   if (!overlay || overlay.isDestroyed() || away === fullscreenAway) return;
   fullscreenAway = away;
-  if (DEV) console.log('[capri] fullscreen away:', away);
+  debugNote(`fullscreen away: ${away}`);
+  comebackTimers.forEach(clearTimeout);
+  comebackTimers = [];
   if (away) {
     overlay.hide();
   } else {
     overlay.showInactive();
     rearmOverlay();
+    // shown again, Windows may only now hand her window its pointer: the hook set up once more as it settles
+    // (right after a hide and show she could stay click-through, unclickable, until you left and came back)
+    comebackTimers = [400, 1500].map((ms) => setTimeout(() => !fullscreenAway && rearmOverlay(), ms));
   }
   rebuildTray();
+}
+
+// Settings › Advanced › Debug log: what she decided and why, in the console and in capri-debug.log (her data
+// folder), to see afterwards why she stepped aside or stopped hearing the pointer.
+function debugNote(line) {
+  if (!DEV && !config.load().debugLog) return;
+  const text = `${new Date().toISOString()} ${line}`;
+  console.log('[capri]', line);
+  fs.appendFile(path.join(app.getPath('userData'), 'capri-debug.log'), `${text}\n`, () => {});
 }
 
 // She steps aside only once it lasts (a game, a film), not for a window that flashes up full screen.
 let fullscreenTimer = null;
 function onFullscreen(on, why = '') {
   clearTimeout(fullscreenTimer);
-  if (DEV || config.load().debugLog) console.log('[capri] full screen in front:', on, why);
+  debugNote(`full screen in front: ${on} ${why}`);
   if (!on) {
     fullscreenOverride = false;
     setFullscreenAway(false);
@@ -1393,6 +1408,11 @@ async function debugHandler(route, body) {
   }
   if (route === 'reload') {
     overlay.webContents.reloadIgnoringCache();
+    return { ok: true };
+  }
+  if (route === 'away') {
+    // { on }: as if a game had come full screen in front of her (she steps aside), or gone
+    setFullscreenAway(Boolean(body.on));
     return { ok: true };
   }
   if (route === 'unhook') {
