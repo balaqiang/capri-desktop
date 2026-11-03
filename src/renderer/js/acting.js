@@ -420,6 +420,136 @@ export const ACTS = {
     ],
   },
 
+  // thrown into the floor: flattened, mane squashed out, held a beat (dazed), then she springs back up
+  // past her height and settles
+  splat: {
+    priority: 4,
+    fps: 24,
+    keys: [
+      [2, { sy: 0.5, sx: 1.42, bob: 10, mane: -0.38, head: 0.28, arms: -0.7, tilt: 6 }],
+      [10, { sy: 0.56, sx: 1.36, bob: 9, mane: -0.32, head: 0.24, arms: -0.62, tilt: 5 }],
+      [3, { sy: 0.6, sx: 1.3, bob: 8, mane: -0.25, head: -0.12, arms: -0.55, tilt: -3 }],
+      [8, { sy: 0.58, sx: 1.32, bob: 8, mane: -0.28, head: 0.16, arms: -0.6, tilt: 3 }],
+      [1, { sy: 1.24, sx: 0.84, bob: -14, mane: 0.4, arms: 0.4, smear: [0, 18] }],
+      [3, { sy: 1.08, sx: 0.95, bob: -6, mane: 0.25, arms: 0.2 }],
+      [2, { sy: 0.92, sx: 1.06, bob: 2, mane: -0.05, arms: -0.1 }],
+      [2, { sy: 1.02, sx: 0.99 }],
+      [1, {}],
+    ],
+  },
+
+  // ---- what her AI can have her do while she talks ([[move: …]] in her answer, chat.js) ----
+
+  // being petted: she leans her head into your hand, mane softening, sways a little
+  pet: {
+    priority: 1,
+    directional: true,
+    keys: [
+      [2, { head: 0.1, mane: -0.08, bob: 1, tilt: 1 }],
+      [4, { head: 0.24, mane: -0.16, bob: 2, tilt: 2.5, arms: -0.12 }],
+      [4, { head: 0.28, mane: -0.2, bob: 2, tilt: 3, arms: -0.15, sy: 0.98 }],
+      [3, { head: 0.2, mane: -0.14, bob: 1, tilt: 2, arms: -0.1 }],
+    ],
+  },
+
+  // a wave: one arm up, the hand going side to side
+  wave: {
+    priority: 2,
+    directional: true,
+    keys: [
+      [2, { reach: 0.4, head: 0.05, mane: 0.05 }],
+      [2, { reach: 1.3, long: 1.05, head: 0.1, mane: 0.12, bob: -2 }],
+      ...rep(3, [[3, { reach: 1.55, long: 1.05, head: 0.12, mane: 0.14, bob: -2 }], [3, { reach: 1.15, long: 1.05, head: 0.08, mane: 0.1, bob: -1 }]]),
+      [2, { reach: 0.5, head: 0.04 }],
+      [1, {}],
+    ],
+  },
+
+  // yes: two dips of the head, the body following
+  nod: {
+    priority: 1,
+    keys: [
+      [2, { head: 0.12, bob: 3, sy: 0.97, mane: -0.05 }],
+      [2, { head: -0.02, bob: -1, sy: 1.01 }],
+      [2, { head: 0.12, bob: 3, sy: 0.97, mane: -0.05 }],
+      [3, { head: 0, bob: 0 }],
+    ],
+  },
+
+  // dunno: shoulders (arms) up, head cocked, held, dropped
+  shrug: {
+    priority: 1,
+    keys: [
+      [1, { arms: -0.15, sy: 0.98 }],
+      [2, { arms: 0.42, sy: 1.04, bob: -2, head: 0.16, mane: 0.1 }],
+      [8, { arms: 0.38, sy: 1.03, bob: -2, head: 0.18, mane: 0.08 }],
+      [2, { arms: 0.05, sy: 0.99, head: 0.05 }],
+      [1, {}],
+    ],
+  },
+
+  // hmm: head tilted, a hand up to her chin, the mane settling while she thinks
+  think: {
+    priority: 1,
+    directional: true,
+    keys: [
+      [2, { head: 0.1, reach: 0.5 }],
+      [16, { head: 0.2, reach: 0.95, long: 0.75, mane: -0.1, tilt: 1.5 }],
+      [8, { head: 0.24, reach: 0.95, long: 0.75, mane: -0.14, tilt: 2 }],
+      [2, { head: 0.08, reach: 0.3 }],
+      [1, {}],
+    ],
+  },
+
+  // a showy bow: leaning way over, arms out behind, head down, back up with a little bounce
+  bow: {
+    priority: 2,
+    directional: true,
+    keys: [
+      [2, { tilt: 6, head: 0.1, arms: -0.2 }],
+      [3, { tilt: 22, head: 0.34, arms: -0.55, mane: -0.18, bob: 4 }],
+      [8, { tilt: 26, head: 0.38, arms: -0.6, mane: -0.22, bob: 5 }],
+      [2, { tilt: 8, head: 0.1, arms: -0.15, bob: -3, sy: 1.04 }],
+      [2, { tilt: -2, bob: 1, sy: 0.97 }],
+      [1, {}],
+    ],
+  },
+
+  // a little dance: hips side to side (lean), arms up in turn, bouncing on the beat
+  dance: {
+    priority: 2,
+    keys: rep(3, [
+      [3, { tilt: -7, bob: 3, sy: 0.95, armL: 0.9, armR: -0.2, head: -0.1, mane: 0.15 }],
+      [3, { tilt: 0, bob: -5, sy: 1.05, armL: 0.4, armR: 0.4, mane: 0.25 }],
+      [3, { tilt: 7, bob: 3, sy: 0.95, armL: -0.2, armR: 0.9, head: 0.1, mane: 0.15 }],
+      [3, { tilt: 0, bob: -5, sy: 1.05, armL: 0.4, armR: 0.4, mane: 0.25 }],
+    ]),
+  },
+
+  // laughing: head back, mane bristling, shaking on every other drawing
+  laugh: {
+    priority: 2,
+    fps: 24,
+    keys: [
+      [2, { head: -0.1, mane: 0.15, arms: -0.15, sy: 0.97 }],
+      ...rep(5, [[2, { head: -0.16, mane: 0.32, bob: -2, arms: -0.25 }], [2, { head: -0.08, mane: 0.24, bob: 1, arms: -0.18 }]]),
+      [3, { head: 0, mane: 0.1 }],
+      [1, {}],
+    ],
+  },
+
+  // shy: head ducked away, arms pulled in, a little smaller
+  shy: {
+    priority: 1,
+    directional: true,
+    keys: [
+      [2, { head: -0.12, arms: -0.3, sx: 0.97 }],
+      [14, { head: -0.26, arms: -0.45, sx: 0.95, sy: 0.97, tilt: -3, mane: -0.18, bob: 2 }],
+      [3, { head: -0.1, arms: -0.2 }],
+      [1, {}],
+    ],
+  },
+
   // while falling: stretched, mane blown up, arms flailing every other drawing
   fall: {
     loop: true,
@@ -431,12 +561,18 @@ export const ACTS = {
   },
 };
 
+// what `amp` scales in a drawing: how far each field goes from rest (sx/sy and long from 1, the rest from 0)
+const FROM_ZERO = ['head', 'mane', 'hair', 'tilt', 'bob', 'armL', 'armR', 'kickL', 'kickR'];
+const FROM_ONE = ['sy', 'longL', 'longR'];
+
 export class Player {
-  constructor(name, { dir = 0, reach = 1, at = performance.now() } = {}) {
+  // amp: how big the act is played, 1 as drawn (her AI's moves learn theirs, motion.js)
+  constructor(name, { dir = 0, reach = 1, at = performance.now(), amp = 1 } = {}) {
     this.name = name;
     this.act = ACTS[name];
     this.dir = dir;
     this.reach = reach;
+    this.amp = amp;
     this.start = at;
     this.total = this.act.keys.reduce((n, [hold]) => n + hold, 0);
   }
@@ -486,6 +622,14 @@ export class Player {
     delete out.arms;
     delete out.reach;
     delete out.long;
+    if (this.amp !== 1) {
+      for (const k of FROM_ZERO) if (out[k] !== undefined) out[k] *= this.amp;
+      for (const k of FROM_ONE) if (out[k] !== undefined) out[k] = 1 + (out[k] - 1) * this.amp;
+      // sx: not when it flips her (a turn, a spin), only her squash and stretch
+      if (out.sx !== undefined && out.sx > 0 && !this.act.flip) out.sx = 1 + (out.sx - 1) * this.amp;
+      if (out.smear) out.smear = out.smear.map((v) => v * this.amp);
+      if (out.echo) out.echo = out.echo.map((v) => v * this.amp);
+    }
     return out;
   }
 }
