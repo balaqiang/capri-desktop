@@ -865,3 +865,90 @@ html[data-motion='reduced'] .panel__line.is-glitching,
 html[data-motion='reduced'] .panel[data-kind='alert'] .panel__state {
   animation: none !important;
 }
+
+/* ---------- from Capri Desktop 2.4 ---------- */
+
+/* her mischief (glitch.js): over everything but her panel, never in the way of a click */
+.glitch {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* her ears (ears.js): a small mic riding by her head; it glows with your voice */
+.mic {
+  --level: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  border: 0;
+  background: var(--ink);
+  color: var(--paper-2);
+  cursor: pointer;
+  clip-path: polygon(22% 0, 100% 0, 100% 78%, 78% 100%, 0 100%, 0 22%);
+  box-shadow: 3px 3px 0 var(--violet);
+  transition: color 120ms, background 120ms;
+  will-change: transform;
+}
+
+.mic svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.mic:hover {
+  color: var(--paper);
+  background: var(--ink-2);
+}
+
+.mic[data-state='listening'] {
+  color: var(--green);
+  background: color-mix(in oklch, var(--ink) 70%, var(--green) calc(var(--level) * 30%));
+}
+
+.mic[data-mode='always'][data-state='listening'] {
+  color: color-mix(in oklch, var(--paper-3) 60%, var(--green));
+}
+
+.mic[data-state='hearing'] {
+  color: var(--ink);
+  background: var(--green);
+  transform-origin: center;
+  filter: drop-shadow(0 0 calc(var(--level) * 10px) var(--green));
+}
+
+.mic[data-state='thinking'] {
+  color: var(--paper);
+  background: var(--violet);
+  animation: mic-think 600ms steps(2, end) infinite;
+}
+
+.mic[data-state='error'] {
+  color: var(--paper);
+  background: var(--red);
+}
+
+@keyframes mic-think {
+  50% { opacity: 0.55; }
+}
+
+/* her 2.4 art in her portrait: a wide frame, her face is in its middle */
+.panel__face img.is-art {
+  object-position: 50% 45%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mic[data-state='thinking'] { animation: none; }
+}
