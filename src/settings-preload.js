@@ -17,6 +17,8 @@ contextBridge.exposeInMainWorld('settings', {
   models: () => ipcRenderer.invoke('settings:models'),
   action: (name, arg) => ipcRenderer.invoke('settings:action', { name, arg }),
   langTable: () => ipcRenderer.invoke('lang:table'),
+  lyricsCache: () => ipcRenderer.invoke('lyrics:cache'),
+  clearLyrics: () => ipcRenderer.invoke('lyrics:clear'),
   transcribe: (wav, language) => ipcRenderer.invoke('voice:transcribe', { wav, language }),
   ttsVoices: (engine) => ipcRenderer.invoke('tts:voices', engine),
   historyDays: () => ipcRenderer.invoke('history:days'),
