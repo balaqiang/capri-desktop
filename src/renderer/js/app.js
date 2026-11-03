@@ -11,6 +11,11 @@ import { Setup } from './setup.js';
 import { Custom } from './custom.js';
 import { linesFor } from './lines.js';
 import { pick, fmt, reducedMotion } from './util.js';
+import { Ears } from './ears.js';
+import { Mouth } from './tts.js';
+import { Glitch } from './glitch.js';
+import { Life } from './life.js';
+import { loadLang, T } from './i18n.js';
 
 const host = window.host;
 
@@ -25,12 +30,22 @@ function loadImage(src) {
 
 // close-ups of her for the cut-ins, frames of the show (tools/build-cutins.py)
 const CUTINS = ['grin', 'laugh', 'eyes', 'many', 'look'];
+// and the art that came with Capri Desktop 2.4 (assets/art): her emotions, a stretch, a yawn
+const ART_CUTINS = {
+  happyface: 'happyface', eyesLeft: 'eyes-left', eyesGlitch: 'eyes-glitch', scream: 'scream', mouth: 'mouth',
+  arms: 'arms', happy: 'happy', manyEyes: 'eyes-many', content: 'content', eyesRight: 'eyes-right',
+};
 const WATCH_MS = 2000; // how often she checks the pointer still reaches her
 
 // what you made her, from the config (custom.js)
 const mine = (cfg) => ({ userName: cfg.userName || '', persona: cfg.persona || '', myLines: cfg.myLines || [], memories: cfg.memories || [] });
 
 async function boot() {
+  const artNames = Object.keys(ART_CUTINS);
+  const [art] = await Promise.all([
+    Promise.all(artNames.map((name) => loadImage(`../../assets/art/${ART_CUTINS[name]}.png`).catch(() => null))),
+    loadLang(host),
+  ]);
   const [config, image, intro, ...cutins] = await Promise.all([
     host.getConfig(),
     loadImage('../../assets/capri/capri-full.png'),
@@ -44,6 +59,7 @@ async function boot() {
     document.fonts.load('400 11px "JetBrains Mono"'),
   ]);
   document.documentElement.lang = config.lang;
+  let currentCfg = config; // her settings as they are now (the config changes below)
   // her animations: like Windows, full or reduced (her menu)
   const applyMotion = (setting) => {
     reducedMotion.setting = setting || 'auto';
@@ -53,7 +69,10 @@ async function boot() {
   reducedMotion.onSystemChange(() => applyMotion(reducedMotion.setting));
 
   const fx = new FxLayer(document.getElementById('fx'), {
-    cutins: Object.fromEntries(CUTINS.map((name, i) => [name, cutins[i]])),
+    cutins: {
+      ...Object.fromEntries(CUTINS.map((name, i) => [name, cutins[i]])),
+      ...Object.fromEntries(artNames.map((name, i) => [name, art[i]]).filter(([, img]) => img)),
+    },
     intro,
   });
   fx.resize(innerWidth, innerHeight);
@@ -67,6 +86,9 @@ async function boot() {
   const voice = new Voice();
   voice.configure(config);
   host.listSounds().then((list) => list.length && voice.loadCustom(list));
+  const loadClips = () => host.listVoices().then((list) => voice.loadClips(list)).catch(() => 0);
+  loadClips();
+  host.onVoicesChanged(loadClips);
 
   const panel = new Panel({
     panel: document.getElementById('panel'),
@@ -87,6 +109,11 @@ async function boot() {
   capri.setView(innerWidth, innerHeight, innerHeight - floorGap);
   capri.setScale(config.scale);
 
+  // from Capri Desktop 2.4: her mischief, her ears (the mic next to her), her voice out loud, her life
+  const glitch = new Glitch(document.getElementById('glitch'));
+  const micButton = document.getElementById('mic');
+  const ears = new Ears({ host, button: micButton });
+  const mouth = new Mouth({ host, voice });
   const mission = new Mission();
   const brain = new Brain({ capri, panel, voice, host, mission, lang: config.lang, assistant: config.assistant });
 
@@ -105,7 +132,12 @@ async function boot() {
     const r = panel.rect();
     const onPanel = r && mouse.x >= r.left && mouse.x <= r.right && mouse.y >= r.top && mouse.y <= r.bottom;
     document.body.style.cursor = onChip() ? 'pointer' : '';
-    return setInteractive(Boolean(onPanel || capri.hit(mouse.x, mouse.y) || onChip()));
+    const onMic = !micButton.hidden && (() => {
+      const m = micButton.getBoundingClientRect();
+      return mouse.x >= m.left && mouse.x <= m.right && mouse.y >= m.top && mouse.y <= m.bottom;
+    })();
+    const onMask = mask.visible && mask.contains(mouse.x, mouse.y, 10);
+    return setInteractive(Boolean(onPanel || capri.hit(mouse.x, mouse.y) || onChip() || onMic || onMask));
   };
   // Her biochip: her eyes on it follow the pointer over it, and she comes out when you click it
   // (only then, so the pointer passing through that corner doesn't call her back).
@@ -135,6 +167,7 @@ async function boot() {
     mouse = { x: e.clientX, y: e.clientY };
     refreshHit();
     hoverChip();
+    if (capri.riding) capri.rideTo(mouse.x, mouse.y);
   });
   document.addEventListener('mouseleave', () => {
     mouse = null;
@@ -168,12 +201,35 @@ async function boot() {
   });
   window.addEventListener('click', (e) => {
     if (chip.visible && chip.contains(e.clientX, e.clientY, 0)) comeOut();
+    else if (mask.visible && mask.contains(e.clientX, e.clientY, 10)) capri.wake(); // asleep down to her mask: a click wakes her
   });
+  // A panel (its buttons), her mask or her mic that came up under a pointer that isn't moving: Windows only
+  // tells her window about the pointer when it moves, so without this a click went through to the desktop
+  // ("Talk to me" did nothing) until you wiggled the mouse.
+  setInterval(async () => {
+    if (interactive || capri.dragging) return;
+    const at = await host.cursor().catch(() => null);
+    if (!at?.inside) return;
+    const r = panel.rect();
+    const m = !micButton.hidden && micButton.getBoundingClientRect();
+    const under = (r && at.x >= r.left && at.x <= r.right && at.y >= r.top && at.y <= r.bottom)
+      || capri.hit(at.x, at.y)
+      || (mask.visible && mask.contains(at.x, at.y, 10))
+      || (chip.visible && chip.contains(at.x, at.y, 0))
+      || (m && at.x >= m.left && at.x <= m.right && at.y >= m.top && at.y <= m.bottom);
+    if (under) {
+      mouse = { x: at.x, y: at.y };
+      refreshHit();
+    }
+  }, 350);
 
   // wiring
   capri.onMove = (head) => {
     // pointing at something: the panel goes on her other side, so it doesn't cover it
     panel.setAnchor({ ...head, lean: capri.pointing ? -capri.pointing.dir : 0 }, capri.view);
+    // her mic rides by her head
+    const side = head.x > innerWidth - 120 ? -1 : 1;
+    micButton.style.transform = `translate(${Math.round(head.x + side * 70 * Math.max(0.6, capri.scale) - 17)}px, ${Math.round(head.y - 10)}px)`;
     // she may have moved out from under a still pointer: never leave a dead click zone behind
     refreshHit();
   };
@@ -194,16 +250,58 @@ async function boot() {
       mask.hide();
     }
   };
-  capri.onMode = (mode, prev) => chip.setMode(mode, prev);
+  capri.onMode = (mode, prev) => {
+    chip.setMode(mode, prev);
+    if (mode === 'sleep') voice.say('sleep');
+    else if (prev === 'sleep') voice.say('wake');
+  };
+  // her recorded lines when she sits or peeks
+  capri.onStance = (stance) => {
+    if (stance === 'sit' || stance === 'peek') voice.say(stance);
+  };
+  // perched on your cursor (2.4): the pointer's place, many times a second (its moves don't always reach
+  // her window), and her menu knows to offer "Hop off"
+  let rideTimer = 0;
+  capri.onRide = (on) => {
+    host.rideState(on);
+    clearInterval(rideTimer);
+    rideTimer = 0;
+    if (!on) return;
+    rideTimer = setInterval(async () => {
+      const at = await host.cursor().catch(() => null);
+      if (at) capri.rideTo(at.x, at.y);
+    }, 33);
+    panel.say({ kind: 'info', face: 'happy', badge: 'RIDE', line: T('Comfy! {0} to hop off.').replace('{0}', currentCfg.hotkeys?.toggle?.replace(/Control/g, 'Ctrl') || 'Ctrl+Alt+C'), hold: 4500 });
+  };
+  capri.onDoubleClick = () => {
+    panel.hide();
+    capri.startRide();
+  };
   // now and then she says something about the satellite: while she looks at it, or once
   // the red light has gone up (never during, nothing should cover that)
   capri.onGaze = (when) => {
     const lines = when === 'end' ? brain.t.uplink : brain.t.gaze;
     if (!panel.visible && Math.random() < (when === 'end' ? 0.6 : 0.4)) panel.say({ kind: 'info', line: pick(lines), hold: 3800 });
+    if (when !== 'end') voice.say('look');
   };
   capri.onClick = () => {
     if (panel.visible) panel.hide();
     else brain.status();
+    if (Math.random() < 0.25) voice.say('click');
+  };
+  // what your hand did to her (thrown, thrown into the floor, shaken): a word about it, in her face
+  const HANDLED = {
+    thrown: { face: 'happy', emotion: 'happy', chance: 0.45, lines: ['Wheee!', 'Again! Again!', 'Rude. But fun.'] },
+    crash: { face: 'annoyed', emotion: 'annoyed', chance: 1, lines: ["Ow. That was on purpose, wasn't it?", 'My pixels! You scattered my pixels.', "Rude. We're filing a complaint."] },
+    dizzy: { face: 'glitch', emotion: 'glitch', chance: 1, lines: ["Stop shaking us… everything's spinning.", 'Whoa, whoa… which one of you is the real cursor?', 'All of us in here are seasick now. Thanks.'] },
+  };
+  capri.onHandled = (what) => {
+    if (what === 'grabbed') chat.motion.sign('grab'); // picked up right after a move of hers: too much
+    const h = HANDLED[what];
+    if (!h || Math.random() > h.chance) return;
+    const line = T(pick(h.lines));
+    panel.say({ kind: 'info', face: h.face, badge: 'CAPRI', line, hold: 3800 });
+    life.speak(line, h.emotion);
   };
   panel.onChar = (kind) => voice.play('blip', { mood: kind });
   panel.onTalk = (talking) => talking && capri.perform('talk');
@@ -215,6 +313,112 @@ async function boot() {
   // Talking to her (chat.js): "Talk to her" in her menu, or the button when you click her idle.
   const chat = new Chat({ capri, panel, voice, host, brain });
   brain.onTalk = () => chat.start();
+  const life = new Life({ capri, panel, voice, host, brain, fx, glitch, mouth });
+  capri.onPet = (phase, n) => {
+    life.pet(phase, n);
+    if (phase === 'start') chat.motion.sign('pet'); // her last move went over well
+  };
+  // a move her AI asked for in its answer ([[move: wave]]): played on her rig
+  chat.onAct = (name, amp) => capri.gesture(name, { amp });
+  chat.onMove = async (move) => {
+    if (capri.stowed && move !== 'hide') {
+      host.setConfig({ visible: true });
+      await capri.unstow();
+    }
+    switch (move) {
+      case 'left': case 'right': case 'center':
+        capri.goTo(move);
+        break;
+      case 'cursor': {
+        if (capri.riding) break;
+        const at = await host.cursor().catch(() => null);
+        if (at) await capri.summon(at);
+        break;
+      }
+      case 'ride': capri.startRide(); break;
+      case 'unride': capri.stopRide(); break;
+      case 'home': if (capri.riding) capri.stopRide(); capri.goHome(); break;
+      case 'taskbar':
+        if (capri.riding) capri.stopRide();
+        capri.sitOn({ win: capri.ledge(), dx: Math.min(Math.max(capri.pos.x, 200), capri.view.w - 200) });
+        break;
+      case 'top': if (!capri.riding) capri.peek('top'); break;
+      case 'hide':
+        if (capri.riding) capri.stopRide();
+        host.setConfig({ visible: false });
+        capri.stow();
+        break;
+      case 'show': break; // she's out already (above)
+      case 'sleep': capri.setMode('sleep'); break;
+      case 'wake': capri.wake(); break;
+      case 'dance': capri.gesture('dance') || capri.perform('spin'); break;
+      case 'wave': capri.gesture('wave'); break;
+      case 'bow': capri.gesture('bow'); break;
+      case 'stay': host.setConfig({ wander: false }); break;
+      case 'wander': host.setConfig({ wander: true }); capri.walkTo(capri.spot('random').x); break;
+      case 'walk': capri.walkTo(capri.spot('random').x); break;
+      default: break;
+    }
+  };
+  // she asked you to play or talk, and you said yes
+  life.onInvite = (what) => (what === 'game' ? chat.hear(pick(['main suit', 'tebak angka'])) : chat.start());
+  chat.onPoint = async ({ label }, fgBefore) => {
+    const front = () => capri.windows.wins.find((w) => w.id === capri.windows.fg) || null;
+    const win = (await guide.until(() => (capri.windows.fg !== fgBefore ? front() : null), 3500)) || front();
+    if (!win || !capri.canPoint(win)) return;
+    await capri.pointAt(win, { label: label || '' });
+    setTimeout(() => { if (capri.pointing) capri.stopPointing(); }, 9000);
+  };
+  chat.onEmotion = (emotion, opts) => life.react(emotion, opts);
+  chat.onAnswered = (text, emotion) => {
+    ears.follow(); // a moment where her name isn't needed
+    if (currentCfg.tts) life.speak(text, emotion, { answer: true });
+    else voice.say('reply');
+  };
+  mouth.onSpeaking = (on) => ears.setSpeaking(on);
+  // her lips (and a little of her body) on her real voice
+  let lastTalk = 0;
+  mouth.onLevel = (level) => {
+    panel.lipSync(level);
+    const now = performance.now();
+    if (level > 0.06 && now - lastTalk > 700 && !capri.busy && !capri.act) {
+      lastTalk = now;
+      capri.perform('talk');
+    }
+  };
+  // her voice engine failed (a key, a server down): said once in a while, not on every line
+  let lastVoiceError = -Infinity;
+  mouth.onError = ({ error }) => {
+    if (performance.now() - lastVoiceError < 120000) return;
+    lastVoiceError = performance.now();
+    panel.say({
+      kind: 'info', face: 'annoyed', badge: 'VOICE', line: T('My voice engine failed. Settings, Voice.'), quote: String(error || '').slice(0, 160), hold: 7000,
+      actions: [{ id: 'settings', label: T('Settings…'), primary: true }], onAction: () => { panel.hide(); host.openSettings('voice'); },
+    });
+  };
+  ears.onHeard = (text, info) => chat.hear(text, info);
+  ears.onError = (code, detail) => {
+    const lines = {
+      nomic: "I can't hear any sound at all. Pick your microphone in Settings, Voice.",
+      noears: 'I have no ears yet! Settings, Voice: download better ears, or add a Groq key.',
+      failed: "I couldn't make that out. Say it again?",
+      silent: "Didn't hear anything.",
+    };
+    if (code === 'silent' && panel.visible) return;
+    panel.say({
+      kind: 'info', face: code === 'silent' ? 'bored' : 'annoyed', badge: 'MIC', line: T(lines[code] || lines.failed),
+      quote: code === 'failed' || code === 'nomic' ? detail || '' : '', hold: code === 'silent' ? 2500 : 7000,
+      ...(code === 'nomic' || code === 'noears' ? { actions: [{ id: 'settings', label: T('Settings…'), primary: true }], onAction: () => { panel.hide(); host.openSettings('voice'); } } : {}),
+    });
+  };
+  host.onLife((evt) => life.onEvent(evt));
+  const configureLife = (cfg) => {
+    chat.configure(cfg);
+    life.configure(cfg);
+    mouth.configure(cfg);
+    ears.configure(cfg);
+  };
+  configureLife(config);
   // Getting her chat going with buttons (setup.js): Ollama and a model, a key, or an address
   const setup = new Setup({ guide, panel, host, brain, capri, voice });
   guide.setup = setup;
@@ -330,8 +534,11 @@ async function boot() {
     capri.setView(innerWidth, innerHeight, innerHeight - floorGap);
   });
 
-  host.onConfig((cfg) => {
+  host.onConfig(async (cfg) => {
     voice.configure(cfg);
+    if (cfg.lang !== brain.lang) await loadLang(host);
+    currentCfg = cfg;
+    configureLife(cfg);
     capri.wander = cfg.wander;
     capri.possessWindows = cfg.possess;
     capri.restOn = cfg.rest || 'corner';
@@ -362,8 +569,17 @@ async function boot() {
   host.onCommand(async (cmd) => {
     const t = brain.t;
     switch (cmd.name) {
-      case 'teleport':
-        capri.teleport(capri.spot('random'));
+      case 'aiMove': // --dev: one of the moves her AI can ask for ([[move: …]])
+        console.log('[act]', cmd.move, capri.gesture(cmd.move));
+        break;
+      case 'state': // --dev: where she is and what she's doing, in the log
+        console.log('[state]', JSON.stringify({
+          pos: { x: Math.round(capri.pos.x), y: Math.round(capri.pos.y) }, floor: capri.floor, stance: capri.stance,
+          busy: capri.busy, dragging: capri.dragging, flight: Boolean(capri.flight), alpha: capri.p.alpha, hidden: capri.hidden,
+        }));
+        break;
+      case 'teleport': // --dev: { x, y } where to (her feet), else somewhere
+        capri.teleport(cmd.x != null ? { x: cmd.x, y: cmd.y ?? capri.floor } : capri.spot('random'));
         break;
       case 'status':
         brain.status();
@@ -413,6 +629,75 @@ async function boot() {
         break;
       case 'chat': // "Talk to her" in her menu
         chat.start();
+        break;
+      case 'listen': // Ctrl+Alt+V, or her menu › Voice: she listens (push), or a click of her name (hands-free)
+        if (ears.mode === 'off') {
+          panel.say({ kind: 'info', face: 'annoyed', badge: 'MIC', line: T("My ears are switched off! Settings, Voice."), hold: 6000, actions: [{ id: 'settings', label: T('Settings…'), primary: true }], onAction: () => { panel.hide(); host.openSettings('voice'); } });
+          break;
+        }
+        if (capri.stowed) {
+          host.setConfig({ visible: true });
+          await capri.unstow();
+        }
+        capri.wake();
+        ears.toggle();
+        break;
+      case 'look': // Ctrl+Alt+L, or her menu: one look at your screen
+        if (capri.stowed) {
+          host.setConfig({ visible: true });
+          await capri.unstow();
+        }
+        capri.wake();
+        chat.look();
+        break;
+      case 'dare': { // her menu › Dare me now
+        if (capri.stowed) await capri.unstow();
+        capri.wake();
+        const dare = await host.dare().catch(() => null);
+        if (dare) {
+          panel.say({ kind: 'info', face: 'happy', badge: 'DARE', line: dare, hold: 10000 });
+          life.react('happy');
+          life.speak(dare, 'happy');
+        }
+        break;
+      }
+      case 'glitch': // her menu › Mischief, or a test from her settings
+        life.mischief({ kind: Number.isInteger(cmd.kind) ? cmd.kind : null, note: cmd.note ?? null });
+        break;
+      case 'game': // her menu › Play a game: like saying it ("main suit")
+        chat.hear(cmd.text || 'main suit');
+        break;
+      case 'stopGlitch': // Ctrl+Alt+C stops a glitch at once
+        glitch.stop();
+        break;
+      case 'ride': // her menu › Perch on cursor (or a double-click on her)
+        if (capri.stowed) {
+          host.setConfig({ visible: true });
+          await capri.unstow();
+        }
+        panel.hide();
+        capri.startRide();
+        break;
+      case 'hopOff': // Ctrl+Alt+C, or her menu, while she rides your cursor
+        capri.stopRide();
+        break;
+      case 'voiceSample': { // her menu › Voice › Play a sample: one of her recorded lines
+        await loadClips();
+        const have = [...voice.clips.keys()];
+        if (!have.length || currentCfg.muted) {
+          panel.say({
+            kind: 'info', face: 'bored', badge: 'VOICE', hold: 7000,
+            line: T(currentCfg.muted ? "I'm muted." : 'I have no voice yet. Open the voice folder to give me one.'),
+            ...(!currentCfg.muted && { actions: [{ id: 'voice', label: T('Settings…'), primary: true }], onAction: () => { panel.hide(); host.openSettings('voice'); } }),
+          });
+          break;
+        }
+        voice.say(pick(have), { force: true });
+        capri.perform('talk');
+        break;
+      }
+      case 'speak': // her settings › Voice › test
+        mouth.speak(cmd.text || T("Hi! It's me! I live here now!"), { force: true, emotion: cmd.emotion || 'happy' });
         break;
       case 'report': // "Mission report" in her menu
         if (capri.stowed) {
@@ -527,7 +812,18 @@ async function boot() {
   const hooks = await host.hooksStatus();
   // her welcome: the first time, or while she's meant to watch Claude Code and isn't plugged into it
   if (!config.welcomed || (config.claude && !hooks.installed)) guide.welcome();
-  else panel.say({ kind: 'info', line: brain.onlineLine(), hold: 4000 });
+  else if (!config.seenMerge) {
+    host.setConfig({ seenMerge: true });
+    panel.say({
+      kind: 'info', face: 'happy', badge: 'v0.5', guide: true,
+      line: T("New tricks! I can hear you now, run errands, dare you, and glitch your screen."),
+      quote: T('Ctrl+Alt+S: my settings (who I am, who you are, my voice). Ctrl+Alt+V: talk to me. Ctrl+Alt+L: I look at your screen.'),
+      actions: [{ id: 'settings', label: T('Settings…'), primary: true }, { id: 'ok', label: 'OK' }],
+      onAction: (id) => { panel.hide(); if (id === 'settings') host.openSettings(); },
+      hold: 20000,
+    });
+  } else panel.say({ kind: 'info', line: brain.onlineLine(), hold: 4000 });
+  setTimeout(() => voice.say('hello'), 600);
 
   // In the evening, after a real day's work, she brings you her report card once, on her own,
   // at a quiet moment.
