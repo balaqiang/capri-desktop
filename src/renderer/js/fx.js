@@ -526,6 +526,46 @@ export class FxLayer {
     this.add({ type: 'dizzy', life, follow, count, radius, smooth: true });
   }
 
+  // ---------- listening to your music, napping through it ----------
+
+  // A music note coming off her head, swaying up and away: flat green or red, with its violet copy.
+  note(x, y, { dir = 1 } = {}) {
+    this.add({ type: 'note', life: rand(1300, 1800), x, y, vx: dir * rand(18, 46), vy: rand(-70, -50), size: rand(9, 13), sway: rand(0, 6), double: Math.random() < 0.35, color: pick([COLORS.green, COLORS.green, COLORS.red, COLORS.paper]) });
+  }
+
+  // Z's rising from her while she naps, one after another, until `follow()` (her head) gives null.
+  zzz(follow) {
+    return this.add({ type: 'zzz', life: 60 * 60 * 1000, follow, smooth: false });
+  }
+
+  // ---------- sparks, glitter, eyes (the way she is in the show) ----------
+
+  // Sparks knocked off her: bright streaks flying out of a point, then falling and fading. `dir` (radians) and
+  // `spread` aim them; all round by default.
+  sparks(x, y, { count = 12, power = 1, dir = null, spread = Math.PI * 2, colors = [COLORS.paper, COLORS.red, COLORS.red, COLORS.green] } = {}) {
+    for (let i = 0; i < count; i++) {
+      const a = dir == null ? rand(0, Math.PI * 2) : dir + rand(-spread / 2, spread / 2);
+      const v = rand(240, 700) * power;
+      this.add({ type: 'spark', life: rand(320, 680), x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, width: rand(2, 3.4), color: pick(colors) });
+    }
+  }
+
+  // A twinkle: the glitter on her mane catching the light, a four-point star that pops and shrinks.
+  twinkle(x, y, { size = 9, color = COLORS.paper } = {}) {
+    this.add({ type: 'twinkle', life: rand(360, 600), x, y, size, color });
+  }
+
+  // Eyes opening here and there around her, all looking at `look()` (your pointer), then shutting:
+  // her many minds peering out. `follow()`: her head ({ x, y }), or null to go.
+  eyes(follow, look, { count = 3, radius = 70, size = 9, life = 2200 } = {}) {
+    const spots = Array.from({ length: count }, (_, i) => {
+      const a = -Math.PI / 2 + (i - (count - 1) / 2) * 0.9 + rand(-0.25, 0.25);
+      const r = radius * rand(0.75, 1.1);
+      return { dx: Math.cos(a) * r, dy: Math.sin(a) * r * 0.75, R: size * rand(0.7, 1.25), at: i * 0.08 + rand(0, 0.06) };
+    });
+    this.add({ type: 'eyes', life, follow, look, spots, smooth: true });
+  }
+
   // ---------- her intro ----------
 
   // Her first appearance: she grabs your screen. Its edges crackle red; her left hand slams onto
@@ -993,6 +1033,120 @@ export class FxLayer {
         heart(0, 0);
         ctx.fillStyle = it.color;
         ctx.fill();
+        break;
+      }
+      case 'note': {
+        it.x += it.vx * dt;
+        it.y += it.vy * dt;
+        it.vx *= 0.97;
+        // pops in, fades out (t starts a hair below 0: the frame's time can be from before it was added)
+        const k = clamp(t < 0.12 ? t / 0.12 : t > 0.7 ? 1 - (t - 0.7) / 0.3 : 1, 0, 1);
+        const r = it.size * k;
+        const x = it.x + Math.sin((now - it.born) / 220 + it.sway) * 6;
+        const tilt = Math.sin((now - it.born) / 300 + it.sway) * 0.25;
+        // an eighth note (or two, beamed): oval heads, stems, a flag or a beam
+        const draw = (dx, dy, color) => {
+          ctx.save();
+          ctx.translate(x + dx, it.y + dy);
+          ctx.rotate(tilt);
+          ctx.fillStyle = color;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = Math.max(1.5, r * 0.22);
+          const heads = it.double ? [-r * 0.75, r * 0.75] : [0];
+          for (const hx of heads) {
+            ctx.beginPath();
+            ctx.ellipse(hx, 0, r * 0.5, r * 0.36, -0.45, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(hx + r * 0.42, -r * 0.1);
+            ctx.lineTo(hx + r * 0.42, -r * 1.7);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          if (it.double) {
+            ctx.moveTo(-r * 0.33, -r * 1.7);
+            ctx.lineTo(r * 1.17, -r * 1.95);
+          } else {
+            ctx.moveTo(r * 0.42, -r * 1.7);
+            ctx.quadraticCurveTo(r * 1.2, -r * 1.25, r * 0.95, -r * 0.7);
+          }
+          ctx.stroke();
+          ctx.restore();
+        };
+        draw(-2, 2, COLORS.violet);
+        draw(0, 0, it.color);
+        break;
+      }
+      case 'spark': {
+        it.vy += 1300 * dt;
+        it.vx *= 0.9;
+        it.vy *= 0.94;
+        it.x += it.vx * dt;
+        it.y += it.vy * dt;
+        const k = 1 - t;
+        const tail = 0.018 + 0.01 * k; // a streak as long as its speed
+        const line = (dx, dy, color) => {
+          ctx.beginPath();
+          ctx.moveTo(it.x + dx, it.y + dy);
+          ctx.lineTo(it.x - it.vx * tail + dx, it.y - it.vy * tail + dy);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = it.width * (0.4 + 0.6 * k);
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        };
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, k * 1.6);
+        line(-1.5, 1.5, COLORS.violet);
+        line(0, 0, it.color);
+        ctx.restore();
+        break;
+      }
+      case 'twinkle': {
+        const k = Math.sin(clamp(t, 0, 1) * Math.PI); // pops up, shrinks away
+        if (k > 0.02) this.sparkle(it.x, it.y, it.size * k, it.color, k > 0.6 ? COLORS.red : null);
+        break;
+      }
+      case 'eyes': {
+        const at = it.follow();
+        if (!at) {
+          it.life = 0;
+          break;
+        }
+        const look = it.look();
+        for (const e of it.spots) {
+          // each opens on its own beat, blinks halfway, shuts at the end
+          const u = clamp((t - e.at) / (1 - e.at), 0, 1);
+          let open = u < 0.12 ? u / 0.12 : u > 0.85 ? (1 - u) / 0.15 : 1;
+          if (Math.abs(u - 0.5) < 0.03) open = 0.1;
+          if (open <= 0.02) continue;
+          this.eye(at.x + e.dx, at.y + e.dy, e.R, open, look);
+        }
+        break;
+      }
+      case 'zzz': {
+        const at = it.follow();
+        if (!at) {
+          it.life = 0;
+          break;
+        }
+        // three at a time, each rising and growing over 2.4 s, a third of the way apart
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (let i = 0; i < 3; i++) {
+          const k = (((now - it.born) / 2400) + i / 3) % 1;
+          const fade = k < 0.15 ? k / 0.15 : k > 0.75 ? (1 - k) / 0.25 : 1;
+          const size = Math.round(11 + k * 13);
+          const x = at.x + at.dir * (40 + k * 40) + Math.sin(k * Math.PI * 2 + i) * 4;
+          const y = at.y - 36 - k * 60;
+          ctx.font = `700 ${size}px 'Chakra Petch', 'Segoe UI', sans-serif`;
+          ctx.globalAlpha = fade;
+          ctx.fillStyle = COLORS.violet;
+          ctx.fillText('Z', x - 2, y + 2);
+          ctx.fillStyle = i === 1 ? COLORS.green : COLORS.paper;
+          ctx.fillText('Z', x, y);
+        }
+        ctx.restore();
         break;
       }
       case 'dizzy': {
