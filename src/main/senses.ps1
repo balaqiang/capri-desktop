@@ -58,17 +58,20 @@ public static class CapriSenses {
     if ((ex & 0x80) != 0 || (ex & 0x20) != 0 || (ex & 0x08000000) != 0) return false; // tool, click-through or never-activated: an overlay
     int cloaked;
     if (DwmGetWindowAttribute(w, 14, out cloaked, 4) == 0 && cloaked != 0) return false; // hidden by Windows
-    int state;
-    try { if (SHQueryUserNotificationState(out state) == 0 && (state == 2 || state == 3 || state == 4)) { Why = program + " (Windows: full screen)"; return true; } } catch { }
-    if ((GetWindowLong(w, -16) & 0x00C00000) == 0x00C00000) return false; // it has a title bar
+    // the window in front has to fill its monitor, whatever Windows says: its "a full screen program runs" also
+    // comes up for windows that aren't in front, and then any app you'd just opened sent her away for a moment
     RECT f;
     if (DwmGetWindowAttribute(w, 9, out f, 16) != 0 && !GetWindowRect(w, out f)) return false;
     if (f.Right - f.Left < 100 || f.Bottom - f.Top < 100) return false;
     var mi = new MONITORINFO(); mi.cbSize = Marshal.SizeOf(mi);
     if (!GetMonitorInfo(MonitorFromWindow(w, 2), ref mi)) return false;
     bool covers = f.Left <= mi.rcMonitor.Left && f.Top <= mi.rcMonitor.Top && f.Right >= mi.rcMonitor.Right && f.Bottom >= mi.rcMonitor.Bottom;
-    if (covers) Why = program + " (" + k + ")";
-    return covers;
+    if (!covers) return false;
+    int state;
+    try { if (SHQueryUserNotificationState(out state) == 0 && (state == 2 || state == 3 || state == 4)) { Why = program + " (Windows: full screen)"; return true; } } catch { }
+    if ((GetWindowLong(w, -16) & 0x00C00000) == 0x00C00000) return false; // it has a title bar: a maximized window
+    Why = program + " (" + k + ")";
+    return true;
   }
 }
 "@
