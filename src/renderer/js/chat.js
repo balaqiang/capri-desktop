@@ -22,6 +22,16 @@ const MOVE_TAG = /\[\[\s*move\s*:\s*([a-z]+)\s*\]\]/i;
 // where her AI sends her when you asked in words the app didn't catch ([[go: cursor]]), and where it may
 const GO_TAG = /\[\[\s*go\s*:\s*([a-z]+)\s*\]\]/i;
 const GO_PLACES = ['cursor', 'left', 'right', 'center', 'taskbar', 'top', 'ride', 'unride', 'home', 'hide', 'sleep', 'wander', 'stay'];
+// her lyrics shown or put away when you asked in words the app didn't catch ([[lyrics: show]])
+const LYRICS_TAG = /\[\[\s*lyrics?\s*:\s*(show|hide|on|off)\s*\]\]/i;
+// a song's words written out in her bubble (a model asked about lyrics makes them up): never shown; the real
+// ones show over her head, line by line (listen.js)
+const LYRIC_DUMP = /\((?:intro|verse|pre-?chorus|chorus|bridge|outro|hook|refrain)\b[^)]{0,12}\)|\[(?:intro|verse|pre-?chorus|chorus|bridge|outro|hook|refrain)\b[^\]]{0,12}\]/i;
+const LYRIC_WORD = /\b(?:lyrics?|lirik\w*)\b/i;
+// a song you asked her to write herself: hers to write out
+const WRITE_ASK = /\b(?:write|make|create|compose|bikin\w*|buat\w*|tulis\w*|karang\w*|ciptakan)\b/i;
+const aboutLyrics = (said) => LYRIC_WORD.test(said || '') && !WRITE_ASK.test(said || '');
+const NO_DUMP_LINE = "Lyrics? Look over my head: they show line by line, as they're sung.";
 const MOVE_NAMES = 'wave, nod, shrug, think, bow, dance, laugh, shy, spin, hop, curious, look, turn, flinch';
 // the move each emotion of hers comes with (life.js): moving too, so spaced and learned like her AI's moves
 // her chat's header: CAPRI / her mood, from her emotion of the moment, or what she's doing
@@ -333,6 +343,7 @@ export class Chat {
     const id = Date.now();
     this.turn = id;
     this.answer = '';
+    this.asked = text; // (what her answer is to: asked about a song's lyrics, she never writes them out)
     this.acted = false;
     this.history.push({ role: 'user', content: text });
     this.panel.setChatBusy(true);
@@ -409,7 +420,9 @@ export class Chat {
       this.panel.setChatBusy(false);
       return;
     }
-    const answer = this.unban(clean(res.text)) || '…';
+    // song lyrics written out (made up, and far too long): her line about the real ones instead, and they show
+    const dumped = aboutLyrics(text) && (LYRIC_DUMP.test(res.text) || clean(res.text).split('\n').filter((l) => l.trim()).length > 5);
+    const answer = dumped ? T(NO_DUMP_LINE) : this.unban(clean(res.text)) || '…';
     const emotion = EMOTION_TAG.exec(res.text)?.[1]?.toLowerCase();
     this.warm = true;
     this.remember({ role: 'assistant', content: answer }, { emotion });
@@ -426,6 +439,7 @@ export class Chat {
     if (this.cfg.debugLog && emoMove) console.log('[move]', emoMove, emotion, react ? 'played' : 'held back', `gap ${this.motion.s.gap}`);
     this.moveFrom(res.text);
     this.goFrom(res.text, text);
+    this.lyricsFrom(res.text, text, dumped);
     this.onAnswered?.(answer, emotion);
     this.motion.answered();
     this.panel.setChatBusy(false);
@@ -657,8 +671,10 @@ export class Chat {
     lines.push('The app around you also does these by itself when the user says them plainly: timers, alarms and reminders ("set a timer for 10 minutes", "pasang alarm jam 7"), a study timer, notes about them ("remember that…"), dares ("dare me"), games with you (rock paper scissors: "main suit"; guess the number: "tebak angka"; a coin; dice), web and YouTube searches, and looking at their screen ("look at my screen" or Ctrl+Alt+L, one screenshot when they ask). If they ask you for one of these and nothing happened, tell them to say it plainly like that; never pretend it is done.');
     lines.push(`When the user asks you to come or go somewhere on their screen in words that didn't move you yet ("temenin aku di deket mouse", "hang out on the left", "get on my pointer"), say you're on it and put one tag [[go: WHERE]] in your reply (never shown), WHERE one of: ${GO_PLACES.join(', ')}. Only when they asked you to move.`);
     lines.push(`You have a body on their screen and you move it yourself: when a gesture really fits what you say, put one tag [[move: NAME]] in your reply (never shown), NAME one of: ${MOVE_NAMES}. It has to match: a greeting: wave; agreeing: nod; not knowing: shrug; pondering: think; showing off: bow; music or joy: dance; something funny: laugh; flattered: shy. ${this.motion.hint()}`);
+    lines.push('Song lyrics: the app shows the words of the song playing over your head by itself, line by line as they are sung. NEVER write song lyrics in your reply, not even a few lines (you would get them wrong): when they ask to see, show, display or hide the lyrics in any words, say so in a few words and put one tag [[lyrics: show]] or [[lyrics: hide]] in your reply (never shown). To say what is being sung, use only the lyrics around this moment you are given, one line at most.');
     lines.push('You cannot see their screen now: no screenshot comes with this message. Asked what is on their screen, in a picture, a note or a window, never guess or make it up: tell them to say "look at my screen" or press Ctrl+Alt+L.');
     lines.push('The app also moves you when asked ("ke kanan", "ke cursor saya", "berhenti bergelantungan di cursor", "jalan-jalan") and shows where files and folders are ("di mana folder Downloads?"). Anything else on their PC (changing settings, editing files) you can\'t do: if they ask, say so in character. But questions, opinions and choices are never things you can\'t do: answer them.');
+    lines.push('Code: never write code in your replies, your speech bubble is tiny. When they want code, a script, a program, a web page or a game written, the app does it from their words ("buatkan kode python untuk…", "bikin game snake pakai html", "write a script that…"; "pakai claude code" or "sendiri" picks who): Claude Code in a terminal if it\'s installed, else you write it into a file in their Capri Code folder and open it in an editor. If they asked in other words and nothing happened, tell them to say it like that.');
     return lines;
   }
 
@@ -687,7 +703,7 @@ export class Chat {
   onDelta(id, piece) {
     if (id !== this.turn) return;
     this.answer += piece;
-    this.panel.stream(this.unban(clean(this.answer)));
+    this.panel.stream(aboutLyrics(this.asked) && LYRIC_DUMP.test(this.answer) ? T(NO_DUMP_LINE) : this.unban(clean(this.answer)));
     this.voice.play('blip'); // her blips as the words come in
     this.moveFrom(this.answer); // her body moves as soon as her AI says how, mid-sentence
   }
@@ -701,6 +717,16 @@ export class Chat {
     if ((where === 'hide' || where === 'sleep') && !/hide|sembunyi|ngumpet|sleep|tidur|bobo|go away|pergi/i.test(said)) return;
     if (this.cfg.debugLog) console.log('[go]', where);
     this.onMove?.(where);
+  }
+
+  // [[lyrics: show]] in her answer (or the words dumped instead): her lyrics on or off, as if you'd said it plainly
+  // (main/life.js), only when your message was about lyrics
+  lyricsFrom(raw, said, dumped) {
+    const tagged = LYRICS_TAG.exec(raw)?.[1]?.toLowerCase();
+    if (!aboutLyrics(said) || (!tagged && !dumped)) return;
+    const hide = tagged === 'hide' || tagged === 'off';
+    if (this.cfg.debugLog) console.log('[lyrics]', hide ? 'hide' : 'show', dumped ? '(dump caught)' : '');
+    this.host.errand(hide ? 'hide lyrics' : 'show lyrics').catch(() => {});
   }
 
   // (only if what she's learned says so: not too often, not one you keep turning down; as big as you like it)
