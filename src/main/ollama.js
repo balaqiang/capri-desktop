@@ -39,7 +39,7 @@ function warm(model) {
 }
 
 // Her answer, streamed: onDelta(piece) as it comes, resolves with all of it.
-async function chat({ model, messages }, onDelta, signal) {
+async function chat({ model, messages, options = {} }, onDelta, signal) {
   const res = await fetch(`${base()}/api/chat`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -48,7 +48,7 @@ async function chat({ model, messages }, onDelta, signal) {
       messages,
       stream: true,
       keep_alive: '15m', // she stays loaded while you chat
-      options: { temperature: 0.85, num_predict: 240 },
+      options: { temperature: options.temperature ?? 0.85, num_predict: options.maxTokens ?? 240 },
     }),
     signal,
   });
