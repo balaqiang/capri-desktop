@@ -130,6 +130,13 @@ async function find(text) {
   return match(await launchables(), text);
 }
 
+// Whether the app's name has every word of what you said ("youtube music" isn't the app "Music"; "spotify" is
+// the app "Spotify").
+function covers(item, text) {
+  const name = new Set(words(item?.name || ''));
+  return words(text).filter((w) => !FILLER.has(w)).every((w) => name.has(w));
+}
+
 // Opens one of them (only something she listed herself): a Start menu app through its AppsFolder
 // entry (desktop and Store apps alike), a game through its launcher's link.
 async function launch({ kind, id } = {}) {
@@ -186,4 +193,4 @@ async function site(address) {
   return true;
 }
 
-module.exports = { launchables, match, find, launch, media, music, site, siteUrl };
+module.exports = { launchables, match, find, covers, launch, media, music, site, siteUrl };
