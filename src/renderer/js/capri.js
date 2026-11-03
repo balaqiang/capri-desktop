@@ -7,6 +7,7 @@
 
 import { SpriteRenderer, SPRITE } from './sprite.js';
 import { ACTS, NEUTRAL, Player } from './acting.js';
+import { COLORS } from './fx.js';
 import { sleep, rand, pick, clamp, lerp, ease, tween, halt, reducedMotion, today } from './util.js';
 
 const ON_TWOS = 1000 / 12;
@@ -62,6 +63,12 @@ export class Capri {
     this.onHandled = null; // ('thrown' | 'crash' | 'dizzy'): what your hand did to her, for a word from her
     this.petting = null;   // your pointer stroking her head: { since, last, strokes, on… } (petCheck)
     this.onPet = null;     // ('start' | 'more' | 'end', n): being petted, for her face and a word
+    this.jelly = { s: 0, vs: 0, t: 0, vt: 0, m: 0, vm: 0, at: 0, live: false }; // her elastic body (boing)
+    this.nextTwinkle = 0;  // the glitter on her mane catching the light
+    this.hoverSince = 0;   // your pointer by her face since (her other eyes open after a while)
+    this.nextEyes = 0;
+    this.groove = null;    // a song on (listen.js): { kind: 'listen' | 'groove', rate }, how she goes with it
+    this.napping = false;  // dozed off to a boring song: asleep, but never down to her mask
 
     this.p = {
       seed: 0, boil: 0.9, hair: 0, head: 0, mane: 0, armL: 0, armR: 0, longL: 1, longR: 1, sit: 0, kickL: 0, kickR: 0,
@@ -372,7 +379,7 @@ export class Capri {
   // ---------- frame loop ----------
 
   interval() {
-    if (this.busy || this.walking || this.stance === 'fall' || this.act?.player.act.fps === 24) return ON_ONES;
+    if (this.busy || this.walking || this.stance === 'fall' || this.act?.player.act.fps === 24 || this.jelly.live) return ON_ONES;
     return this.mode === 'sleep' ? ASLEEP : ON_TWOS;
   }
 
@@ -452,6 +459,7 @@ export class Capri {
       this.follow(now);
     }
     if (this.walking) this.walkFrame(now);
+    this.jellyStep(now);
     if (this.debug) Object.assign(p, this.debug); // --dev pose overrides
     if (cue) this.onCue(cue);
   }
@@ -460,6 +468,26 @@ export class Capri {
     if (this.stance === 'fall') {
       this.updateFall(now);
       return;
+    }
+    // the glitter on her mane catching the light, now and then (fewer while she sleeps)
+    if (now > this.nextTwinkle) {
+      this.nextTwinkle = now + rand(1500, 3500) * (this.mode === 'sleep' ? 3 : 1);
+      if (!reducedMotion.matches && !this.hidden && !this.stowed && this.stance !== 'peek') {
+        const [pt] = this.manePoints(1);
+        this.fx.twinkle(pt.x, pt.y, { size: rand(5, 10) * Math.max(0.7, this.scale + 0.2), color: pick([COLORS.paper, COLORS.paper, COLORS.green]) });
+      }
+    }
+    // your pointer lingering by her face: her other eyes open around her mane to look at it
+    const m = this.mouse;
+    if (m && this.stance === 'stand' && this.mode === 'idle' && !this.act && !this.busy && !this.dragging && !this.petting?.on) {
+      const h = this.head();
+      if (Math.hypot(m.x - h.x, m.y - h.y) > 200 * this.scale + 60) this.hoverSince = 0;
+      else if (!this.hoverSince) this.hoverSince = now;
+      else if (now - this.hoverSince > 2600 && now > this.nextEyes) {
+        this.nextEyes = now + rand(25000, 45000);
+        this.hoverSince = 0;
+        this.manyEyes();
+      }
     }
     if (this.walking) return; // one thing at a time
     if (this.busy || this.dragging) return;
@@ -486,8 +514,9 @@ export class Capri {
       this.gaze();
     }
 
-    if (this.mode === 'idle' && now - this.lastActivity > SLEEP_AFTER) this.setMode('sleep');
-    if (this.mode === 'sleep' && now - this.sleptAt > DOZE_AFTER) {
+    // (listening to a song she's into isn't being idle: no nodding off then)
+    if (this.mode === 'idle' && !this.groove && now - this.lastActivity > SLEEP_AFTER) this.setMode('sleep');
+    if (this.mode === 'sleep' && !this.napping && now - this.sleptAt > DOZE_AFTER) {
       this.doze();
       return;
     }
@@ -748,19 +777,41 @@ export class Capri {
   restBase(dir = 0) {
     const pt = this.pointing;
     if (pt && (this.stance === 'stand' || this.stance === 'sit')) return new Player('pointing', { dir: pt.dir, reach: pt.reach });
-    return new Player(this.baseAct(), { dir });
+    const name = this.baseAct();
+    return new Player(name, { dir, rate: name === 'listen' || name === 'groove' || name === 'listenSit' ? this.groove.rate : 1 });
   }
 
   baseAct() {
-    if (this.stance === 'sit') return 'sit';
+    const music = this.groove && this.mode !== 'sleep';
+    if (this.stance === 'sit') return music ? 'listenSit' : 'sit';
     if (this.stance === 'peek') return 'peek';
     if (this.stance === 'fall') return 'fall';
-    return this.mode === 'sleep' ? 'sleep' : 'stand';
+    if (this.mode === 'sleep') return 'sleep';
+    return music ? this.groove.kind : 'stand';
+  }
+
+  // A song on (listen.js): she goes with it at its pace ({ kind: 'listen' | 'groove', rate }), or not (null).
+  setGroove(groove) {
+    const same = (groove?.kind || '') === (this.groove?.kind || '') && (groove?.rate || 0) === (this.groove?.rate || 0);
+    this.groove = groove;
+    if (!same && (this.stance === 'stand' || this.stance === 'sit')) this.base = this.restBase();
+  }
+
+  // Dozing off to a boring song (listen.js): asleep where she is, the same as any nap, except she stays
+  // whole (not down to her mask): the next song she likes wakes her.
+  nap() {
+    if (this.mode !== 'idle' || this.stowed || this.dormant || this.riding || this.busy) return false;
+    this.setMode('sleep');
+    this.napping = true;
+    return true;
   }
 
   setMode(mode) {
     const now = performance.now();
-    if (mode !== 'sleep') this.lastActivity = now;
+    if (mode !== 'sleep') {
+      this.lastActivity = now;
+      this.napping = false;
+    }
     // after anything happens, stay put a while (so she doesn't wander off right after "done")
     this.nextMove = Math.max(this.nextMove, now + rand(55000, 120000));
     this.nextGaze = Math.max(this.nextGaze, now + rand(30000, 70000));
@@ -769,7 +820,7 @@ export class Capri {
     this.mode = mode;
     if (mode === 'sleep') this.sleptAt = now;
     this.onMode?.(mode, prev);
-    if (this.stance === 'stand') this.base = this.restBase();
+    if (this.stance === 'stand' || this.stance === 'sit') this.base = this.restBase();
     const p = this.p;
     if (mode === 'sleep') tween(p, { alpha: 0.55, sparkle: 0.35, boil: 0.4 }, 900, ease.inOut);
     else tween(p, { alpha: 1, sparkle: 1, boil: 0.9 }, 250, ease.out);
@@ -1217,6 +1268,7 @@ export class Capri {
       await tween(p, { alpha: 0 }, 160, ease.linear);
       return head;
     }
+    this.boing({ squash: 3.4, mane: 2.5 }); // she stretches up tall and thin as she goes, like in the show
     this.voice.play('teleport-out');
     p.glitchSeed = Math.random() * 100;
     await tween(p, { glitch: 0.35, split: 3 }, 90, ease.linear);
@@ -1284,6 +1336,9 @@ export class Capri {
     p.silAmount = 0;
     if (stale()) return;
     this.fx.burst(toHead.x, toHead.y + 60 * s, { count: 10, power: 0.55, spread: 110 * s });
+    // popping in: squashed, springing up to her height, glitter flying off her mane
+    this.boing({ squash: -2.2, mane: 2 });
+    if (!reducedMotion.matches) this.fx.sparks(toHead.x, toHead.y - 20 * s, { count: 10, power: 0.7, colors: [COLORS.paper, COLORS.green, COLORS.red] });
     if (stance === 'sit') this.perform('plop');
     await tween(p, { glitch: 0, split: 0 }, 220, ease.out);
   }
@@ -1672,6 +1727,9 @@ export class Capri {
       }
     }
     this.setStance(target.stance, { perch: target.perch });
+    // she lands like rubber: flattened by how fast she came down, bouncing back up, sparks off the floor
+    this.boing({ squash: -clamp(impact / 600, 1.2, 4), mane: 1.5 });
+    if (!reducedMotion.matches && impact > 500) this.fx.sparks(this.pos.x, this.pos.y - 6, { count: 8, power: 0.5, dir: -Math.PI / 2, spread: Math.PI * 0.9 });
     if (target.stance === 'sit') {
       this.perform('plop');
     } else {
@@ -1883,6 +1941,9 @@ export class Capri {
           const now = performance.now();
           this.held = { t: now, vx: 0, vy: 0, swing: 0, spin: 0, stretch: 0, samples: [], flips: [], dir: 0, dizzy: false, last: now };
           this.onHandled?.('grabbed'); // (right after one of her AI's moves: you wanted it over, motion.js)
+          // plucked: she stretches out of your fingers, sparks where you took hold
+          this.boing({ squash: 3, mane: 2 });
+          if (!reducedMotion.matches) this.fx.sparks(down.x, down.y, { count: 10, power: 0.7 });
           // snatched out of a teleport: that face (her 2.4 scream)
           if (this.snatched && !reducedMotion.matches) this.fx.cutin(...this.cutinAt(this.towardCenter()), { kind: 'scream', life: 620 });
         }
@@ -1898,10 +1959,18 @@ export class Capri {
         }
         return;
       }
+      // how fast your pointer goes, for when it whooshes right past her
+      const now = performance.now();
+      const last = this.lastMouse;
+      this.lastMouse = { x: e.clientX, y: e.clientY, t: now };
+      if (last && now - last.t < 80) {
+        const dt = Math.max(8, now - last.t) / 1000;
+        this.whoosh(e.clientX, e.clientY, (e.clientX - last.x) / dt, (e.clientY - last.y) / dt);
+      }
       this.petCheck(e.clientX, e.clientY);
       if (!this.petting?.on) this.notice(e.clientX, e.clientY); // being petted, nothing else catches her eye
     });
-    window.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', (e) => {
       if (!down) return;
       const wasDragging = this.dragging;
       down = null;
@@ -1924,8 +1993,12 @@ export class Capri {
         }
         if (held?.dizzy) this.dizzy();
         if (Math.hypot(vx, vy) > 900 && !reducedMotion.matches) this.fling(vx, vy);
-        else this.drop();
+        else {
+          this.boing({ squash: -1.4, lean: clamp(-(held?.swing || 0) * 5, -140, 140) }); // let go: she swings back upright
+          this.drop();
+        }
       } else {
+        this.poke(e.clientX, e.clientY);
         this.onClick?.();
       }
     });
@@ -2025,6 +2098,7 @@ export class Capri {
     this.fx.dizzy(() => (this.hidden || this.dragging ? null : this.head()), { radius: 34 * s + 24, life: 1500, count: 3 });
     this.onHandled?.('crash');
     await this.perform('splat');
+    this.boing({ squash: 3.2, mane: 2 }); // and back up, boing
   }
 
   // Shaken too much: stars going round her head, and she says so.
@@ -2060,6 +2134,7 @@ export class Capri {
     if (dir && dir !== pet.dir && Math.abs(dx) > 2) {
       pet.dir = dir;
       pet.strokes++;
+      if (pet.on) this.boing({ lean: dir * 60, squash: -0.5 }); // each stroke: she sways with your hand, soft as jelly
     }
     if (!pet.on && (pet.strokes >= 3 || pet.dist > 260)) {
       pet.on = true;
@@ -2102,8 +2177,83 @@ export class Capri {
     const h = this.head();
     const dir = this.mouse ? (this.mouse.x < h.x ? -1 : 1) : this.towardCenter();
     this.perform(name, ['spin', 'hop', 'turn'].includes(name) ? 0 : dir, { amp });
+    if (name === 'hop' || name === 'spin' || name === 'dance' || name === 'laugh') this.boing({ squash: 1.6 * amp, mane: 1.5 * amp });
     this.lastActivity = performance.now();
     return true;
+  }
+
+  // ---------- elastic: her body as rubber, like in the show ----------
+
+  // A push to her jelly: squash (< 0 squashes her flat, > 0 stretches her tall), lean (degrees a second), mane
+  // (it flares). She overshoots and wobbles back (jellyStep).
+  boing({ squash = 0, lean = 0, mane = 0 } = {}) {
+    if (reducedMotion.matches) return;
+    const j = this.jelly;
+    j.vs += squash;
+    j.vt += lean;
+    j.vm += mane;
+    j.live = true;
+  }
+
+  // Her jelly, a step: three springs, stiff and loosely damped (a few wobbles in a second), added on top of her
+  // drawing; her feet stay put, she squashes from them, as thin when tall as she is wide when flat.
+  jellyStep(now) {
+    const j = this.jelly;
+    const dt = Math.min(0.05, (now - (j.at || now)) / 1000);
+    j.at = now;
+    if (!j.live) return;
+    const n = Math.max(1, Math.ceil(dt / 0.008));
+    const h = dt / n;
+    for (let i = 0; i < n; i++) {
+      j.vs += (-210 * j.s - 7 * j.vs) * h;
+      j.s += j.vs * h;
+      j.vt += (-150 * j.t - 6 * j.vt) * h;
+      j.t += j.vt * h;
+      j.vm += (-120 * j.m - 6.5 * j.vm) * h;
+      j.m += j.vm * h;
+    }
+    j.s = clamp(j.s, -0.4, 0.45);
+    j.t = clamp(j.t, -30, 30);
+    j.m = clamp(j.m, -0.3, 0.5);
+    j.live = Math.abs(j.s) + Math.abs(j.vs) * 0.02 + Math.abs(j.t) * 0.01 + Math.abs(j.vt) * 0.001 + Math.abs(j.m) + Math.abs(j.vm) * 0.02 > 0.004;
+    if (!j.live) Object.assign(j, { s: 0, vs: 0, t: 0, vt: 0, m: 0, vm: 0 });
+    this.sy *= 1 + j.s;
+    this.sx *= 1 - j.s * 0.55;
+    this.tilt += j.t;
+    this.p.mane += j.m;
+    this.p.hair += j.t * 0.35;
+  }
+
+  // A click on her: she boings away from where you poked (squashed, wobbling back), sparks off the spot.
+  poke(x, y) {
+    if (this.hidden || this.stowed || this.dormant || reducedMotion.matches) return;
+    const away = x < this.pos.x ? 1 : -1;
+    this.boing({ squash: -2.6, lean: away * 120, mane: 2.2 });
+    this.fx.sparks(x, y, { count: 14, power: 0.85 });
+    if (y < this.head().y + 20) this.fx.twinkle(x, y, { size: 12 });
+  }
+
+  // Your pointer rushing right past her face: her mane bristles and she sways out of its way, a few sparks
+  // flying off with it.
+  whoosh(x, y, vx, vy) {
+    if (this.hidden || this.stowed || this.busy || this.dragging || this.flight || this.riding || this.dormant || this.stance === 'fall') return;
+    const now = performance.now();
+    if (now < (this.nextWhoosh || 0) || Math.hypot(vx, vy) < 1600) return;
+    const h = this.head();
+    if (Math.hypot(x - h.x, y - (h.y - 20)) > 150 * this.scale + 40) return;
+    this.nextWhoosh = now + 700;
+    if (this.mode === 'sleep') this.wake();
+    this.boing({ lean: clamp(vx * 0.06, -160, 160), mane: 3, squash: -1 });
+    if (!reducedMotion.matches) this.fx.sparks(x, y, { count: 6, power: 0.5, dir: Math.atan2(vy, vx), spread: 1.2 });
+  }
+
+  // Her other minds peering out: eyes opening around her mane, all on your pointer, then shutting.
+  manyEyes() {
+    if (reducedMotion.matches || this.hidden || this.stowed || this.dormant) return;
+    const s = this.scale;
+    this.fx.eyes(() => (this.hidden || this.dragging || this.dormant ? null : this.head()), () => this.mouse || this.head(),
+      { count: pick([2, 3, 3, 4]), radius: 95 * s + 20, size: 9 * Math.max(0.7, s) + 3 });
+    this.boing({ mane: 2.5, squash: 0.8 });
   }
 
   // Where your pointer is, when it's near and she's just floating there: her head turns a little toward it,
@@ -2111,7 +2261,7 @@ export class Capri {
   follow(now) {
     const m = this.mouse;
     const p = this.p;
-    const want = { head: 0, mane: 0 };
+    const want = { head: 0, mane: 0, lean: 0 };
     if (m && !this.act && !this.walking && this.stance === 'stand' && this.mode !== 'sleep' && !this.busy) {
       const h = this.head();
       const d = Math.hypot(m.x - h.x, m.y - h.y);
@@ -2119,11 +2269,14 @@ export class Capri {
       const dir = m.x < h.x ? -1 : 1;
       want.head = 0.13 * near * dir * this.facing * clamp(Math.abs(m.x - h.x) / 120, 0, 1);
       want.mane = d < 110 ? 0.12 : 0;
+      want.lean = 4 * near * dir * clamp(Math.abs(m.x - h.x) / 160, 0, 1); // her whole body leaning in toward it
     }
     this.gazeHead = lerp(this.gazeHead || 0, want.head, 0.18);
     this.gazeMane = lerp(this.gazeMane || 0, want.mane, 0.18);
+    this.gazeLean = lerp(this.gazeLean || 0, want.lean, 0.12);
     p.head += this.gazeHead;
     p.mane += this.gazeMane;
+    this.tilt += this.gazeLean;
   }
 
   // Let go of her: onto a ledge if her hips are right at one, otherwise she falls.
