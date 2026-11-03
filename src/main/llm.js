@@ -20,6 +20,7 @@ const PROVIDERS = {
   },
   openrouter: { label: 'OpenRouter', url: 'https://openrouter.ai/api/v1', env: 'OPENROUTER_API_KEY' },
   openai: { label: 'OpenAI', url: 'https://api.openai.com/v1', env: 'OPENAI_API_KEY' },
+  anthropic: { label: 'Anthropic (Claude API)', kind: 'anthropic', url: 'https://api.anthropic.com/v1', env: 'ANTHROPIC_API_KEY' },
   groq: { label: 'Groq', url: 'https://api.groq.com/openai/v1', env: 'GROQ_API_KEY' },
   gemini: { label: 'Google Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai', env: 'GEMINI_API_KEY' },
   deepseek: { label: 'DeepSeek', url: 'https://api.deepseek.com/v1', env: 'DEEPSEEK_API_KEY' },
@@ -39,6 +40,18 @@ function endpoint(id, cfg) {
 }
 
 const headers = (key) => ({ 'content-type': 'application/json', ...(key && { authorization: `Bearer ${key}` }) });
+const anthropicHeaders = (key) => ({ 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' });
+
+// How long and how wild her answers are (settings › AI), with sane bounds.
+const sampling = (cfg = {}) => ({
+  temperature: Math.min(1.5, Math.max(0, Number(cfg.temperature ?? 0.85))),
+  maxTokens: Math.min(4000, Math.max(40, Math.round(Number(cfg.maxTokens) || 300))),
+});
+
+// A message with pictures (Look: { role, content, images: [base64 jpeg] }) in each server's own shape.
+const openaiMessage = ({ role, content, images }) => (images?.length
+  ? { role, content: [{ type: 'text', text: content }, ...images.map((b64) => ({ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${b64}` } }))] }
+  : { role, content });
 
 // Why a server said no, in a sentence (Gemini sends its error inside an array), with a code when it's
 // worth another try: 'busy' (too many people on it right now), 'gone' (that model isn't served anymore).
@@ -72,6 +85,15 @@ async function models(id, cfg) {
   const p = endpoint(id, cfg);
   if (p.kind === 'ollama') return ollama.models().catch(() => null);
   if (p.kind === 'claude') return claudeVersion().then(() => ['Claude Code']);
+  if (p.kind === 'anthropic') {
+    if (!p.key) throw Object.assign(new Error(`no API key (or ${p.env})`), { code: 'nokey' });
+    const res = await fetch(`${p.url}/models?limit=100`, { headers: anthropicHeaders(p.key), signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw await failure(res);
+    const { data = [] } = await res.json();
+    // the small fast ones first: her replies are short
+    const rank = (id) => (/haiku/.test(id) ? 0 : /sonnet/.test(id) ? 1 : 2);
+    return data.map((m) => m.id).sort((a, b) => rank(a) - rank(b));
+  }
   // what's missing has a code, so her setup knows what to ask for (setup.js)
   if (!p.url) throw Object.assign(new Error('no address set for this server'), { code: 'nourl' });
   if (p.env && !p.key) throw Object.assign(new Error(`no API key (or ${p.env})`), { code: 'nokey' });
@@ -88,13 +110,22 @@ function warm(id, model) {
 }
 
 // OpenAI-style streaming (server-sent events): onDelta(piece) as it comes, resolves with all of it.
-async function openaiChat(p, { model, messages }, onDelta, signal) {
-  const res = await fetch(`${p.url}/chat/completions`, {
-    method: 'POST',
-    headers: headers(p.key),
-    body: JSON.stringify({ model, messages, stream: true }),
-    signal,
-  });
+async function openaiChat(p, { model, messages, cfg }, onDelta, signal) {
+  const { temperature, maxTokens } = sampling(cfg);
+  // Models that think before answering (Gemini 2.5 and 3, reasoners) spend their thinking out of the same
+  // token budget: with a short one her answer got cut mid-word ("Yaelah sabar n"). They get room to think,
+  // and Gemini is told to think as little as it can (her answers are a sentence or two).
+  const gemini = /generativelanguage\.googleapis\.com/.test(p.url);
+  const thinks = gemini || /deepseek-r|reasoner|thinking|\bqwq\b|qwen3|gpt-5|\bo[134](?:-mini)?\b|magistral/i.test(model);
+  const body = { model, messages: messages.map(openaiMessage), stream: true, temperature, max_tokens: maxTokens + (thinks ? 4096 : 0) };
+  if (gemini) body.reasoning_effort = /pro/i.test(model) ? 'low' : 'none';
+  const send = (b) => fetch(`${p.url}/chat/completions`, { method: 'POST', headers: headers(p.key), body: JSON.stringify(b), signal });
+  let res = await send(body);
+  if (!res.ok && res.status === 400 && body.reasoning_effort) {
+    // this model won't take that much less thinking (Gemini 3 always thinks): asked again without it
+    delete body.reasoning_effort;
+    res = await send(body);
+  }
   if (!res.ok) throw await failure(res);
   const decoder = new TextDecoder();
   let buffer = '';
@@ -111,6 +142,57 @@ async function openaiChat(p, { model, messages }, onDelta, signal) {
       const msg = JSON.parse(data);
       if (msg.error) throw new Error(msg.error.message || msg.error);
       const piece = msg.choices?.[0]?.delta?.content || ''; // reasoning comes apart, and is left out
+      if (piece) {
+        text += piece;
+        onDelta(piece);
+      }
+      // ran out of room all the same: an ellipsis, not a word cut in half with nothing to show for it
+      if (msg.choices?.[0]?.finish_reason === 'length' && text && !/[.!?…)"'~]\s*$/.test(text)) {
+        text += '…';
+        onDelta('…');
+      }
+    }
+  }
+  return text;
+}
+
+// Anthropic's Messages API, streamed: her persona goes apart (system), the rest must take turns.
+async function anthropicChat(p, { model, messages, cfg }, onDelta, signal) {
+  const { temperature, maxTokens } = sampling(cfg);
+  const system = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n\n');
+  const turns = [];
+  for (const m of messages.filter((x) => x.role !== 'system')) {
+    const blocks = [
+      ...(m.images || []).map((data) => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data } })),
+      { type: 'text', text: String(m.content || '…') },
+    ];
+    const last = turns.at(-1);
+    if (last && last.role === m.role) last.content.push(...blocks);
+    else turns.push({ role: m.role === 'assistant' ? 'assistant' : 'user', content: blocks });
+  }
+  if (turns[0]?.role !== 'user') turns.unshift({ role: 'user', content: [{ type: 'text', text: '…' }] });
+  const res = await fetch(`${p.url}/messages`, {
+    method: 'POST',
+    headers: anthropicHeaders(p.key),
+    body: JSON.stringify({ model, system, messages: turns, max_tokens: maxTokens, temperature: Math.min(1, temperature), stream: true }),
+    signal,
+  });
+  if (!res.ok) throw await failure(res);
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let text = '';
+  for await (const chunk of res.body) {
+    buffer += decoder.decode(chunk, { stream: true });
+    let nl;
+    while ((nl = buffer.indexOf('\n')) >= 0) {
+      const line = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (!line.startsWith('data:')) continue;
+      let msg;
+      try { msg = JSON.parse(line.slice(5)); } catch { continue; }
+      if (msg.type === 'error') throw new Error(msg.error?.message || 'Anthropic error');
+      if (msg.type === 'message_stop') return text;
+      const piece = msg.type === 'content_block_delta' && msg.delta?.type === 'text_delta' ? msg.delta.text : '';
       if (piece) {
         text += piece;
         onDelta(piece);
@@ -209,10 +291,11 @@ const isChatSession = (id) => Boolean(id) && id === claudeSession;
 
 async function chat(id, cfg, { model, messages }, onDelta, signal) {
   const p = endpoint(id, cfg);
-  if (p.kind === 'ollama') return ollama.chat({ model, messages }, onDelta, signal);
+  if (p.kind === 'ollama') return ollama.chat({ model, messages, options: sampling(cfg) }, onDelta, signal);
+  if (p.kind === 'anthropic') return anthropicChat(p, { model, messages, cfg }, onDelta, signal);
   // Claude Code keeps its own memory of the conversation: only her persona and your last message go
   if (p.kind === 'claude') return claudeChat(cfg, messages.at(-1).content, messages[0].content, onDelta, signal);
-  return openaiChat(p, { model, messages }, onDelta, signal);
+  return openaiChat(p, { model, messages, cfg }, onDelta, signal);
 }
 
 // Whether her answers stay on this PC: a server on this machine.
@@ -222,4 +305,7 @@ function isLocal(id, cfg) {
   return Boolean(PROVIDERS[id].local);
 }
 
-module.exports = { isLocal, PROVIDERS, CLAUDE_MODES, models, warm, chat, resetClaude, isChatSession, claudeMemory, restoreClaude };
+// Whether this provider can be handed a picture at all (Claude Code can't, through her chat).
+const canSee = (id) => PROVIDERS[id] && PROVIDERS[id].kind !== 'claude';
+
+module.exports = { isLocal, canSee, endpoint, PROVIDERS, CLAUDE_MODES, models, warm, chat, resetClaude, isChatSession, claudeMemory, restoreClaude };
