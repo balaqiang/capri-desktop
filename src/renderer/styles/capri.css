@@ -774,6 +774,65 @@ html[data-motion='reduced'] .panel__bar {
   transform: scaleY(-1);
 }
 
+/* ---------- the song's words, over her head as they're sung (listen.js) ---------- */
+
+.lyric {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  max-width: min(380px, calc(100vw - 28px));
+  pointer-events: none;
+  filter: drop-shadow(3px 3px 0 var(--violet));
+  will-change: transform;
+}
+
+.lyric__plate {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 12px 6px 9px;
+  background: var(--ink);
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+
+.lyric__note {
+  flex: none;
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lyric__line {
+  min-width: 0;
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+/* a new line: swapped in on twos, like a cel, the note flashing red */
+.lyric.is-new .lyric__plate {
+  animation: lyric-in 170ms steps(2, jump-end) 1;
+}
+
+.lyric.is-new .lyric__note {
+  animation: lyric-note 340ms steps(2, jump-none) 1;
+}
+
+@keyframes lyric-in {
+  0% { opacity: 0.35; transform: translateY(4px); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes lyric-note {
+  0% { color: var(--red); }
+  100% { color: var(--green); }
+}
+
 /* ---------- ticker ---------- */
 
 .ticker {
