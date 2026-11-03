@@ -61,6 +61,7 @@ contextBridge.exposeInMainWorld('host', {
   errand: (text) => ipcRenderer.invoke('errand:run', text),
   setPersona: (text) => ipcRenderer.send('persona:set', text),
   lifeContext: () => ipcRenderer.invoke('life:context'),
+  songNow: () => ipcRenderer.invoke('life:song'),
   addSync: (points, source) => ipcRenderer.send('life:sync', { points, source }),
   hackLine: () => ipcRenderer.invoke('life:hack'),
   quiet: (ms) => ipcRenderer.send('life:quiet', ms),
