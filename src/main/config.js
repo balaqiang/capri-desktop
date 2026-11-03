@@ -52,6 +52,8 @@ const DEFAULTS = {
   temperature: 0.85,
   maxTokens: 300,
   contextMessages: 20, // messages she has in mind when answering
+  coder: 'auto',       // who writes code you ask for: 'auto' (Claude Code if installed, else her), 'claude', 'self'
+  codeFolder: '',      // where it goes ('': Documents/Capri Code)
   lookOn: true,        // she may look at your screen when you ask (one screenshot, kept in memory only)
   cloudLook: false,    // ...and send it to a cloud model
 
@@ -101,6 +103,20 @@ const DEFAULTS = {
   dares: true,
   visionDares: false,  // a dare may look at your screen first (asks before turning on)
   music: 'comment',    // 'off', 'show' (what's playing), 'comment' (and a word about it)
+  lyrics: true,        // the words of the song under her as they're sung (LRCLIB, main/lyrics.js)
+  musicMood: true,     // she listens along: grooves, dances to songs she likes, dozes off to boring ones
+  tastes: {},          // what she thinks of the songs she's heard: { 'title|artist': 'love' | 'like' | 'meh' }
+
+  // --- what she may do on your PC (settings › Access; what she may see and hear has its own switches) ---
+  access: {
+    apps: true,    // open apps, games and Store apps
+    files: true,   // open folders, find files and folders
+    close: true,   // close an app (always behind a button)
+    web: true,     // open sites and searches in your browser
+    media: true,   // the media keys: pause, next, volume
+    spotify: true, // search Spotify and press Play
+    code: true,    // write code into her Code folder, or open Claude Code for it
+  },
   pats: true,          // hover over her for a head pat
   hideInFullscreen: true, // she steps aside while a game or a full screen video is in front (2.4)
   voiceClips: true,    // her recorded lines from her voice folder (pat.wav, wake.wav…), when there are any
@@ -141,7 +157,7 @@ const DEFAULTS = {
 };
 
 // objects whose missing keys come from the defaults (a file from an older version keeps its own values)
-const NESTED = ['traits', 'owner', 'sync', 'hotkeys', 'growth'];
+const NESTED = ['traits', 'owner', 'sync', 'hotkeys', 'growth', 'access'];
 
 let cache = null;
 
@@ -183,4 +199,7 @@ function save(patch) {
   return cache;
 }
 
-module.exports = { load, save, reset, file, DEFAULTS };
+// May she do that on your PC (settings › Access)? 'apps', 'files', 'close', 'web', 'media', 'spotify', 'code'
+const allowed = (what) => load().access?.[what] !== false;
+
+module.exports = { load, save, reset, file, allowed, DEFAULTS };
