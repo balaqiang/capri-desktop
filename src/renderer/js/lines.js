@@ -1,6 +1,8 @@
 // What Capri says. She's a personality construct — dozens of minds in one — so she
 // sometimes talks as "we". Slang is Night City's: choom, preem, nova, flatline.
 
+import { ID_LINES } from './lines-id.js';
+
 export const LINES = {
   fr: {
     state: { work: 'EN COURS', done: 'TERMINÉ', alert: 'ATTENTE', error: 'ERREUR', info: 'SYNC', idle: 'VEILLE' },
@@ -1191,6 +1193,8 @@ export const LINES = {
 
 // The coding assistants she can watch besides Claude Code: the same lines with their name, their
 // hooks file, and what to do once her hooks are in.
+LINES.id = ID_LINES;
+
 export const ASSISTANT_NAMES = { claude: 'Claude Code', codex: 'Codex', agy: 'Antigravity' };
 const OTHERS = {
   codex: {
@@ -1202,6 +1206,7 @@ const OTHERS = {
       es: '¿Quieres que me conecte a Codex? Un clic, y luego reinicia Codex y autoriza mis hooks cuando te lo pida.',
       pt: 'Quer que eu me conecte ao Codex? Um clique, depois reinicie o Codex e autorize meus hooks quando ele pedir.',
       ru: 'Подключиться к Codex? Один клик, потом перезапусти Codex и разреши мои хуки, когда он спросит.',
+      id: 'Mau aku colokin ke Codex? Satu klik, terus restart Codex dan percayai hook-ku waktu dia minta.',
     },
     after: {
       en: 'Now restart Codex and trust my hooks when it asks. As soon as it does something, I’ll tell you.',
@@ -1219,6 +1224,7 @@ const OTHERS = {
       es: '¿Quieres que me conecte a Antigravity? Un clic, y luego empieza una conversación nueva en él.',
       pt: 'Quer que eu me conecte ao Antigravity? Um clique, depois comece uma conversa nova nele.',
       ru: 'Подключиться к Antigravity? Один клик, потом начни в нём новый разговор.',
+      id: 'Mau aku colokin ke Antigravity? Satu klik, terus mulai obrolan baru di sana.',
     },
     after: {
       en: 'Now start a new conversation in Antigravity. As soon as it does something, I’ll tell you.',
@@ -1231,7 +1237,7 @@ const OTHERS = {
 };
 const converted = new Map();
 export function linesFor(lang, assistant = 'claude') {
-  const base = LINES[lang] || LINES.fr;
+  const base = LINES[lang] || LINES.en; // the languages that came with 2.4 (de, it, pl, cs, vi) speak English here
   const other = OTHERS[assistant];
   if (!other) return base;
   const key = `${assistant}:${lang}`;
