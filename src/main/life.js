@@ -540,12 +540,21 @@ async function run(said) {
         ride: 'Hop! Riding your cursor.', unride: 'Off your cursor. Finally, solid ground.', home: 'Back to my corner.',
         taskbar: 'Sitting on your taskbar. Comfy.', top: 'Up here!', hide: 'Bye-bye. Ctrl+Alt+C to call me back.', show: "I'm back!",
         sleep: 'Night night…', wake: "I'm up! I wasn't sleeping.", dance: 'Watch this!', stay: "Fine. I'll stay put.",
-        wander: 'Exploring!', walk: 'Taking a little walk.', wave: 'Hiii!', bow: 'Thank you, thank you.',
+        wander: 'Exploring!', walk: 'Taking a little walk.', wave: 'Hiii!', bow: 'Thank you, thank you.', here: 'Right here!',
       };
       // a gesture is its own move: no emotion's hop on top of it
       const gesture = ['dance', 'wave', 'bow'].includes(e.move);
       return { handled: true, reply: T(lines[e.move] || 'Going!'), emotion: e.move === 'sleep' ? 'bored' : gesture ? null : 'happy', move: e.move };
     }
+    case 'clock': { // the time or the date, exactly: her model only guesses them
+      const now = new Date();
+      const locale = lang.code === 'id' || c.replyLanguage === 'id' || c.replyLanguage === 'mix' ? 'id-ID' : 'en-US';
+      const time = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+      const date = now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      return { handled: true, reply: e.what === 'date' ? F('Today is {0}.', date) : F("It's {0}. {1}.", time, date), emotion: 'happy' };
+    }
+    case 'math': // a sum, worked out (not guessed by her model)
+      return { handled: true, reply: F('{0} = {1}. Easy.', e.expr, Number(e.value).toLocaleString('en-US', { maximumFractionDigits: 8 })), emotion: 'happy' };
     case 'nowPlaying': {
       if (c.music === 'off') return { handled: true, reply: T("I'm not watching what you play. Turn it on in Settings, Behavior."), emotion: 'bored' };
       const t = state.track;
@@ -644,6 +653,13 @@ async function run(said) {
       }
     case 'app': {
       const item = await launch.find(e.text).catch(() => null);
+      // a site by that name ("youtube music") when no app here is called all of it (the app "Music" isn't it):
+      // the site, in your browser
+      const site = errands.siteFor(e.text);
+      if (site && (!item || !launch.covers(item, e.text))) {
+        await shell.openExternal(site);
+        return { handled: true, reply: F('Opening {0}.', e.text), emotion: 'happy', zap: true };
+      }
       if (!item) return { handled: false };
       try {
         await launch.launch(item);
@@ -668,7 +684,12 @@ async function run(said) {
 // What her model is told about you and how close she is (chat.js adds it to her persona).
 function brainContext({ cloud = false } = {}) {
   const c = cfg();
-  const parts = [`HOW CLOSE SHE IS TO THE USER RIGHT NOW (sync ${syncPercent()}%): ${syncTier()}`];
+  // the moment, so she never guesses the time or the day
+  const now = new Date();
+  const parts = [
+    `RIGHT NOW (their local time): ${now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}, ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}.`,
+    `HOW CLOSE SHE IS TO THE USER RIGHT NOW (sync ${syncPercent()}%): ${syncTier()}`,
+  ];
   const facts = memories();
   if (c.memoryOn && facts.length && (!cloud || c.cloudMemory)) {
     parts.push(`WHAT THE USER HAS TOLD YOU (use one only when it really fits what they said; never list them or say you keep notes):\n${facts.slice(-25).map((f) => `- ${f}`).join('\n')}`);
