@@ -438,6 +438,54 @@ export const ACTS = {
     ],
   },
 
+  // ---- listening to your music (listen.js): stances while a song plays, played at its tempo ----
+
+  // floating, a song on: her head going with the beat, a nod on every down beat, side to side
+  listen: {
+    loop: true,
+    keys: [
+      [3, { bob: 1, head: 0.08, mane: 0.04, hair: -2, tilt: -1.5, arms: 0.02 }],
+      [3, { bob: -2, head: 0.01, hair: 0, tilt: -0.5, arms: 0 }],
+      [3, { bob: 1, head: -0.08, mane: 0.04, hair: 2, tilt: 1.5, arms: 0.02 }],
+      [3, { bob: -2, head: -0.01, hair: 0, tilt: 0.5, arms: 0 }],
+    ],
+  },
+
+  // a song she likes a lot: bouncing on the beat, swaying, arms loose and swinging, her mane flaring with it
+  groove: {
+    loop: true,
+    keys: [
+      [3, { bob: 3, sy: 0.96, sx: 1.02, head: 0.12, mane: 0.14, hair: -3, tilt: -4, armL: 0.35, armR: -0.1 }],
+      [3, { bob: -4, sy: 1.04, sx: 0.98, head: 0.02, mane: 0.22, hair: 0, tilt: -1, armL: 0.15, armR: 0.15 }],
+      [3, { bob: 3, sy: 0.96, sx: 1.02, head: -0.12, mane: 0.14, hair: 3, tilt: 4, armL: -0.1, armR: 0.35 }],
+      [3, { bob: -4, sy: 1.04, sx: 0.98, head: -0.02, mane: 0.22, hair: 0, tilt: 1, armL: 0.15, armR: 0.15 }],
+    ],
+  },
+
+  // perched on a window, a song on: legs kicking on the beat, head bobbing along
+  listenSit: {
+    loop: true,
+    keys: [
+      [3, { kickL: 0.28, kickR: -0.02, head: 0.09, bob: 1, hair: -1.5, arms: -0.42 }],
+      [3, { kickL: 0.1, kickR: 0.1, head: 0.01, bob: -1, arms: -0.42 }],
+      [3, { kickL: -0.02, kickR: 0.28, head: -0.09, bob: 1, hair: 1.5, arms: -0.42 }],
+      [3, { kickL: 0.1, kickR: 0.1, head: -0.01, bob: -1, arms: -0.42 }],
+    ],
+  },
+
+  // a boring song: a big yawn, arms up in a stretch, head back, then all of her drooping
+  yawn: {
+    priority: 1,
+    keys: [
+      [3, { head: -0.04, arms: -0.2, sy: 0.98, bob: 1 }],
+      [5, { head: -0.2, arms: 0.9, sy: 1.05, bob: -3, mane: 0.1, tilt: -2 }],
+      [12, { head: -0.27, arms: 1.05, sy: 1.07, bob: -4, mane: 0.12, tilt: 2 }],
+      [3, { head: 0.06, arms: 0.25, sy: 0.98, bob: 1, mane: -0.06 }],
+      [8, { head: 0.16, arms: -0.32, mane: -0.14, bob: 3, sy: 0.97 }],
+      [1, { head: 0.12, arms: -0.28, mane: -0.12, bob: 2 }],
+    ],
+  },
+
   // ---- what her AI can have her do while she talks ([[move: …]] in her answer, chat.js) ----
 
   // being petted: she leans her head into your hand, mane softening, sways a little
@@ -567,12 +615,14 @@ const FROM_ONE = ['sy', 'longL', 'longR'];
 
 export class Player {
   // amp: how big the act is played, 1 as drawn (her AI's moves learn theirs, motion.js)
-  constructor(name, { dir = 0, reach = 1, at = performance.now(), amp = 1 } = {}) {
+  // rate: how fast, 1 as timed (her listening stances follow the song's tempo, listen.js)
+  constructor(name, { dir = 0, reach = 1, at = performance.now(), amp = 1, rate = 1 } = {}) {
     this.name = name;
     this.act = ACTS[name];
     this.dir = dir;
     this.reach = reach;
     this.amp = amp;
+    this.rate = rate;
     this.start = at;
     this.total = this.act.keys.reduce((n, [hold]) => n + hold, 0);
   }
@@ -583,7 +633,7 @@ export class Player {
 
   // The drawing on screen at `now` ({ pose, index, cue }), or null once a one-shot act is over.
   sample(now) {
-    const fps = this.act.fps || SHEET_FPS;
+    const fps = (this.act.fps || SHEET_FPS) * this.rate;
     let f = Math.floor((now - this.start) / (1000 / fps));
     if (f >= this.total) {
       if (!this.act.loop) return null;
