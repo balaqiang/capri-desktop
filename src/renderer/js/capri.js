@@ -68,7 +68,7 @@ export class Capri {
     this.hoverSince = 0;   // your pointer by her face since (her other eyes open after a while)
     this.nextEyes = 0;
     this.groove = null;    // a song on (listen.js): { kind: 'listen' | 'groove', rate }, how she goes with it
-    this.napping = false;  // dozed off to a boring song: asleep, but never down to her mask
+    this.hearing = false;  // music on (listen.js): she's listening, so she doesn't nod off from boredom
 
     this.p = {
       seed: 0, boil: 0.9, hair: 0, head: 0, mane: 0, armL: 0, armR: 0, longL: 1, longR: 1, sit: 0, kickL: 0, kickR: 0,
@@ -514,9 +514,13 @@ export class Capri {
       this.gaze();
     }
 
-    // (listening to a song she's into isn't being idle: no nodding off then)
-    if (this.mode === 'idle' && !this.groove && now - this.lastActivity > SLEEP_AFTER) this.setMode('sleep');
-    if (this.mode === 'sleep' && !this.napping && now - this.sleptAt > DOZE_AFTER) {
+    // bored, nothing going on for a while: a big yawn, and she nods off (never while music plays: she's listening,
+    // and her lyrics would go)
+    if (this.mode === 'idle' && !this.hearing && !this.act && now - this.lastActivity > SLEEP_AFTER) {
+      this.perform('yawn', this.towardCenter());
+      this.setMode('sleep');
+    }
+    if (this.mode === 'sleep' && now - this.sleptAt > DOZE_AFTER) {
       this.doze();
       return;
     }
@@ -797,21 +801,9 @@ export class Capri {
     if (!same && (this.stance === 'stand' || this.stance === 'sit')) this.base = this.restBase();
   }
 
-  // Dozing off to a boring song (listen.js): asleep where she is, the same as any nap, except she stays
-  // whole (not down to her mask): the next song she likes wakes her.
-  nap() {
-    if (this.mode !== 'idle' || this.stowed || this.dormant || this.riding || this.busy) return false;
-    this.setMode('sleep');
-    this.napping = true;
-    return true;
-  }
-
   setMode(mode) {
     const now = performance.now();
-    if (mode !== 'sleep') {
-      this.lastActivity = now;
-      this.napping = false;
-    }
+    if (mode !== 'sleep') this.lastActivity = now;
     // after anything happens, stay put a while (so she doesn't wander off right after "done")
     this.nextMove = Math.max(this.nextMove, now + rand(55000, 120000));
     this.nextGaze = Math.max(this.nextGaze, now + rand(30000, 70000));
@@ -824,6 +816,10 @@ export class Capri {
     const p = this.p;
     if (mode === 'sleep') tween(p, { alpha: 0.55, sparkle: 0.35, boil: 0.4 }, 900, ease.inOut);
     else tween(p, { alpha: 1, sparkle: 1, boil: 0.9 }, 250, ease.out);
+    // asleep: Z's rising off her until she wakes (or comes apart down to her mask)
+    if (mode === 'sleep' && !reducedMotion.matches) {
+      this.fx.zzz(() => (this.mode === 'sleep' && !this.hidden && !this.dormant && !this.stowed ? { ...this.head(), dir: this.towardCenter() } : null));
+    }
   }
 
   wake() {
