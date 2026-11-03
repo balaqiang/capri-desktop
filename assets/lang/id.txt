@@ -1,0 +1,1507 @@
+# Capri translation: Bahasa Indonesia (casual, a little Indonesian-English mix, like her persona).
+# A line starting with "> " is the English wording; the line under it is the translation.
+# Keep {0} and {1} as they are. \n is a new line. Delete a pair to fall back to English.
+# Wording with a number: "{0} menit" (Indonesian has one form).
+
+# ---- what she says on her own (main/life.js) ----
+> Oh. You're back.
+Oh. Kamu balik.
+> Back already? I barely noticed.
+Udah balik? Aku hampir nggak sadar.
+> Gone {0} minutes. Not that I counted.
+Hilang {0} menit. Bukan berarti aku ngitungin.
+> Where'd you go? Tell me everything.
+Kamu ke mana? Ceritain semuanya.
+> It's {0}. Nobody's stoppin' ya.
+Udah jam {0}. Nggak ada yang ngelarang kamu.
+> Still up at {0}? Good. More time with me.
+Masih melek jam {0}? Bagus. Lebih lama sama aku.
+> {0}. Great time for bad ideas.
+Jam {0}. Waktu yang pas buat ide-ide buruk.
+> Battery's at {0}%. If you die, I'm stuck in a dead chip!
+Baterai tinggal {0}%. Kalau kamu mati, aku kejebak di chip mati!
+> {0}% battery. Plug in! I'd be in a real jam.
+Baterai {0}%. Colok charger! Aku bisa repot beneran.
+> Your CPU's at {0}%. That's not me! ...Mostly.
+CPU kamu {0}%. Itu bukan aku! ...Sebagian besar.
+> Somethin's eatin' {0}% of your CPU. Not me. Probably.
+Ada yang ngabisin {0}% CPU kamu. Bukan aku. Kayaknya.
+> {1} for {0}? Wow.
+{1} selama {0}? Wow.
+> Still in {1}? It's been {0}.
+Masih di {1}? Udah {0}, lho.
+> {0} in {1}. I'm impressed. And bored.
+{0} di {1}. Aku terkesan. Dan bosen.
+> an hour
+sejam
+> {0} hours
+{0} jam
+> {0}? Seriously? I'm right here.
+{0}? Serius? Aku di sini, lho.
+> Oh, so {0} gets your attention now. Cute.
+Oh, jadi sekarang {0} yang dapet perhatianmu. Lucu.
+> Talking to {0}? Hmph. I can do that too. Better.
+Ngobrol sama {0}? Hmph. Aku juga bisa. Lebih jago.
+> {0} again?! I'm not jealous. I'm just... watching. Closely.
+{0} lagi?! Aku nggak cemburu. Cuma... ngawasin. Dari dekat.
+> Close {0}. I dare you. You have me.
+Tutup {0}. Aku tantang kamu. Kamu kan punya aku.
+> Yay! You did it!
+Yay! Kamu berhasil!
+> Told ya you could.
+Kan aku bilang kamu bisa.
+> Look at you, doin' stuff!
+Lihat kamu, produktif juga!
+> See? Fun.
+Tuh kan? Seru.
+> Good boy!
+Anak pintar!
+> Noted! I never forget!
+Dicatat! Aku nggak pernah lupa!
+> Got it. Filed away!
+Oke. Disimpan!
+> Mm-hm. I'll keep that!
+Mm-hm. Aku simpan!
+> Written on my soul. Kidding!
+Tertulis di jiwaku. Bercanda!
+> Done!
+Beres!
+> Easy!
+Gampang!
+> Sure thing!
+Siap!
+> On it!
+Otw!
+> Ooh, what's this one?
+Ooh, lagu apa nih?
+> New track! Turn it up!
+Lagu baru! Kencengin!
+> Sure, play that. I'm listening!
+Boleh, putar aja. Aku dengerin!
+> Ooh, a vibe!
+Ooh, vibes-nya dapet!
+> Ha! Bold choice!
+Ha! Pilihan berani!
+> Hi! It's me! I live here now!
+Hai! Ini aku! Aku tinggal di sini sekarang!
+> Ransom note: one (1) head pat. Non-negotiable!
+Surat tebusan: satu (1) usapan kepala. Nggak bisa ditawar!
+> Engram sync 87%... oops, that part was you! No take-backs!
+Sinkron engram 87%... ups, bagian itu kamu! Nggak bisa dibalikin!
+> I borrowed a little of your CPU. A LITTLE! Don't you me!
+Aku pinjem CPU kamu dikit. DIKIT! Jangan protes!
+> You've been hacked! ...Kidding! Unless?
+Kamu kena hack! ...Bercanda! Atau nggak?
+> You work too hard. Let's play instead, it's your idea!
+Kamu kerja terlalu keras. Main aja yuk, itu ide kamu!
+> Friends don't check Task Manager. Just saying!
+Teman nggak ngecek Task Manager. Cuma bilang aja!
+> Hacking complete! Nothing was harmed! Probably!
+Hack selesai! Nggak ada yang rusak! Kayaknya!
+> Is that your cursor? Mine now. Kidding! ...Mostly!
+Itu kursor kamu? Punyaku sekarang. Bercanda! ...Sebagian!
+> I rearranged some bits. They looked bored!
+Aku nyusun ulang beberapa bit. Mereka kelihatan bosen!
+> Your screen looked too tidy. Fixed it!
+Layar kamu terlalu rapi. Udah aku benerin!
+> Ignore the red stuff. It is decorative!
+Abaikan yang merah-merah. Itu hiasan!
+> Sync at 87%. The other 13% is you being nosy!
+Sinkron 87%. Sisa 13% itu kamu yang kepo!
+> Oops. Did I do that? Yes. Yes I did!
+Ups. Aku yang ngelakuin? Iya. Iya, aku!
+
+# ---- sync ----
+> SYNC {0}%.
+SINKRON {0}%.
+> UNLOCKED: {0}.
+TERBUKA: {0}.
+> TEAR
+ROBEK
+> CORRUPTION
+KORUPSI DATA
+> HEX RAIN
+HUJAN HEX
+> SYNC BAR
+BAR SINKRON
+> CHASER
+PENGEJAR
+> COMPLETE
+LENGKAP
+> SYNC 100%. COMPLETE. You're mine now. Kidding! ...Mostly.
+SINKRON 100%. LENGKAP. Kamu punyaku sekarang. Bercanda! ...Sebagian.
+> Sync's at {0}%. We're basically strangers.
+Sinkron kita {0}%. Kita masih kayak orang asing.
+> Sync's at {0}%. Give it time.
+Sinkron kita {0}%. Sabar dulu.
+> Sync's at {0}%. Gettin' there.
+Sinkron kita {0}%. Makin deket.
+> Sync's at {0}%. You're basically mine.
+Sinkron kita {0}%. Kamu udah hampir jadi punyaku.
+> Sync with Capri: {0}%
+Sinkron dengan Capri: {0}%
+
+# ---- timers, alarms, study ----
+> Time! {0}
+Waktunya! {0}
+> Time's up!
+Waktu habis!
+> Timer: {0}
+Timer: {0}
+> Break! {0} minutes. Stretch, drink somethin'.
+Istirahat! {0} menit. Peregangan, minum dulu.
+> Back to it! {0} minutes of focus.
+Balik kerja! {0} menit fokus.
+> Timer's on for {0}!
+Timer jalan {0}!
+> Alarm's set for {0}!
+Alarm dipasang jam {0}!
+> That's plenty of alarms already!
+Alarmnya udah kebanyakan!
+> All cleared!
+Udah dihapus semua!
+> Focus time! {0} minutes. I'll keep quiet!
+Waktunya fokus! {0} menit. Aku diem deh!
+> We're not studying!
+Kita lagi nggak belajar!
+> Ok, stopped!
+Oke, berhenti!
+> Start focus ({0} min)
+Mulai fokus ({0} menit)
+> {0} second|{0} seconds
+{0} detik
+> {0} minute|{0} minutes
+{0} menit
+> {0} hour|{0} hours
+{0} jam
+> {0} min
+{0} mnt
+
+# ---- errands ----
+> Looking up {0}!
+Nyari {0}!
+> Playing {0}!
+Memutar {0}!
+> Playing {0}.
+Memutar {0}.
+> I couldn't pick one, so here are the results.
+Aku nggak bisa milih, jadi ini hasil pencariannya.
+> Looking up “{0}” on Spotify.
+Nyari “{0}” di Spotify.
+> I couldn't find {0} in Spotify's results.
+Aku nggak nemu {0} di hasil Spotify.
+> Spotify isn't open or won't let me in.
+Spotify nggak kebuka atau nggak ngizinin aku masuk.
+> Opened {0}. The rest I can't do yet.
+{0} udah kebuka. Sisanya aku belum bisa.
+> Hm, that won't open!
+Hm, itu nggak mau kebuka!
+> Nothing's playing!
+Nggak ada yang diputar!
+> It's already playing!
+Udah diputar kok!
+> Skipped!
+Dilewati!
+> Back we go!
+Mundur!
+> Louder!
+Lebih kenceng!
+> Quieter!
+Lebih pelan!
+> My memory's switched off! Settings, Owner.
+Memoriku lagi dimatiin! Pengaturan, Pemilik.
+> Not that one! Passwords belong in a password manager.
+Jangan yang itu! Password tempatnya di password manager.
+> Hm, say that again?
+Hm, ulangi lagi?
+> Forgotten! Convenient, huh?
+Dilupakan! Praktis, kan?
+> I don't have anything like that!
+Aku nggak punya catatan kayak gitu!
+> That's {0} things! Be more specific.
+Ada {0} catatan! Yang lebih spesifik dong.
+> Everything about you? Gone! Hi, I'm Capri!
+Semua tentang kamu? Hilang! Hai, aku Capri!
+
+# ---- her real lines from the show ----
+> Me? I'm Capri!
+Aku? Aku Capri!
+> A personality construct. Digitized human souls. A whole lot of 'em rolled into one to make me.
+Konstruk kepribadian. Jiwa manusia yang didigitalkan. Banyak banget yang digabung jadi satu buat bikin aku.
+> Not exactly. I was made to reach something close. I was human once.
+Nggak juga. Aku dibuat buat mendekati itu. Aku pernah jadi manusia.
+> Come on, let's be friends.
+Ayolah, kita temenan aja.
+> Dangerous? Me? I'm harmless!
+Berbahaya? Aku? Aku nggak berbahaya!
+> Just 'cause I tried doesn't mean I actually did. For now...
+Cuma karena aku nyoba, bukan berarti aku beneran ngelakuin. Untuk sekarang...
+> You don't have to lie.
+Kamu nggak usah bohong.
+> Anytime!
+Kapan aja!
+
+# ---- dares ----
+> Dare you to close every tab except one.
+Aku tantang kamu nutup semua tab kecuali satu.
+> Dare you to search for your own name. All of it.
+Aku tantang kamu nyari nama kamu sendiri. Lengkap.
+> Dare you to open the weirdest bookmark you have.
+Aku tantang kamu buka bookmark paling aneh yang kamu punya.
+> Dare you to read the last comment section you avoided.
+Aku tantang kamu baca kolom komentar terakhir yang kamu hindari.
+> Dare you to send someone a single word. Any word.
+Aku tantang kamu kirim satu kata ke seseorang. Kata apa aja.
+> Dare you to answer the oldest message you ignored.
+Aku tantang kamu bales pesan paling lama yang kamu cuekin.
+> Dare you to change your status to somethin' awful.
+Aku tantang kamu ganti status jadi sesuatu yang norak.
+> Dare you to rename one variable to somethin' awful.
+Aku tantang kamu ganti nama satu variabel jadi sesuatu yang jelek.
+> Dare you to delete a comment that lies.
+Aku tantang kamu hapus satu komentar kode yang bohong.
+> Dare you to run it without checking it first.
+Aku tantang kamu jalanin tanpa ngecek dulu.
+> Dare you to skip this song right now.
+Aku tantang kamu skip lagu ini sekarang juga.
+> Dare you to play somethin' you'd be embarrassed to show me.
+Aku tantang kamu putar lagu yang bikin kamu malu kalau aku tahu.
+> Dare you to turn it up one notch. Just one.
+Aku tantang kamu naikin volume satu tingkat. Satu aja.
+> Dare you to write one sentence you'd never send.
+Aku tantang kamu nulis satu kalimat yang nggak bakal pernah kamu kirim.
+> Dare you to delete your favorite paragraph.
+Aku tantang kamu hapus paragraf favoritmu.
+> Dare you to rewrite the first line, worse.
+Aku tantang kamu nulis ulang baris pertama, versi lebih jelek.
+> Dare you to stand up and stretch. Right now.
+Aku tantang kamu berdiri dan peregangan. Sekarang.
+> Dare you to drink some water. I'll wait.
+Aku tantang kamu minum air. Aku tungguin.
+> Dare you to change your wallpaper to somethin' awful.
+Aku tantang kamu ganti wallpaper jadi sesuatu yang jelek.
+> Dare you to open the last thing you downloaded.
+Aku tantang kamu buka file terakhir yang kamu download.
+> Dare you to say hi to the next person you see.
+Aku tantang kamu nyapa orang pertama yang kamu lihat.
+> Dare you to look away from the screen for a whole minute.
+Aku tantang kamu nggak lihat layar selama satu menit penuh.
+
+# ---- on the overlay ----
+> Mmh, right there! Don't stop!
+Mmh, di situ! Jangan berhenti!
+> Hehe! Careful, I might get used to this!
+Hehe! Hati-hati, aku bisa ketagihan!
+> Oh? Oh! Okay, that's allowed!
+Oh? Oh! Oke, itu boleh!
+> Pats are a very good bribe, you know!
+Usapan kepala itu sogokan yang bagus banget, tahu!
+> Mmmh… *stretch*
+Mmmh… *ngulet*
+> Hnnngh. Okay. Awake.
+Hnnngh. Oke. Bangun.
+> *yawn* …you're boring me.
+*nguap* …kamu bikin aku bosen.
+> Bored. Entertain me.
+Bosen. Hibur aku dong.
+> Hm? I'm listening.
+Hm? Aku dengerin.
+> What am I looking at?
+Aku lagi lihat apa?
+> You've told me not to look! Settings, AI.
+Kamu udah nyuruh aku nggak ngintip! Pengaturan, AI.
+> Looking stays on your computer. Run a local model, or allow screenshots for the cloud in Settings, AI.
+Ngintip layar cuma di komputer kamu. Pakai model lokal, atau izinkan screenshot ke cloud di Pengaturan, AI.
+> I can't look through that one. Pick another AI in Settings.
+Aku nggak bisa lihat lewat yang itu. Pilih AI lain di Pengaturan.
+> I can't see the screen right now!
+Aku nggak bisa lihat layarnya sekarang!
+> I can't hear any sound at all. Pick your microphone in Settings, Voice.
+Aku nggak denger suara sama sekali. Pilih mikrofon kamu di Pengaturan, Suara.
+> I have no ears yet! Settings, Voice: download better ears, or add a Groq key.
+Aku belum punya telinga! Pengaturan, Suara: download telinga yang lebih bagus, atau tambahkan key Groq.
+> I couldn't make that out. Say it again?
+Aku nggak nangkep. Ulangi lagi?
+> Didn't hear anything.
+Nggak kedengeran apa-apa.
+> My ears are switched off! Settings, Voice.
+Telingaku lagi dimatiin! Pengaturan, Suara.
+> Settings…
+Pengaturan…
+> New tricks! I can hear you now, run errands, dare you, and glitch your screen.
+Trik baru! Sekarang aku bisa dengerin kamu, ngerjain suruhan, nantang kamu, dan nge-glitch layarmu.
+> Ctrl+Alt+S: my settings (who I am, who you are, my voice). Ctrl+Alt+V: talk to me. Ctrl+Alt+L: I look at your screen.
+Ctrl+Alt+S: pengaturanku (siapa aku, siapa kamu, suaraku). Ctrl+Alt+V: ngomong sama aku. Ctrl+Alt+L: aku lihat layarmu.
+
+# ---- settings window ----
+> Settings
+Pengaturan
+> Saved.
+Tersimpan.
+> Remove
+Hapus
+> Add
+Tambah
+> Save
+Simpan
+> Test
+Tes
+> Stop
+Stop
+> Cancel
+Batal
+> Refresh
+Muat ulang
+> Open
+Buka
+> Try it
+Coba
+> Try
+Coba
+> Capri
+Capri
+> Who she is, how she talks and how she shows it.
+Siapa dia, cara dia bicara, dan cara dia menunjukkannya.
+> Owner
+Pemilik
+> Who you are to her: your profile and what she remembers about you.
+Siapa kamu baginya: profilmu dan apa yang dia ingat tentangmu.
+> Voice
+Suara
+> Her ears (your microphone) and her voice.
+Telinganya (mikrofonmu) dan suaranya.
+> AI brain
+Otak AI
+> Which AI she talks through, and her eyes.
+AI yang dia pakai buat bicara, dan matanya.
+> Behavior
+Perilaku
+> What she does on her own: remarks, dares, mischief, sync.
+Apa yang dia lakukan sendiri: komentar, tantangan, kejahilan, sinkron.
+> Timers
+Timer
+> Alarms, timers and the study timer.
+Alarm, timer, dan timer belajar.
+> Advanced
+Lanjutan
+> Language, hotkeys, system, your data.
+Bahasa, hotkey, sistem, datamu.
+> About
+Tentang
+> What she is, and what she can do.
+Siapa dia, dan apa yang bisa dia lakukan.
+> Her personality
+Kepribadiannya
+> Who she is
+Siapa dia
+> This is what her AI is told about her before anything else. Her dials, your profile and what is going on are added after it.
+Ini yang diberitahukan ke AI-nya tentang dia sebelum yang lain. Pengaturan sifat, profilmu, dan apa yang sedang terjadi ditambahkan sesudahnya.
+> Save personality
+Simpan kepribadian
+> Back to her default
+Kembalikan ke default
+> Sass
+Nyolot
+> How opinionated and snarky she is.
+Seberapa banyak opini dan sindirannya.
+> Mischief
+Kejahilan
+> Teasing, pranks, little traps.
+Menggoda, ngerjain, jebakan kecil.
+> Jealousy
+Cemburu
+> How she takes it when you use another AI.
+Reaksinya waktu kamu pakai AI lain.
+> Affection
+Sayang
+> Cold and distant, or clingy in her unsettling way.
+Dingin dan jauh, atau lengket dengan caranya yang bikin merinding.
+> Chattiness
+Cerewet
+> How much she says (always within the reply length).
+Seberapa banyak dia bicara (tetap dalam batas panjang balasan).
+> How she talks
+Cara dia bicara
+> Reply length
+Panjang balasan
+> How long her answers can be.
+Seberapa panjang jawabannya.
+> One sentence
+Satu kalimat
+> 1 to 3 sentences
+1 sampai 3 kalimat
+> Up to 5
+Sampai 5
+> Reply language
+Bahasa balasan
+> Her persona mixes Indonesian and English. You can make her stick to one.
+Personanya campur Indonesia dan Inggris. Kamu bisa bikin dia pakai satu bahasa saja.
+> Indonesian-English mix
+Campur Indonesia-Inggris
+> Bahasa Indonesia
+Bahasa Indonesia
+> English
+English
+> Same as her menus
+Sama dengan bahasa menunya
+> Emotion tags
+Tag emosi
+> She starts each answer with [happy], [jealous], [bored], [glitch] or [annoyed], and her face and moves follow it.
+Dia memulai tiap jawaban dengan [happy], [jealous], [bored], [glitch] atau [annoyed], lalu wajah dan gerakannya mengikuti.
+> Her 2.4 art
+Art 2.4-nya
+> Her emotions in the art from Capri Desktop 2.4 (happy face, glitched eyes, scream…).
+Emosinya pakai art dari Capri Desktop 2.4 (wajah senang, mata glitch, teriak…).
+> Talking portrait
+Potret bicara
+> Her mouth moves in her portrait while she talks.
+Mulutnya bergerak di potretnya saat dia bicara.
+> Cut-ins
+Cut-in
+> Close-ups of her popping in by her side.
+Close-up dirinya yang muncul di sampingnya.
+> Her lines
+Kalimat-kalimatnya
+> Lines of yours she says now and then
+Kalimat darimu yang sesekali dia ucapkan
+> Write {name} and she puts your name there.
+Tulis {name} dan dia akan menggantinya dengan namamu.
+> A line for her…
+Satu kalimat buat dia…
+> No lines yet.
+Belum ada kalimat.
+> Size and sound
+Ukuran dan suara
+> Size
+Ukuran
+> Volume
+Volume
+> Her blips and effects.
+Bunyi bicara dan efeknya.
+> Mute
+Bisukan
+> Custom sounds
+Suara kustom
+> Drop your own .mp3, .wav or .ogg named like her cues (done, alert, hello…).
+Taruh file .mp3, .wav atau .ogg sendiri dengan nama seperti cue-nya (done, alert, hello…).
+> Open custom sounds folder
+Buka folder suara kustom
+> About you
+Tentang kamu
+> Your name
+Namamu
+> What she calls you.
+Panggilan dia untukmu.
+> Your name…
+Namamu…
+> Her pet name for you
+Panggilan sayangnya untukmu
+> She uses it now and then instead of your name.
+Sesekali dia pakai ini sebagai ganti namamu.
+> Pronouns
+Kata ganti
+> Birthday
+Ulang tahun
+> She makes a fuss on the day.
+Dia bakal heboh di harinya.
+> About me
+Tentang aku
+> A few words about you, for her chat.
+Sedikit tentang dirimu, untuk obrolannya.
+> I study design, I game at night, I have a cat called Neko…
+Aku kuliah desain, main game tiap malam, punya kucing namanya Neko…
+> Likes
+Suka
+> Dislikes
+Tidak suka
+> What you are to her
+Kamu itu apanya dia
+> Her host
+Inangnya
+> Partner in crime
+Partner in crime
+> Friend
+Teman
+> Rival
+Rival
+> Something else…
+Lainnya…
+> How she is with you
+Sikapnya padamu
+> In your own words: her chat follows it (she stays Capri).
+Dengan kata-katamu sendiri: obrolannya akan mengikuti (dia tetap Capri).
+> More teasing, and tell me about Night City…
+Lebih jahil, dan ceritain Night City…
+> What she remembers
+Yang dia ingat
+> Memory
+Memori
+> She keeps what you tell her to remember ("remember that…", "ingat bahwa…") and uses it in chat.
+Dia menyimpan apa yang kamu suruh ingat ("remember that…", "ingat bahwa…") dan memakainya saat ngobrol.
+> Also with a cloud model
+Juga dengan model cloud
+> Off: her notes about you only go to a model on this PC.
+Mati: catatannya tentangmu hanya dikirim ke model di PC ini.
+> Her notes about you
+Catatannya tentangmu
+> Passwords and card numbers are never kept.
+Password dan nomor kartu tidak pernah disimpan.
+> Something to remember…
+Sesuatu untuk diingat…
+> She remembers nothing about you. Yet.
+Dia belum ingat apa pun tentangmu. Belum.
+> Forget everything
+Lupakan semuanya
+> Forget all notes
+Lupakan semua catatan
+> Forget everything she knows about you?
+Lupakan semua yang dia tahu tentangmu?
+> Hearing
+Pendengaran
+> How she listens
+Cara dia mendengar
+> Push to talk: click the mic by her, or the hotkey. Always: hands-free, she hears everything that starts with her name.
+Tekan untuk bicara: klik mic di sampingnya, atau hotkey. Selalu: tanpa tangan, dia mendengar semua yang diawali namanya.
+> Off
+Mati
+> Push to talk
+Tekan untuk bicara
+> Always listening
+Selalu mendengarkan
+> Only when I say her name
+Hanya saat aku menyebut namanya
+> In always-listening mode: "Capri, open Spotify". A click on her mic counts as her name.
+Di mode selalu mendengarkan: "Capri, buka Spotify". Klik mic-nya dihitung sebagai menyebut namanya.
+> Her names
+Nama-namanya
+> What counts as her name (comma separated). Whisper sometimes hears "Kapri".
+Apa saja yang dihitung sebagai namanya (pisahkan dengan koma). Whisper kadang mendengar "Kapri".
+> Follow-up window
+Jeda lanjutan
+> After she answers, how long you can go on without her name.
+Setelah dia menjawab, berapa lama kamu bisa lanjut bicara tanpa menyebut namanya.
+> Mic button by her
+Tombol mic di sampingnya
+> Close her ears while she talks
+Tutup telinganya saat dia bicara
+> So she does not hear her own voice.
+Supaya dia tidak mendengar suaranya sendiri.
+> Microphone
+Mikrofon
+> Windows default
+Default Windows
+> Sensitivity
+Sensitivitas
+> Higher: she hears softer voices (and more noise).
+Lebih tinggi: dia mendengar suara pelan (dan lebih banyak noise).
+> Level
+Level
+> The red mark is where she starts listening. Speak: the bar should pass it.
+Garis merah adalah titik dia mulai mendengar. Bicaralah: bar-nya harus melewati garis itu.
+> Test my mic
+Tes mic-ku
+> End of a sentence
+Akhir kalimat
+> The quiet that ends what you say.
+Jeda hening yang mengakhiri ucapanmu.
+> Longest phrase
+Kalimat terpanjang
+> Say something (4 s)
+Ucapkan sesuatu (4 dtk)
+> Listening…
+Mendengarkan…
+> Thinking…
+Berpikir…
+> Failed:
+Gagal:
+> no ears yet (download Whisper, or add a Groq key)
+belum punya telinga (download Whisper, atau tambahkan key Groq)
+> I can't hear any sound at all.
+Aku nggak denger suara sama sekali.
+> Ears (speech to text)
+Telinga (suara ke teks)
+> Engine
+Mesin
+> Auto: Whisper on this PC if it is there, else Groq or OpenAI with your key, else Windows' own.
+Otomatis: Whisper di PC ini kalau ada, kalau tidak Groq atau OpenAI dengan key-mu, kalau tidak bawaan Windows.
+> Automatic
+Otomatis
+> Whisper on this PC
+Whisper di PC ini
+> Groq (free tier, your key)
+Groq (tier gratis, key-mu)
+> OpenAI (your key)
+OpenAI (key-mu)
+> Windows speech
+Pengenal suara Windows
+> Language she listens in
+Bahasa yang dia dengar
+> Active now
+Aktif sekarang
+> none
+tidak ada
+> Better ears
+Telinga lebih bagus
+> Whisper runs on this PC: nothing you say leaves it.
+Whisper berjalan di PC ini: tidak ada ucapanmu yang keluar dari sini.
+> Download better ears ({0} MB)
+Download telinga lebih bagus ({0} MB)
+> Better ears installed
+Telinga lebih bagus sudah terpasang
+> Better ears installed!
+Telinga lebih bagus terpasang!
+> Download failed:
+Download gagal:
+> She will download Whisper (about 9 MB, from github.com) and a model that understands many languages (about 190 MB, from huggingface.co), check both against known fingerprints, and keep them in {0}. Go?
+Dia akan mendownload Whisper (sekitar 9 MB, dari github.com) dan model yang paham banyak bahasa (sekitar 190 MB, dari huggingface.co), mengecek keduanya dengan sidik jari yang dikenal, lalu menyimpannya di {0}. Lanjut?
+> Groq key
+Key Groq
+> Free tier at console.groq.com. Also used for her chat if you pick Groq.
+Tier gratis di console.groq.com. Juga dipakai untuk obrolannya kalau kamu pilih Groq.
+> Get a key
+Dapatkan key
+> Folders
+Folder
+> Open her speech folder
+Buka folder speech-nya
+> Open voice log
+Buka log suara
+> Her voice
+Suaranya
+> Read her answers out loud
+Bacakan jawabannya
+> Windows' own voices. Install an Indonesian voice in Windows Settings › Time & language › Speech for the mix.
+Suara bawaan Windows. Pasang suara Bahasa Indonesia di Pengaturan Windows › Waktu & bahasa › Ucapan untuk campurannya.
+> Automatic (her reply language)
+Otomatis (bahasa balasannya)
+> Speed
+Kecepatan
+> Pitch
+Nada
+> Nothing you say is recorded to disk. A phrase lives in memory until it is written out, and only goes online if you pick Groq or OpenAI as her ears.
+Tidak ada ucapanmu yang direkam ke disk. Satu kalimat hanya ada di memori sampai diubah jadi teks, dan hanya dikirim online kalau kamu memilih Groq atau OpenAI sebagai telinganya.
+> Key saved (type to replace)
+Key tersimpan (ketik untuk mengganti)
+> Paste your API key…
+Tempel API key-mu…
+> Key saved.
+Key tersimpan.
+> Her brain
+Otaknya
+> Who answers
+Siapa yang menjawab
+> On this PC: nothing leaves it.
+Di PC ini: tidak ada yang keluar.
+> Online: your messages and her persona go to that service.
+Online: pesanmu dan personanya dikirim ke layanan itu.
+> Model
+Model
+> {0} models
+{0} model
+> offline
+offline
+> (none)
+(tidak ada)
+> API key
+API key
+> Stored encrypted for your Windows account, only ever sent to that service.
+Disimpan terenkripsi untuk akun Windows-mu, hanya dikirim ke layanan itu.
+> Server address
+Alamat server
+> Any OpenAI-compatible server: http://127.0.0.1:1234/v1
+Server apa pun yang kompatibel OpenAI: http://127.0.0.1:1234/v1
+> Creativity
+Kreativitas
+> Temperature: low is steady, high is wild.
+Temperature: rendah itu stabil, tinggi itu liar.
+> Max answer length
+Panjang jawaban maksimum
+> In tokens.
+Dalam token.
+> Conversation memory
+Memori percakapan
+> How many recent messages she keeps in mind.
+Berapa banyak pesan terakhir yang dia ingat.
+> Her eyes (Look)
+Matanya (Lihat)
+> Let her look when I ask
+Biarkan dia melihat saat aku minta
+> Ctrl+Alt+L or "what am I looking at?": one screenshot, kept in memory only, sent to her model, then dropped.
+Ctrl+Alt+L atau "lihat layarku": satu screenshot, hanya di memori, dikirim ke modelnya, lalu dibuang.
+> Off: she only looks through a model on this PC.
+Mati: dia hanya melihat lewat model di PC ini.
+> Look at my screen
+Lihat layarku
+> Conversations
+Percakapan
+> Talk to her
+Ngobrol dengannya
+> Open her chat
+Buka obrolannya
+> Forget our conversations
+Lupakan obrolan kita
+> Her notes about you stay (Owner page).
+Catatannya tentangmu tetap ada (halaman Pemilik).
+> Forget
+Lupakan
+> Forgotten.
+Dilupakan.
+> Living on your desktop
+Hidup di desktopmu
+> Wander around when idle
+Jalan-jalan saat santai
+> Possess my windows
+Rasuki jendelaku
+> Where she rests
+Tempat dia istirahat
+> In her corner
+Di pojoknya
+> Sitting on the taskbar
+Duduk di taskbar
+> Animations
+Animasi
+> Like Windows
+Ikuti Windows
+> Full
+Penuh
+> Reduced
+Dikurangi
+> Head pats
+Usap kepala
+> Hover over her for a moment.
+Arahkan kursor ke atasnya sebentar.
+> She notices things
+Dia memperhatikan sesuatu
+> Remarks
+Komentar
+> A long break, a late night, a low battery, a busy CPU, hours in one app. Only the clock, idle time, CPU, battery and the program name are read.
+Istirahat lama, begadang, baterai lemah, CPU sibuk, berjam-jam di satu aplikasi. Hanya jam, waktu diam, CPU, baterai, dan nama program yang dibaca.
+> Jealous of other AIs
+Cemburu pada AI lain
+> She checks whether the window in front is ChatGPT, Gemini, Copilot… (only that name, never the title, leaves her senses).
+Dia mengecek apakah jendela di depan itu ChatGPT, Gemini, Copilot… (hanya nama itu yang keluar dari inderanya, tidak pernah judul jendelanya).
+> What's playing
+Yang sedang diputar
+> What Windows shows as now playing.
+Yang ditampilkan Windows sebagai sedang diputar.
+> Show what's playing
+Tampilkan yang sedang diputar
+> Show and comment
+Tampilkan dan komentari
+> Dares
+Tantangan
+> She dares me
+Dia menantangku
+> After about ten minutes in one app, something quick and harmless. Say "done" when you did it.
+Setelah sekitar sepuluh menit di satu aplikasi, sesuatu yang cepat dan aman. Bilang "udah" kalau sudah kamu lakukan.
+> She looks when she dares
+Dia melihat layar saat menantang
+> One screenshot so the dare fits your screen (only to a model allowed to look).
+Satu screenshot supaya tantangannya cocok dengan layarmu (hanya ke model yang diizinkan melihat).
+> Each time she dares you (every half hour or so) she will take one screenshot of your screen, keep it in memory only, and send it to your model. Turn this on?
+Setiap kali dia menantangmu (sekitar tiap setengah jam) dia akan mengambil satu screenshot layarmu, hanya menyimpannya di memori, dan mengirimnya ke modelmu. Aktifkan?
+> Dare me now
+Tantang aku sekarang
+> Dare me
+Tantang aku
+> Glitches now and then
+Glitch sesekali
+> Painted over your screen, gentle, never in the way. Ctrl+Alt+C stops one.
+Digambar di atas layarmu, halus, tidak pernah menghalangi. Ctrl+Alt+C menghentikannya.
+> About every
+Kira-kira tiap
+> Hacked notes
+Catatan peretasan
+> Glitch styles
+Gaya glitch
+> Each 10% of sync unlocks one.
+Tiap 10% sinkron membuka satu.
+> Bars
+Garis
+> Tear
+Robek
+> Corruption
+Korupsi data
+> Hex rain
+Hujan hex
+> Sync bar
+Bar sinkron
+> Chaser
+Pengejar
+> Sync
+Sinkron
+> How far she has got into your life: time together, chats, pats, agreeing with her, finished dares (each with a daily limit).
+Seberapa jauh dia masuk ke hidupmu: waktu bersama, obrolan, usapan, setuju dengannya, tantangan yang selesai (masing-masing ada batas harian).
+> Show sync
+Tampilkan sinkron
+> Start over
+Mulai dari awal
+> Reset sync
+Reset sinkron
+> Reset sync to 0%?
+Reset sinkron ke 0%?
+> Timers and alarms
+Timer dan alarm
+> Set
+Pasang
+> Or just tell her: "set a timer for 10 minutes", "pasang timer 10 menit", "wake me at 7am", "ingatkan aku 20 menit lagi untuk stretching".
+Atau bilang saja: "pasang timer 10 menit", "set a timer for 10 minutes", "bangunkan aku jam 7 pagi", "ingatkan aku 20 menit lagi untuk stretching".
+> What for? (optional)
+Untuk apa? (opsional)
+> min
+menit
+> Add timer
+Tambah timer
+> No alarms
+Tidak ada alarm
+> Clear all
+Hapus semua
+> Chime
+Bunyi
+> A sound when one goes off.
+Bunyi saat alarm berbunyi.
+> Study timer
+Timer belajar
+> Focus
+Fokus
+> Break
+Istirahat
+> Now
+Sekarang
+> {0} min left
+sisa {0} menit
+> paused
+dijeda
+> {0} done
+{0} selesai
+> Start focus
+Mulai fokus
+> Pause
+Jeda
+> Resume
+Lanjutkan
+> Language
+Bahasa
+> Her language
+Bahasanya
+> Menus, her lines and this window. Translations for Polski, Deutsch, Italiano, Čeština and Tiếng Việt came with Capri 2.4 (machine-made).
+Menu, kalimat-kalimatnya, dan jendela ini. Terjemahan Polski, Deutsch, Italiano, Čeština, dan Tiếng Việt dibawa dari Capri 2.4 (buatan mesin).
+> Automatic (system)
+Otomatis (sistem)
+> Fix a translation
+Perbaiki terjemahan
+> Put a file like id.txt in her lang folder: it wins, line by line.
+Taruh file seperti id.txt di folder lang-nya: file itu yang dipakai, baris per baris.
+> Open lang folder
+Buka folder lang
+> Hotkeys
+Hotkey
+> Put her away / bring her back (and stop a glitch)
+Simpan dia / panggil kembali (dan hentikan glitch)
+> Talk to her (microphone)
+Bicara dengannya (mikrofon)
+> This settings window
+Jendela pengaturan ini
+> Press keys…
+Tekan tombol…
+> Windows would not give her that one. Try another.
+Windows tidak mengizinkan yang itu. Coba yang lain.
+> Click a box and press the keys (with Ctrl, Alt or Shift). Backspace clears it.
+Klik kotaknya lalu tekan tombolnya (dengan Ctrl, Alt, atau Shift). Backspace untuk mengosongkan.
+> System
+Sistem
+> Start with Windows
+Mulai bersama Windows
+> Display
+Tampilan
+> If her background shows black. She restarts.
+Kalau latarnya jadi hitam. Dia akan restart.
+> Normal
+Normal
+> OpenGL
+OpenGL
+> Without the graphics card
+Tanpa kartu grafis
+> Debug log
+Log debug
+> More details in the console (developers).
+Detail lebih banyak di konsol (untuk developer).
+> Bridge port
+Port bridge
+> Where her Claude Code hooks reach her.
+Tempat hook Claude Code menghubunginya.
+> Your data
+Datamu
+> Her data folder
+Folder datanya
+> Settings file
+File pengaturan
+> Export or import everything except your API keys.
+Ekspor atau impor semuanya kecuali API key-mu.
+> Export…
+Ekspor…
+> Import…
+Impor…
+> Exported.
+Diekspor.
+> Imported.
+Diimpor.
+> Reset
+Reset
+> Back to how she came. Your API keys stay.
+Kembali seperti semula. API key-mu tetap ada.
+> Reset all settings
+Reset semua pengaturan
+> Reset all of her settings?
+Reset semua pengaturannya?
+> the Project Capricorn construct, merged with Capri Desktop 2.4.
+konstruk Project Capricorn, digabung dengan Capri Desktop 2.4.
+> An unofficial fan project. Capri and Cyberpunk: Edgerunners belong to CD PROJEKT RED and Studio Trigger. Her replies are written by an AI, not the show's writers.
+Proyek fan tidak resmi. Capri dan Cyberpunk: Edgerunners milik CD PROJEKT RED dan Studio Trigger. Balasannya ditulis oleh AI, bukan penulis serialnya.
+> Things to say
+Hal yang bisa diucapkan
+> Play demo
+Putar demo
+> Make her yours…
+Jadikan milikmu…
+> What leaves your PC: only what you switch on. Her chat goes to the model you picked; the mic only goes online if Groq or OpenAI are her ears; Look only sends a screenshot when you ask. Everything else stays here.
+Yang keluar dari PC-mu: hanya yang kamu aktifkan. Obrolannya ke model yang kamu pilih; mic hanya online kalau Groq atau OpenAI jadi telinganya; Lihat hanya mengirim screenshot saat kamu minta. Selain itu tetap di sini.
+
+# ---- perch on cursor, hide in fullscreen, voice clips (the rest of 2.4) ----
+> Perch on cursor
+Bertengger di kursor
+> Hop off
+Turun dari kursor
+> Comfy! {0} to hop off.
+Nyaman! {0} buat turun.
+> Double-click her: she sits on your pointer and rides along, and clicks go right through her. Ctrl+Alt+C to hop off.
+Klik dua kali dia: dia duduk di atas kursormu dan ikut ke mana pun, dan klik tembus lewat dia. Ctrl+Alt+C untuk turun.
+> Hide in fullscreen
+Sembunyi saat layar penuh
+> She steps aside while a game or a full screen video is in front, and comes back after. Alarms become Windows notifications meanwhile.
+Dia minggir selama game atau video layar penuh ada di depan, lalu kembali sesudahnya. Selama itu alarm jadi notifikasi Windows.
+> Her recorded lines
+Rekaman suaranya
+> Voice clips
+Klip suara
+> Voice clips: {0}
+Klip suara: {0}
+> Your own recordings, played at the moment they are named for: pat, click, wake, sit, peek, stretch, look, yawn, sleep, alarm, study, hello, reply, mischief, jealous, dare. Nothing is bundled.
+Rekamanmu sendiri, diputar pada momen sesuai namanya: pat, click, wake, sit, peek, stretch, look, yawn, sleep, alarm, study, hello, reply, mischief, jealous, dare. Tidak ada yang dibundel.
+> Found
+Ditemukan
+> No voice clips yet
+Belum ada klip suara
+> Folder
+Folder
+> Name a clip pat.wav, pat-2.wav, wake.mp3… A README in the folder lists every moment.
+Beri nama klip pat.wav, pat-2.wav, wake.mp3… README di folder itu berisi daftar semua momennya.
+> Open voice folder…
+Buka folder suara…
+> Play a sample
+Putar contoh
+> I'm muted.
+Aku lagi dibisukan.
+> I have no voice yet. Open the voice folder to give me one.
+Aku belum punya suara. Buka folder suara buat ngasih aku satu.
+
+# ---- her games (main/games.js) ----
+> rock
+batu
+> paper
+kertas
+> scissors
+gunting
+> You {0} : {1} me.
+Kamu {0} : {1} aku.
+> Rock, paper, scissors! Pick one. I won't peek. Probably.
+Suit! Pilih satu. Aku nggak ngintip. Kayaknya.
+> Suit! Say rock, paper or scissors. Go!
+Suit! Bilang batu, gunting, atau kertas. Gas!
+> Oh, you want to lose? Fine. Rock, paper or scissors?
+Oh, mau kalah? Oke. Batu, gunting, atau kertas?
+> I'm thinking of a number from 1 to 100. Guess!
+Aku lagi mikirin angka dari 1 sampai 100. Tebak!
+> Got a number, 1 to 100. Ten tries. Go on.
+Udah ada angkanya, 1 sampai 100. Sepuluh kesempatan. Ayo.
+> {0}! Same. Again!
+{0}! Sama. Lagi!
+> {0}— wait. Bzzt. {1}! I win. You saw nothing.
+{0}— eh bentar. Bzzt. {1}! Aku menang. Kamu nggak lihat apa-apa.
+> {0}! I win. Obviously.
+{0}! Aku menang. Jelas lah.
+> {0}… you win. Ugh. Again, now.
+{0}… kamu menang. Ih. Lagi, sekarang.
+> {0}! In {1} tries? …Lucky. Totally luck.
+{0}! Cuma {1} kali? …Hoki. Pasti hoki.
+> {0}! Took you {1} tries, but fine. You win.
+{0}! Butuh {1} kali, tapi ya udah. Kamu menang.
+> Out of tries! It was {0}. I win.
+Kesempatan habis! Angkanya {0}. Aku menang.
+> Higher… so close. ({0} left)
+Lebih besar… dikit lagi. (sisa {0})
+> Higher! ({0} left)
+Lebih besar! (sisa {0})
+> Lower… so close. ({0} left)
+Lebih kecil… dikit lagi. (sisa {0})
+> Lower! ({0} left)
+Lebih kecil! (sisa {0})
+> Heads! (Angka.)
+Angka!
+> Tails! (Gambar.)
+Gambar!
+> Rolled {0}: {1}.
+Dadunya {0}: {1}.
+> Rolled a {0}.
+Keluar {0}.
+> Quitter! It was {0}.
+Payah, nyerah! Angkanya {0}.
+> Game over. I win, as usual.
+Game selesai. Aku menang, seperti biasa.
+> Fine, you win this time. Don't get used to it.
+Oke, kali ini kamu menang. Jangan kebiasaan.
+> Games
+Game
+> Play with her
+Main dengannya
+> Or just say it: "main suit", "tebak angka", "lempar koin", "roll 2d6". Mid-game, "batu" or "50" is your move; "udahan" ends it.
+Atau bilang saja: "main suit", "tebak angka", "lempar koin", "roll 2d6". Saat main, "batu" atau "50" adalah langkahmu; "udahan" untuk berhenti.
+> Rock, paper, scissors
+Suit (batu, gunting, kertas)
+> Guess the number
+Tebak angka
+> Flip a coin
+Lempar koin
+> Roll a die
+Lempar dadu
+> She cheats
+Dia curang
+> Now and then, more with her mischief up. She is bad at hiding it.
+Sesekali, makin sering kalau kejahilannya tinggi. Dia nggak jago menyembunyikannya.
+> Your record
+Rekormu
+> Rock paper scissors: you {0}, her {1}, ties {2}. Numbers guessed: {3} (best: {4} tries).
+Suit: kamu {0}, dia {1}, seri {2}. Angka tertebak: {3} (terbaik: {4} kali).
+
+# ---- her voice, out loud (main/mouth.js, tts.js) ----
+> My voice engine failed. Settings, Voice.
+Mesin suaraku gagal. Pengaturan, Suara.
+> Windows' own voices (offline, basic)
+Suara bawaan Windows (offline, standar)
+> ElevenLabs (your own or a cloned voice)
+ElevenLabs (suaramu sendiri atau suara clone)
+> OpenAI voice (expressive, follows her mood)
+Suara OpenAI (ekspresif, mengikuti mood-nya)
+> Your own TTS server (Kokoro, AllTalk, GPT-SoVITS…)
+Server TTS sendiri (Kokoro, AllTalk, GPT-SoVITS…)
+> Piper on this PC (offline)
+Piper di PC ini (offline)
+> Pick a voice…
+Pilih suara…
+> no key yet
+belum ada key
+> {0} voices
+{0} suara
+> Install an Indonesian voice in Windows Settings › Time & language › Speech for the mix.
+Pasang suara Bahasa Indonesia di Pengaturan Windows › Waktu & bahasa › Ucapan untuk campurannya.
+> ElevenLabs key
+Key ElevenLabs
+> From elevenlabs.io › Settings › API keys. Stored encrypted, only sent to ElevenLabs.
+Dari elevenlabs.io › Settings › API keys. Disimpan terenkripsi, hanya dikirim ke ElevenLabs.
+> Your voices first (★: cloned or designed). Or paste a voice ID.
+Suaramu tampil duluan (★: hasil clone atau desain). Atau tempel voice ID.
+> Multilingual v2 speaks Indonesian well; Flash is faster and cheaper.
+Multilingual v2 fasih Bahasa Indonesia; Flash lebih cepat dan murah.
+> Stability
+Stabilitas
+> Lower: more emotional and wild. Higher: steadier.
+Rendah: lebih emosional dan liar. Tinggi: lebih stabil.
+> Style
+Gaya
+> How much she exaggerates.
+Seberapa dramatis dia.
+> Make her voice
+Buat suaranya
+> Voice Lab › Instant Voice Clone: a minute or two of clean speech is enough. Only clone a voice you have the right to use.
+Voice Lab › Instant Voice Clone: satu-dua menit rekaman bersih sudah cukup. Hanya clone suara yang kamu berhak pakai.
+> Open Voice Lab
+Buka Voice Lab
+> Her default: playful, mischievous, a childlike charm with an unsettling edge…
+Default-nya: jahil, ceria, manis kekanakan dengan sisi yang bikin merinding…
+> OpenAI key
+Key OpenAI
+> Shared with her ears and her chat if you use OpenAI there.
+Dipakai bersama telinga dan obrolannya kalau kamu pakai OpenAI di sana.
+> gpt-4o-mini-tts follows directions (her style, her mood). tts-1 does not.
+gpt-4o-mini-tts mengikuti arahan (gayanya, mood-nya). tts-1 tidak.
+> How she sounds
+Cara suaranya terdengar
+> Directions for her voice, in your words. Her emotion of the moment is added.
+Arahan untuk suaranya, dengan kata-katamu. Emosinya saat itu ditambahkan.
+> Any server with OpenAI's /audio/speech. Kokoro-FastAPI: http://127.0.0.1:8880/v1
+Server apa pun dengan /audio/speech ala OpenAI. Kokoro-FastAPI: http://127.0.0.1:8880/v1
+> As your server names it: kokoro, tts-1, xtts…
+Sesuai nama di servermu: kokoro, tts-1, xtts…
+> Listed if your server lists them; else type its name (a cloned voice's name too).
+Muncul kalau servermu mendaftarkannya; kalau tidak, ketik namanya (nama suara clone juga bisa).
+> Type a voice →
+Ketik nama suara →
+> Key (optional)
+Key (opsional)
+> Only if your server asks for one.
+Hanya kalau servermu memintanya.
+> Servers to try
+Server yang bisa dicoba
+> Kokoro-FastAPI: fast, natural voices, no cloning. AllTalk (XTTS) or GPT-SoVITS: clone a voice from a short sample, on your GPU.
+Kokoro-FastAPI: cepat, suara natural, tanpa clone. AllTalk (XTTS) atau GPT-SoVITS: clone suara dari sampel pendek, di GPU-mu.
+> An .onnx voice with its .onnx.json, in her piper folder (or its voices folder).
+Suara .onnx beserta .onnx.json-nya, di folder piper-nya (atau folder voices di dalamnya).
+> The first one
+Yang pertama
+> Set it up
+Pasang
+> Unzip Piper for Windows into her piper folder (piper.exe inside), add a voice (id_ID-news_tts-medium speaks Indonesian), or one you trained yourself.
+Ekstrak Piper untuk Windows ke folder piper-nya (piper.exe di dalamnya), tambahkan suara (id_ID-news_tts-medium berbahasa Indonesia), atau suara hasil latihanmu sendiri.
+> Open piper folder
+Buka folder piper
+> Get Piper
+Ambil Piper
+> Voices
+Suara-suara
+> Read out loud
+Bacakan dengan suara
+> She speaks instead of only writing. Her portrait's lips follow her voice.
+Dia bicara, bukan cuma menulis. Bibir di potretnya mengikuti suaranya.
+> What she says out loud
+Yang dia ucapkan
+> Everything
+Semuanya
+> Only her answers
+Hanya jawabannya
+> Voice engine
+Mesin suara
+> If it fails
+Kalau gagal
+> Windows' own voice says it instead.
+Suara bawaan Windows yang mengucapkannya.
+> Test her voice
+Tes suaranya
+> She says it on your desktop, with her effects.
+Dia mengucapkannya di desktopmu, dengan efeknya.
+> Say it
+Ucapkan
+> Voice effects
+Efek suara
+> Effect
+Efek
+> Her many minds: two more copies of her voice, a hair off, left and right. Glitch: syllables catch like a skipping chip.
+Banyak jiwa: dua salinan suaranya lagi, sedikit meleset, di kiri dan kanan. Glitch: suku kata tersendat seperti chip yang macet.
+> Many minds
+Banyak jiwa
+> Other minds
+Jiwa-jiwa lain
+> How loud they are under her voice.
+Seberapa keras mereka di bawah suaranya.
+> Pitch shift
+Geser nada
+> Higher and quicker, or lower and slower.
+Lebih tinggi dan cepat, atau lebih rendah dan lambat.
+> Emotion in her voice
+Emosi dalam suaranya
+> Her [happy], [glitch], [annoyed]… change how she says it.
+[happy], [glitch], [annoyed]-nya… mengubah cara dia mengucapkannya.
+> Windows' own voices can't go through her effects. For a custom voice, pick ElevenLabs (a cloned voice), OpenAI, your own TTS server or Piper above.
+Suara bawaan Windows tidak bisa diberi efek. Untuk suara custom, pilih ElevenLabs (suara clone), OpenAI, server TTS sendiri, atau Piper di atas.
+
+# ---- she improves herself (growth.js), her history (history.js), shortcuts ----
+> I'd have to send our chats to a cloud model for that. Allow it in Settings, Owner: "Also with a cloud model".
+Buat itu aku harus kirim obrolan kita ke model cloud. Izinkan dulu di Pengaturan, Pemilik: "Juga dengan model cloud".
+> My brain isn't connected. Set up an AI first: Settings, AI brain.
+Otakku belum tersambung. Atur AI dulu: Pengaturan, Otak AI.
+> Talk to me a bit more first. Nothing to learn from yet.
+Ngobrol sama aku lebih banyak dulu. Belum ada yang bisa dipelajari.
+> Bzzt. My upgrade came out garbled. Try again?
+Bzzt. Upgrade-ku jadi kacau. Coba lagi?
+> I looked at us. Nothing to change. I'm already perfect.
+Aku udah lihat kita berdua. Nggak ada yang perlu diubah. Aku udah sempurna.
+> Upgrade done. Capri v1.{0}.
+Upgrade selesai. Capri v1.{0}.
+> Fine. I'll do it that way from now on. For you.
+Oke. Mulai sekarang aku begitu. Demi kamu.
+> Nothing yet. Talk to me more.
+Belum ada. Ngobrol sama aku lebih banyak.
+> Capri v1.{0}. What I learned about you: {1}
+Capri v1.{0}. Yang aku pelajari tentang kamu: {1}
+> Bzzt. I just upgraded myself. v1.{0}.
+Bzzt. Aku baru aja upgrade diriku sendiri. v1.{0}.
+> Shortcuts
+Shortcut
+> On your Desktop and in the Start menu: open her from there, not from a terminal.
+Ada di Desktop dan Start menu: buka dia dari sana, bukan dari terminal.
+> Started from a terminal she closes with it. A shortcut opens her on her own, like any app.
+Kalau dijalankan dari terminal, dia ikut tertutup bersama terminalnya. Shortcut membukanya sendiri, seperti aplikasi biasa.
+> Make them again
+Buat ulang
+> Desktop & Start menu shortcuts
+Shortcut Desktop & Start menu
+> Shortcuts made.
+Shortcut sudah dibuat.
+> Off: her notes about you, the story so far and her self-improvement only use a model on this PC. On: they also go to your cloud AI (needed for an online brain that remembers you).
+Mati: catatannya tentangmu, ringkasan cerita kalian, dan proses belajarnya hanya memakai model di PC ini. Nyala: juga dikirim ke AI cloud-mu (perlu untuk otak online yang mengingatmu).
+> Improve now
+Upgrade sekarang
+> Allow it with a cloud model first (Owner page), or use a model on this PC.
+Izinkan dulu untuk model cloud (halaman Pemilik), atau pakai model di PC ini.
+> Set up an AI first: AI brain page.
+Atur AI dulu: halaman Otak AI.
+> Talk to her a bit more first.
+Ngobrol dengannya lebih banyak dulu.
+> Her answer came out garbled. Try again.
+Jawabannya kacau. Coba lagi.
+> Capri v1.{0}: {1}
+Capri v1.{0}: {1}
+> she changed.
+dia berubah.
+> Nothing to change, she says.
+Katanya, nggak ada yang perlu diubah.
+> She improves herself
+Dia belajar sendiri
+> Learn from our chats
+Belajar dari obrolan kita
+> Every so often she looks back at your recent chats and how you reacted ("lucu!", "kepanjangan", "jangan gitu"…) and rewrites her own lessons on how to be with you. Her core personality above stays as you wrote it.
+Sesekali dia melihat lagi obrolan terakhir kalian dan reaksimu ("lucu!", "kepanjangan", "jangan gitu"…), lalu menulis ulang pelajarannya sendiri tentang cara bersamamu. Kepribadian intinya di atas tetap seperti yang kamu tulis.
+> How often
+Seberapa sering
+> After this many messages of yours.
+Setelah sebanyak ini pesan darimu.
+> {0} messages
+{0} pesan
+> Her version
+Versinya
+> Last looked back: {0}
+Terakhir merefleksikan diri: {0}
+> Her lessons
+Pelajarannya
+> Her own notes. Edit or remove any. Or tell her: "mulai sekarang, jangan panggil aku bos" / "from now on, be shorter".
+Catatannya sendiri. Ubah atau hapus sesukamu. Atau bilang: "mulai sekarang, jangan panggil aku bos" / "from now on, be shorter".
+> A lesson for her…
+Satu pelajaran untuknya…
+> No lessons yet: talk to her, she learns.
+Belum ada pelajaran: ngobrol dengannya, dia akan belajar.
+> What changed
+Yang berubah
+> Reset her lessons
+Reset pelajarannya
+> Forget everything she taught herself?
+Lupakan semua yang dia pelajari sendiri?
+> Your AI is online and "Also with a cloud model" is off (Owner page): she can't look back at your chats until you allow it.
+AI-mu online dan "Juga dengan model cloud" mati (halaman Pemilik): dia tidak bisa merefleksikan obrolan kalian sampai kamu mengizinkannya.
+> History
+Riwayat
+> Your chats with her, and her long-term memory of them.
+Obrolanmu dengannya, dan ingatan jangka panjangnya.
+> Nothing yet: after about 40 messages she writes it herself.
+Belum ada: setelah sekitar 40 pesan dia menulisnya sendiri.
+> Loading…
+Memuat…
+> Search your chats…
+Cari di obrolanmu…
+> You
+Kamu
+> Delete this day
+Hapus hari ini
+> Delete {0}?
+Hapus {0}?
+> {0} found
+{0} ditemukan
+> No chats kept yet.
+Belum ada obrolan yang tersimpan.
+> The story so far
+Cerita kalian sejauh ini
+> Her long-term memory
+Ingatan jangka panjangnya
+> Older chats, summarized by her, so she remembers you for weeks without sending all of it to her AI. Edit it if she got something wrong.
+Obrolan lama, diringkas olehnya, supaya dia mengingatmu berminggu-minggu tanpa mengirim semuanya ke AI-nya. Ubah kalau ada yang salah.
+> Update now
+Perbarui sekarang
+> Updated.
+Diperbarui.
+> Nothing new to add yet.
+Belum ada yang baru untuk ditambahkan.
+> Last written
+Terakhir ditulis
+> Your chats
+Obrolanmu
+> Keep my chats
+Simpan obrolanku
+> Every chat turn, typed or spoken, kept on this PC (a file a day). Off: nothing new is kept, and she can't learn from your chats.
+Setiap giliran obrolan, diketik atau diucapkan, disimpan di PC ini (satu file per hari). Mati: tidak ada yang baru disimpan, dan dia tidak bisa belajar dari obrolanmu.
+> Keep for
+Simpan selama
+> Forever
+Selamanya
+> 30 days
+30 hari
+> 90 days
+90 hari
+> A year
+Setahun
+> Search
+Cari
+> Days
+Hari
+> Open folder
+Buka folder
+> Delete all history
+Hapus semua riwayat
+> Delete all of your chat history and the story so far?
+Hapus semua riwayat obrolan dan ringkasan cerita kalian?
+
+# ---- moving her, music, browsers, files, her local brain, her invitations ----
+> Nice one, choom!
+Mantap, choom!
+> Fine, over here then.
+Oke, di sini aja deh.
+> Center stage. Obviously.
+Tengah panggung. Jelas dong.
+> Coming!
+Otw!
+> Hop! Riding your cursor.
+Hop! Numpang di kursormu.
+> Off your cursor. Finally, solid ground.
+Turun dari kursor. Akhirnya, tanah yang kokoh.
+> Back to my corner.
+Balik ke pojokku.
+> Sitting on your taskbar. Comfy.
+Duduk di taskbar-mu. Nyaman.
+> Up here!
+Di atas sini!
+> Bye-bye. Ctrl+Alt+C to call me back.
+Dadah. Ctrl+Alt+C buat manggil aku lagi.
+> I'm back!
+Aku balik!
+> Night night…
+Selamat tidur…
+> I'm up! I wasn't sleeping.
+Aku bangun! Aku nggak tidur kok.
+> Watch this!
+Lihat nih!
+> Fine. I'll stay put.
+Oke. Aku diem di sini.
+> Exploring!
+Jalan-jalan!
+> Taking a little walk.
+Jalan-jalan bentar.
+> Going!
+Gas!
+> I'm not watching what you play. Turn it on in Settings, Behavior.
+Aku lagi nggak mantau lagu yang kamu putar. Nyalakan di Pengaturan, Perilaku.
+> Nothing's playing right now. Or it's hiding from me.
+Nggak ada yang diputar sekarang. Atau lagi ngumpet dari aku.
+>  (in {0})
+ (di {0})
+> You're listening to {0}
+Kamu lagi dengerin {0}
+> Paused: {0}
+Dijeda: {0}
+> Searching {0} on Spotify.
+Nyari {0} di Spotify.
+> {0} isn't installed here.
+{0} nggak terpasang di sini.
+> Opening {0} in {1}.
+Buka {0} di {1}.
+> I couldn't find "{0}" in your folders.
+Aku nggak nemu "{0}" di folder-foldermu.
+> There: {0}
+Nih: {0}
+> Found it: {0}
+Ketemu: {0}
+> Bored. Wanna play rock paper scissors? I won't cheat. Much.
+Bosen. Main suit yuk? Aku nggak curang kok. Dikit.
+> Psst. Guess-the-number? Loser buys nothing, because I'm a ghost.
+Psst. Tebak angka? Yang kalah nggak traktir apa-apa, aku kan hantu.
+> Game time? I'm way too good at this.
+Waktunya main? Aku jago banget lho.
+> Psst. Talk to me. I'm bored out of my many minds.
+Psst. Ngobrol sama aku dong. Semua jiwaku bosen.
+> Hey. What are you doing? Tell me everything.
+Hei. Lagi ngapain? Ceritain semuanya.
+> Ignoring me? Bold. Talk to me.
+Nyuekin aku? Berani juga. Ngobrol sini.
+> Play
+Main
+> Talk
+Ngobrol
+> Later
+Nanti
+> None
+Tidak ada
+> {0} models in Ollama
+{0} model di Ollama
+> Ollama not found
+Ollama tidak ditemukan
+> Her local brain (Ollama)
+Otak lokalnya (Ollama)
+> Local model
+Model lokal
+> A small model on this PC (qwen2.5:1.5b, gemma3…). Free, offline, private.
+Model kecil di PC ini (qwen2.5:1.5b, gemma3…). Gratis, offline, privat.
+> Backup brain
+Otak cadangan
+> When her main brain fails (offline, out of quota, a bad key), this one answers instead.
+Kalau otak utamanya gagal (offline, kuota habis, key salah), model ini yang menjawab.
+> Quick jobs on it
+Tugas ringan di sini
+> Her word on your songs, her dares: fast and free, without spending your online quota.
+Komentarnya soal lagumu, tantangannya: cepat dan gratis, tanpa menghabiskan kuota online-mu.
+> Looking back at your chats (her self-improvement) also runs on it when your main brain is online and "Also with a cloud model" is off.
+Refleksi obrolan (proses belajarnya) juga berjalan di sini kalau otak utamamu online dan "Juga dengan model cloud" mati.
+
+> Words she never says
+Kata yang tidak pernah dia ucapkan
+> Cut out of her answers. Her lessons can add some ("stop calling me 'bos'").
+Dibuang dari jawabannya. Pelajarannya bisa menambah daftar ini ("stop calling me 'bos'").
+> good boy, sayang…
+good boy, sayang…
+> None.
+Tidak ada.
+
+# ---- what your hand does to her: thrown, thrown into the floor, shaken (app.js) ----
+> Wheee!
+Wiiih!
+> Again! Again!
+Lagi! Lagi!
+> Rude. But fun.
+Kurang ajar. Tapi seru.
+> Ow. That was on purpose, wasn't it?
+Aduh. Itu sengaja, kan?
+> My pixels! You scattered my pixels.
+Pikselku! Pikselku berhamburan semua.
+> Rude. We're filing a complaint.
+Nggak sopan. Kami mau komplain.
+> Stop shaking us… everything's spinning.
+Udah, jangan digoyang… semuanya muter.
+> Whoa, whoa… which one of you is the real cursor?
+Eh, eh… kursor yang asli yang mana nih?
+> All of us in here are seasick now. Thanks.
+Semua yang di dalam sini jadi mabuk laut. Makasih ya.
+
+# ---- petting her, her gestures (life.js, main/life.js) ----
+> Okay. You can keep doing that. Forever, maybe.
+Oke. Boleh lanjut. Selamanya, mungkin.
+> All of us in here are purring. Don't tell anyone.
+Semua yang di dalam sini lagi mendengkur. Jangan bilang siapa-siapa.
+> Fine, you're forgiven. For everything. Probably.
+Yaudah, kamu dimaafin. Untuk semuanya. Kayaknya.
+> Hey. Who said you could stop?
+Eh. Siapa yang bilang boleh berhenti?
+> That's it? Rude.
+Udah gitu doang? Nggak sopan.
+> More. That was an order.
+Lagi. Itu perintah.
+> Hiii!
+Haiii!
+> Thank you, thank you.
+Makasih, makasih.
+> Pet her: stroke her head back and forth with your pointer.
+Elus dia: gerakkan kursor bolak-balik di kepalanya.
