@@ -1517,3 +1517,15 @@ Eh! Aku lagi duduk di situ!
 Nggak sopan. Pelan-pelan dong nyetirnya.
 > My song! "In Love With Myself". Obviously.
 Lagu aku! "In Love With Myself". Jelas dong.
+
+# ---- where she is, sites by name, the time, sums (main/life.js) ----
+> Right here!
+Di sini!
+> Opening {0}.
+Membuka {0}.
+> Today is {0}.
+Hari ini {0}.
+> It's {0}. {1}.
+Sekarang jam {0}. {1}.
+> {0} = {1}. Easy.
+{0} = {1}. Gampang.
