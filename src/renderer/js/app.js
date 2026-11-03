@@ -608,7 +608,8 @@ async function boot() {
         else capri.poke(h.x + 30, h.y);
         break;
       }
-      case 'listen': // --dev: her with the music, in the log (the line's number and length, not its words); { verdict, doze } to act one out
+      case 'music': // --dev: her with the music, in the log (the line's number and length, not its words); { verdict, doze } to act one out
+        // (not 'listen': that's Ctrl+Alt+V, push to talk, below)
         if (cmd.verdict) listening.judged(listening.song, cmd.verdict);
         if (cmd.doze) listening.dozeAt = 1;
         console.log('[listen]', JSON.stringify({
