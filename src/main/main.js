@@ -4,7 +4,7 @@ const path = require('node:path');
 const os = require('node:os');
 const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
-const { execFile } = require('node:child_process');
+const { execFile, spawn } = require('node:child_process');
 const {
   app, BrowserWindow, Tray, Menu, ipcMain, screen, protocol, net, shell, globalShortcut, nativeImage,
   clipboard, ClipboardItem, dialog, powerMonitor, session, desktopCapturer, Notification,
@@ -24,6 +24,7 @@ const llm = require('./llm');
 const setup = require('./setup');
 const apps = require('./apps');
 const launch = require('./launch');
+const lyrics = require('./lyrics');
 const { ASSISTANTS, assistant } = require('./assistants');
 const activeAssistant = () => assistant(config.load().assistant); // Claude Code or Codex
 const activeHooks = () => activeAssistant().hooks;
@@ -414,6 +415,7 @@ function updateConfig(patch) {
   }
   // her senses read what's playing and whether another AI is in front only when asked to
   if (('music' in patch && (patch.music === 'off') !== (before.music === 'off')) || ('jealous' in patch && patch.jealous !== before.jealous)) life.startSenses();
+  if ('lyrics' in patch && patch.lyrics !== before.lyrics) life.lyricsChanged();
   const cfg = rendererConfig();
   broadcast('capri:config', cfg);
   rebuildTray();
@@ -617,6 +619,80 @@ function lookAllowed(cfg = config.load()) {
 function brainContext(cfg = config.load()) {
   const cloud = !llm.isLocal(cfg.provider, cfg);
   return [life.brainContext({ cloud }), growth.context({ cloud })].filter(Boolean).join('\n\n');
+}
+
+// ---------- coding: she hands it to Claude Code, or writes it herself ----------
+
+const codeDir = () => config.load().codeFolder || path.join(app.getPath('documents'), 'Capri Code');
+
+// Claude Code's command if it's on this PC: where its installers put it, or on the PATH.
+function claudeCli() {
+  const tries = [path.join(os.homedir(), '.local', 'bin', 'claude.exe'), path.join(process.env.APPDATA || '', 'npm', 'claude.cmd')];
+  for (const dir of (process.env.PATH || '').split(path.delimiter).filter(Boolean)) {
+    tries.push(path.join(dir, 'claude.exe'), path.join(dir, 'claude.cmd'));
+  }
+  return tries.find((p) => fs.existsSync(p)) || null;
+}
+
+// Claude Code in a terminal of its own, in her coding folder, your task typed in for it: you see what it does and
+// say yes to its edits there, and she narrates it through her hooks. false when it isn't installed.
+function codeWithClaude(task) {
+  const cli = process.platform === 'win32' && claudeCli();
+  if (!cli) return false;
+  const dir = codeDir();
+  fs.mkdirSync(dir, { recursive: true });
+  const quote = (s) => `'${String(s).replace(/'/g, "''")}'`; // PowerShell's own quoting: nothing in it runs
+  const script = `$Host.UI.RawUI.WindowTitle = 'Claude Code (Capri)'; Set-Location -LiteralPath ${quote(dir)}; & ${quote(cli)} ${quote(task.replace(/\s+/g, ' '))}`;
+  spawn('powershell.exe', ['-NoExit', '-NoProfile', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')],
+    { detached: true, stdio: 'ignore', windowsHide: false }).on('error', () => {}).unref();
+  return { dir };
+}
+
+// File types her code comes in, by the language of its code block.
+const CODE_EXT = {
+  python: '.py', py: '.py', javascript: '.js', js: '.js', typescript: '.ts', ts: '.ts', html: '.html', css: '.css', java: '.java',
+  c: '.c', cpp: '.cpp', 'c++': '.cpp', csharp: '.cs', 'c#': '.cs', cs: '.cs', go: '.go', rust: '.rs', php: '.php', ruby: '.rb', lua: '.lua',
+  bash: '.sh', sh: '.sh', shell: '.sh', powershell: '.ps1', ps1: '.ps1', batch: '.bat', bat: '.bat', cmd: '.bat', sql: '.sql', json: '.json',
+  kotlin: '.kt', swift: '.swift', dart: '.dart', r: '.r',
+};
+
+// One file she writes herself with her chat model, saved in her coding folder and opened in an editor (VS Code,
+// else Notepad), never run: a .py, .bat or .js opened with its own program would run.
+async function codeHerself(task) {
+  const cfg = config.load();
+  if (!chatModels?.length) await refreshModels();
+  const model = pickModel(cfg);
+  if (!model || cfg.provider === 'claude') throw Object.assign(new Error('no model to code with'), { code: 'nomodel' });
+  const system = [
+    'You are a careful senior programmer. Write complete, working, runnable code for the task: no placeholders, no "...".',
+    'Reply with exactly this and nothing else: a first line "FILE: <file name with its extension>", then one fenced code block holding the whole file.',
+    'Explain things in short comments inside the code, never outside it. Use Python for scripts unless the task names another language; one self-contained HTML file for web pages and small games.',
+  ].join('\n');
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), 4 * 60 * 1000);
+  let text;
+  try {
+    text = await llm.chat(cfg.provider, { ...llmConfig(cfg), temperature: 0.2, maxTokens: 4000 },
+      { model, messages: [{ role: 'system', content: system }, { role: 'user', content: task }] }, () => {}, abort.signal);
+  } finally {
+    clearTimeout(timer);
+  }
+  const fence = /```([\w#+.-]*)[^\n]*\n([\s\S]*?)(?:```|$)/.exec(String(text || ''));
+  const code = (fence ? fence[2] : String(text || '')).replace(/\s+$/, '') + '\n';
+  if (code.trim().length < 10) throw Object.assign(new Error('no code came back'), { code: 'empty' });
+  const named = /FILE:\s*`?([^\s`]+\.[A-Za-z0-9]{1,6})`?/i.exec(text)?.[1];
+  const ext = named ? path.extname(named).toLowerCase() : CODE_EXT[(fence?.[1] || '').toLowerCase()] || '.txt';
+  const stem = (named ? path.basename(named, path.extname(named)) : task.toLowerCase().split(/\s+/).slice(0, 4).join('-'))
+    .replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'capri-code';
+  const dir = codeDir();
+  fs.mkdirSync(dir, { recursive: true });
+  let file = path.join(dir, stem + ext);
+  for (let n = 2; fs.existsSync(file); n++) file = path.join(dir, `${stem}-${n}${ext}`); // never over one you have
+  fs.writeFileSync(file, code);
+  const vscode = [path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Microsoft VS Code', 'Code.exe'), path.join(process.env.ProgramFiles || 'C:\\Program Files', 'Microsoft VS Code', 'Code.exe')]
+    .find((p) => fs.existsSync(p));
+  spawn(vscode || 'notepad.exe', [file], { detached: true, stdio: 'ignore' }).on('error', () => shell.showItemInFolder(file)).unref();
+  return { file, name: path.basename(file), lines: code.split('\n').length - 1, editor: vscode ? 'VS Code' : 'Notepad' };
 }
 
 // Her model, as is, for her own thinking (growth.js): no persona, nothing streamed.
@@ -1160,16 +1236,20 @@ function registerIpc() {
   const appInfo = (app) => app && { name: app.process, label: app.label };
   ipcMain.handle('apps:list', async () => (await apps.list().catch(() => [])).map(appInfo));
   ipcMain.handle('apps:find', async (_e, wanted) => appInfo(await apps.find(wanted).catch(() => null)));
-  ipcMain.handle('apps:close', (_e, { name, force }) => apps.close(name, { force }).catch((err) => ({ error: err.message })));
+  // (each only when settings › Access allows it)
+  ipcMain.handle('apps:close', (_e, { name, force }) => (config.allowed('close') ? apps.close(name, { force }).catch((err) => ({ error: err.message })) : { error: 'Not allowed: Settings › Access.' }));
   // opening things you ask her to (launch.js): an app or a game, your music, a website
-  ipcMain.handle('apps:findLaunch', (_e, text) => launch.find(String(text || '')).catch(() => null));
-  ipcMain.handle('apps:launch', (_e, item) => launch.launch(item).then(() => ({ ok: true }), (err) => ({ ok: false, error: err.message })));
-  ipcMain.handle('apps:media', (_e, action) => launch.media(action));
+  ipcMain.handle('apps:findLaunch', (_e, text) => (config.allowed('apps') ? launch.find(String(text || '')).catch(() => null) : null));
+  ipcMain.handle('apps:launch', (_e, item) => (config.allowed('apps') ? launch.launch(item).then(() => ({ ok: true }), (err) => ({ ok: false, error: err.message })) : { ok: false, error: 'denied' }));
+  ipcMain.handle('apps:media', (_e, action) => config.allowed('media') && launch.media(action));
   // music her model asked for ([[music: …]]) or you named: played, not only searched (Windows)
-  ipcMain.handle('apps:music', (_e, query) => (process.platform === 'win32'
+  ipcMain.handle('apps:music', (_e, query) => (!config.allowed('spotify') ? false : process.platform === 'win32'
     ? life.playSong(String(query || '').trim().slice(0, 200)).then((r) => r.ok, () => false)
     : launch.music(query).catch(() => false)));
-  ipcMain.handle('apps:site', (_e, address) => launch.site(address).catch(() => false));
+  ipcMain.handle('apps:site', (_e, address) => config.allowed('web') && launch.site(address).catch(() => false));
+  // her lyrics kept on this PC (settings › Access)
+  ipcMain.handle('lyrics:cache', () => lyrics.cacheInfo());
+  ipcMain.handle('lyrics:clear', () => ({ cleared: lyrics.clearCache(), ...lyrics.cacheInfo() }));
   // typing to her: the overlay takes the keyboard while the chat is open, and gives it back after
   ipcMain.on('overlay:focus', (_e, on) => {
     if (!overlay) return;
@@ -1227,6 +1307,7 @@ function registerIpc() {
   });
   ipcMain.on('persona:set', (_e, text) => { personaText = String(text || ''); });
   ipcMain.handle('life:context', () => brainContext());
+  ipcMain.handle('life:song', () => life.songNow()); // her window (re)loaded: the song she was following
   // her history, for her settings
   ipcMain.handle('history:days', () => history.days());
   ipcMain.handle('ollama:models', () => localModels(true));
@@ -1491,6 +1572,11 @@ async function debugHandler(route, body) {
     fs.writeFileSync(file, Buffer.from(image, 'base64'));
     return { ok: true, file, ...seen };
   }
+  if (route === 'config') {
+    // { patch }: a setting changed, the way her settings window does it
+    const now = updateConfig(body.patch || {});
+    return { ok: true, config: Object.fromEntries(Object.keys(body.patch || {}).map((k) => [k, now[k]])) };
+  }
   if (route === 'errand') {
     // what she'd do with these words (her errands), without saying it
     const said = String(body.text || '');
@@ -1598,6 +1684,11 @@ function main() {
           onFullscreen(evt.on, evt.why);
           return;
         }
+        // a setting changed by asking her ("matikan lirik"): saved like from her settings, everyone told
+        if (evt.type === 'setConfig') {
+          updateConfig(evt.patch);
+          return;
+        }
         // she stepped aside for a game: an alarm still gets through, as a Windows notification
         if (evt.type === 'alarm' && fullscreenAway && Notification.isSupported()) {
           new Notification({ title: 'Capri', body: evt.text, icon: path.join(ROOT, 'assets', 'icons', 'capri.png') }).show();
@@ -1609,6 +1700,8 @@ function main() {
         }
       },
       model: (messages) => askOnce(messages),
+      raw: (messages) => askRaw(messages, { timeout: 25000 }), // plain questions, no persona (what a song sounds like)
+      coder: { claude: codeWithClaude, self: codeHerself }, // code you ask for (errands)
       look: () => lookAllowed().ok,
       shot: snapshot,
     });
