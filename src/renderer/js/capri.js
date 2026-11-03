@@ -16,6 +16,7 @@ const SLEEP_AFTER = 10 * 60 * 1000;
 const DOZE_AFTER = 20 * 1000; // asleep this long, she comes apart down to her mask
 const GRAVITY = 2600; // px/s²
 const THIGH = 73;     // hip to knee, sprite px (see sprite.js)
+const RIDE_GRIP = 3200; // px/s: your pointer faster than this (twice in a row) and she falls off it
 
 const UPLINK_DAY = 'capri.uplinkDay'; // the last day she sent the red light up
 
@@ -680,10 +681,26 @@ export class Capri {
     this.setStance('sit', { perch: { id: 'cursor', dx: 0 } });
     this.riding = true;
     this.lean = 0;
+    this.rideLast = null; // her grip on your pointer (rideTo): a fresh start
+    this.rideFast = 0;
     this.perform('plop');
     this.voice.play('land');
     this.onRide?.(true);
     return true;
+  }
+
+  // Off your cursor because it went too fast: thrown the way it was going, a little less hard.
+  shakeOff(vx, vy) {
+    if (!this.riding) return;
+    this.setStance('stand'); // clears the ride
+    this.rideLast = null;
+    this.rideFast = 0;
+    if (reducedMotion.matches) {
+      this.fall();
+    } else {
+      this.fling(clamp(vx * 0.55, -2200, 2200), clamp(vy * 0.55 - 250, -1800, 1600));
+    }
+    this.onHandled?.('shaken');
   }
 
   stopRide() {
@@ -696,6 +713,21 @@ export class Capri {
   // Where your pointer is now: she follows it, a little behind, leaning into it.
   rideTo(x, y) {
     if (!this.riding || this.busy || this.dragging) return;
+    // your pointer jerked away too fast: she loses her grip and falls off, tumbling with its speed
+    const now = performance.now();
+    const last = this.rideLast;
+    this.rideLast = { x, y, t: now };
+    if (last && now - last.t < 120) {
+      const dt = Math.max(16, now - last.t) / 1000;
+      const vx = (x - last.x) / dt;
+      const vy = (y - last.y) / dt;
+      const speed = Math.hypot(vx, vy);
+      this.rideFast = speed > RIDE_GRIP ? (this.rideFast || 0) + 1 : 0;
+      if (this.rideFast >= 2 || speed > RIDE_GRIP * 3) {
+        this.shakeOff(vx, vy);
+        return;
+      }
+    }
     const s = this.scale;
     const to = this.seat({ x: x + 8, y: y + 14 }, 0); // her hips on the arrow, just under its tip
     to.x = clamp(to.x, 30, this.view.w - 30);
