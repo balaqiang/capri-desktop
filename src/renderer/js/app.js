@@ -124,7 +124,7 @@ async function boot() {
     if (on === interactive) return;
     interactive = on;
     host.setInteractive(on);
-    if (window.__hitLog) console.log('[hit] interactive', on, mouse && `${mouse.x},${mouse.y}`);
+    if (window.__hitLog) console.log('[hit] interactive', on, mouse && `${mouse.x},${mouse.y}`, Math.round(performance.now()));
   };
   const onChip = () => Boolean(chip.visible && mouse && chip.contains(mouse.x, mouse.y, 0));
   const refreshHit = () => {
@@ -165,6 +165,7 @@ async function boot() {
   let lastMove = 0;
   window.addEventListener('mousemove', (e) => {
     lastMove = performance.now();
+    if (window.__hitLog) console.log('[hit] move', e.clientX, e.clientY, 'hit', capri.hit(e.clientX, e.clientY), Math.round(lastMove));
     mouse = { x: e.clientX, y: e.clientY };
     refreshHit();
     hoverChip();
@@ -608,6 +609,7 @@ async function boot() {
         guide.scene(() => setup[cmd.step]?.(...(cmd.args || [])));
         break;
       case 'rearmed': // a new mouse hook (main.js): click-through until the pointer comes over her again
+        if (window.__hitLog) console.log('[hit] rearmed', Math.round(performance.now()));
         interactive = false; // main.js has just made her window click-through: what she thinks follows
         mouse = null;
         refreshHit(); // (being dragged, she takes the pointer right back)
