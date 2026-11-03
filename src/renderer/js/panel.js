@@ -6,17 +6,26 @@ const NOISE = '▚▞▙▟░▒#%&/\\<>01XZ';
 
 // Her faces, frames of her from the show (tools/build-cutins.py). A message can ask for one;
 // otherwise it goes with what kind of message it is.
-const FACE_DIR = '../../assets/capri/';
+const FACE_DIR = '../../assets/';
 export const FACES = {
-  calm: 'face-calm.png',   // watching, mouth shut
-  aside: 'face-aside.png', // turned away: a sigh, thinking
-  smug: 'face-smug.png',   // the fang grin, head cocked
-  wide: 'face-wide.png',   // eyes gone round: surprised
-  look: 'face-look.png',   // looking right at you
-  laugh: 'face-laugh.png', // mouth wide open
-  many: 'face-many.png',   // all her eyes on you
-  grin: 'capri-face.png',
+  calm: 'capri/face-calm.png',   // watching, mouth shut
+  aside: 'capri/face-aside.png', // turned away: a sigh, thinking
+  smug: 'capri/face-smug.png',   // the fang grin, head cocked
+  wide: 'capri/face-wide.png',   // eyes gone round: surprised
+  look: 'capri/face-look.png',   // looking right at you
+  laugh: 'capri/face-laugh.png', // mouth wide open
+  many: 'capri/face-many.png',   // all her eyes on you
+  grin: 'capri/capri-face.png',
 };
+// Her emotions ([happy] [jealous] [bored] [glitch] [annoyed] in her answers), in the art that came
+// with Capri Desktop 2.4 (assets/art), or in her own faces when that art is switched off (settings).
+const ART_FACES = {
+  happy: 'art/happyface.png', jealous: 'art/eyes-left.png', bored: 'art/eyes-closed.png', glitch: 'art/eyes-glitch.png',
+  annoyed: 'art/scream.png', eyes: 'art/eyes.png', manyEyes: 'art/eyes-many.png', content: 'art/content.png',
+};
+const PLAIN_FACES = { happy: 'laugh', jealous: 'aside', bored: 'calm', glitch: 'many', annoyed: 'wide', eyes: 'look', manyEyes: 'many', content: 'smug' };
+const MOUTH = ['art/talk-open.png', 'art/talk-closed.png']; // her portrait while she talks (2.4's "Face in bubbles")
+const MOUTH_MS = 120;
 const KIND_FACE = { alert: 'many', done: 'look', error: 'laugh', work: 'calm', idle: 'calm', report: 'smug', chat: 'look' };
 const PRIORITY = { info: 1, idle: 1, work: 2, done: 3, error: 3, report: 3, chat: 3, alert: 4 };
 const DECODE_STEP_MS = 28;
@@ -52,6 +61,10 @@ export class Panel {
     this.view = { w: innerWidth, h: innerHeight };
     this.onChar = null;    // (mood) => void, for the voice blips
     this.onTalk = null;    // (talking: boolean) => void
+    this.art = true;       // her 2.4 art for emotions (settings › Capri)
+    this.talking = true;   // her mouth moves in her portrait while she talks
+    this.mouthTimer = null;
+    this.faceName = 'grin';
     this.suspended = false;
     this.tickerAction = null;
     this.tickerShownAt = 0;
@@ -175,7 +188,11 @@ export class Panel {
 
   // Change her expression; the swap glitches across a couple of drawings.
   setFace(name) {
-    const src = FACE_DIR + (FACES[name] || FACES.grin);
+    this.faceName = name;
+    this.mouth(false);
+    const file = ART_FACES[name] ? (this.art ? ART_FACES[name] : FACES[PLAIN_FACES[name]]) : FACES[name] || FACES.grin;
+    const src = FACE_DIR + file;
+    this.portrait.classList.toggle('is-art', file.startsWith('art/'));
     if (this.portrait.getAttribute('src') === src) return;
     this.portrait.setAttribute('src', src);
     if (reducedMotion.matches) return;
@@ -333,7 +350,9 @@ export class Panel {
     this.streamShown += Math.min(behind, Math.max(2, Math.ceil(behind / 14)));
     this.streamAt = chars.slice(0, this.streamShown);
     const caughtUp = this.streamShown >= chars.length;
+    if (!caughtUp) this.mouth(true);
     if (caughtUp && this.streamDone) {
+      this.mouth(false);
       this.stopStream();
       this.line.textContent = chars.join('');
       this.line.classList.remove('is-streaming');
@@ -433,6 +452,7 @@ export class Panel {
     clearInterval(this.decodeTimer);
     this.stopStream();
     this.onTalk?.(false);
+    this.mouth(false);
     if (this.el.hidden || this.leaving) return;
     const gone = this.current;
     this.current = null;
@@ -482,6 +502,55 @@ export class Panel {
     this.el.classList.add('is-entering');
   }
 
+  // Her mouth in her portrait, open and shut while the words come in (only with her art on).
+  mouth(on) {
+    if (this.lipOn) return; // her real voice is moving her lips (lipSync)
+    if (!on || !this.art || !this.talking || reducedMotion.matches) {
+      if (this.mouthTimer) {
+        clearInterval(this.mouthTimer);
+        this.mouthTimer = null;
+        this.restoreFace();
+      }
+      return;
+    }
+    if (this.mouthTimer) return;
+    let open = 0;
+    this.portrait.classList.add('is-art');
+    this.mouthTimer = setInterval(() => {
+      open = 1 - open;
+      this.portrait.setAttribute('src', FACE_DIR + MOUTH[open]);
+    }, MOUTH_MS);
+  }
+
+  // back to the face of the message, after her mouth was moving
+  restoreFace() {
+    const file = ART_FACES[this.faceName] ? (this.art ? ART_FACES[this.faceName] : FACES[PLAIN_FACES[this.faceName]]) : FACES[this.faceName] || FACES.grin;
+    this.portrait.setAttribute('src', FACE_DIR + file);
+    this.portrait.classList.toggle('is-art', file.startsWith('art/'));
+  }
+
+  // Her lips on her real voice (tts.js): open while it's loud, shut in between; null when she's done.
+  lipSync(level) {
+    if (level === null) {
+      if (this.lipOn) {
+        this.lipOn = false;
+        this.restoreFace();
+      }
+      return;
+    }
+    if (!this.art || !this.talking || reducedMotion.matches) return;
+    if (this.mouthTimer) {
+      clearInterval(this.mouthTimer);
+      this.mouthTimer = null;
+    }
+    this.lipOn = true;
+    const open = level > (this.lipOpen ? 0.02 : 0.035); // a little hysteresis, so it doesn't flicker
+    this.lipOpen = open;
+    const src = FACE_DIR + MOUTH[open ? 0 : 1];
+    this.portrait.classList.add('is-art');
+    if (this.portrait.getAttribute('src') !== src) this.portrait.setAttribute('src', src);
+  }
+
   decode(text, kind) {
     clearInterval(this.decodeTimer);
     if (reducedMotion.matches || !text) {
@@ -491,6 +560,7 @@ export class Panel {
     const chars = [...text];
     let done = 0;
     this.onTalk?.(true);
+    this.mouth(true);
     const step = () => {
       done = Math.min(chars.length, done + 2);
       const head = chars.slice(0, done).join('');
@@ -504,6 +574,7 @@ export class Panel {
         clearInterval(this.decodeTimer);
         this.line.textContent = text;
         this.onTalk?.(false);
+        this.mouth(false);
       }
     };
     step();
