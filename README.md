@@ -93,6 +93,14 @@ Indonesian-English mix by default.
   ("Capri v1.4"). Ask "improve dirimu", "kamu udah belajar apa?", or teach her: "mulai sekarang, jangan panggil aku bos".
 - **Her history** (settings › History): every chat turn kept on your PC, a file a day, searchable and deletable. Older
   chats become "the story so far", a summary she writes herself, so she remembers you for weeks.
+- **Questions about the world are looked up first**: "siapa presiden indonesia", "who is the CEO of Nvidia", "harga emas
+  hari ini?": a second or so on Wikipedia and Bing (safe search, results filtered), then she answers from today's web,
+  not from what her model remembers. Her header says SEARCHING… meanwhile. Only the question goes out (settings ›
+  Access › Look things up online).
+- **One message at a time, light on your PC**: while she's on one message, another waits; a new one stops an answer
+  still being written; her quick jobs (a word on a song, her verdict on it, her lessons) wait until she has answered
+  you, one at a time; with Ollama as her brain they use the same model (two at once push each other out of your
+  graphics card); and her prompt is laid out so Ollama reuses what it already read instead of reading it all again.
 - **Notes about you**: "remember that my cat is called Neko" / "ingat bahwa…", "forget about…" / "lupakan soal…".
 - **Her chat header** shows her mood instead of a model name: CAPRI / NIGHT CITY, / THINKING…, / WATCHING, / VIBING,
   / HAPPY, / JEALOUS, / BORED, / GLITCHING, / ANGRY. Her replies are written by an AI model: a fan version of her.
@@ -125,7 +133,10 @@ Typed or spoken, in English or Indonesian, no AI needed: see [Commands](#command
   stay put, wander.
 - **Open** apps and games (Start menu, Store apps, Steam, Epic), folders ("open my download file": Explorer opens and she
   points at the window), sites in the browser you name ("buka youtube di chrome"), and **find** files and folders.
-- **Music**: media keys ("pause", "lagu berikutnya", "louder"), what's playing ("lagu apa yang aku dengerin?") with her
+- **Music**: the song playing, through Windows' media session (Spotify first): "next", "ganti lagu", "previous",
+  "lagu sebelumnya", "repeat this song", "ulang terus lagunya", "repeat all", "repeat off", "shuffle", "acak lagunya",
+  "putar ulang" (from the start), "skip 30 seconds", "maju 10 detik", "mundur 15 detik"; "pause", "louder", "quieter";
+  what's playing ("lagu apa yang aku dengerin?") and "do you like this song?" ("kamu suka lagu ini?") with her
   opinion on it, and **songs played on Spotify**: "play X", "putar lagu X", "setel lagu X dari Y", "search X on Spotify".
   She searches Spotify and presses Play on the song (or the Top result) through Windows' accessibility interface.
   And its **lyrics**: "show lyrics", "hide lyrics", "what's the lyric?" (see [She listens to your music](#she-listens-to-your-music)).
@@ -189,8 +200,9 @@ Whatever Windows shows as playing (Spotify, a browser, any player in the volume 
   always loves.
 - **A song she likes**: her head goes with it (legs kicking on the beat when she sits), music notes come off her, and
   she dances now and then. One she loves gets her bouncing, with hearts.
-- **A boring one**: she lasts a while, gives a big yawn, and falls asleep where she is, Z's rising, until a song she
-  likes wakes her up (or you do).
+- **A boring one**: a big yawn and a sigh now and then, but she stays awake through every song, so her lyrics stay
+  up. Music starting wakes her if she was asleep; she only sleeps when she's bored with nothing on (a yawn, then
+  Z's rising).
 
 Settings › Behavior › She notices things (or Settings › Access): **Song lyrics**, **She listens along**.
 
@@ -246,12 +258,12 @@ Say or type them; no AI needed for these.
 | What | English | Indonesian |
 | --- | --- | --- |
 | Move | "move left", "go to the middle", "come to my cursor", "Capri, where are you?" | "ke samping kanan", "ke tengah", "ke cursor saya", "kamu di mana?", "kemari" |
-| Ask | "what time is it?", "what's the date today?", "what is 12*7" | "jam berapa?", "hari apa?", "berapa 25 x 4", "hitung 15% dari 200" |
+| Ask | "what time is it?", "what's the date today?", "what is 12*7", "who is the CEO of Nvidia?" | "jam berapa?", "hari apa?", "berapa 25 x 4", "hitung 15% dari 200" |
 | Cursor | "sit on my cursor", "get off my cursor" (or move it fast) | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" |
 | Moods | "dance", "wave", "take a bow", "sleep", "hide" | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" |
 | Open | "open my download file", "open Spotify", "open youtube music", "open youtube in chrome" | "buka folder downloadku", "buka kalkulator", "buka youtube music", "buka youtube di chrome" |
 | Find | "where is my Downloads folder?" | "di mana folder Downloads?", "dimana file laporan" |
-| Music | "pause", "next", "what am I listening to?" | "lagu berikutnya", "lagu apa yang aku dengerin?" |
+| Music | "next", "previous", "repeat this song", "shuffle", "restart the song", "skip 30 seconds", "pause", "louder", "what am I listening to?", "do you like this song?" | "ganti lagu", "lagu sebelumnya", "ulang terus lagunya", "acak lagunya", "putar ulang", "maju 10 detik", "lagu apa yang aku dengerin?", "kamu suka lagu ini?" |
 | Spotify | "play Die For You", "search X on Spotify", "play your favorite song" | "putar lagu Sorai", "setel lagu X dari Y", "putar lagu favoritmu" |
 | Lyrics | "show the song lyrics", "stop showing lyrics", "what's the lyric?", "listen to this song" | "perlihatkan lirik lagu ini", "berhenti tampilkan lirik", "liriknya apa?", "dengarkan lagu ini" |
 | Look | "what's on my screen?", "read what's in my notes" | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" |
@@ -335,7 +347,8 @@ All of them can be changed in settings › Advanced.
 
 - **By default, almost nothing**: her brain can be Ollama on your PC, her ears Whisper on your PC, her voice Windows' or
   Piper. The one thing that goes out on its own: the title, artist, album and length of the song you're playing, to
-  [LRCLIB](https://lrclib.net) to find its lyrics (Settings › Behavior › Song lyrics turns it off).
+  [LRCLIB](https://lrclib.net) to find its lyrics (Settings › Behavior › Song lyrics turns it off), and a question about
+  the world, to Wikipedia and Bing to look it up (Settings › Access › Look things up online).
 - **Only what you switch on goes online**, to the service you picked, with your key: your chat messages to a cloud
   brain, her lines (never your voice) to a cloud voice, your speech to Groq or OpenAI if you pick them for her ears, a
   screenshot of the window in front only when you ask her to look and allowed it for cloud models.
@@ -377,6 +390,7 @@ src/main/                 Electron: the transparent click-through window, tray, 
   senses.ps1              the app in front, another AI in front, battery, now playing, fullscreen
   windows.ps1             where the other windows are, so she can sit on them
   spotify.ps1, ocr.ps1    pressing Play in Spotify; reading the text in a picture (Windows OCR)
+  media.ps1, web.js       the song playing (repeat, shuffle, seek); questions looked up on the web
 src/renderer/js/
   sprite.js, acting.js    her rig (WebGL shader) and her moves, drawing by drawing
   capri.js                the character: stances, walking, teleport, grab, throw, pet, gestures
