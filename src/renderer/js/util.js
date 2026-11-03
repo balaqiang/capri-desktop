@@ -50,10 +50,17 @@ export const today = () => {
 
 // Tweens a set of numeric props on `target`. Values are read by the stepped render loop,
 // so the result lands on whole drawing frames like cel animation.
+// halt(target): every tween running on it stops where it is (and resolves), e.g. she's picked up mid-move
+const HALTS = Symbol('halts');
+export function halt(target) {
+  target[HALTS] = (target[HALTS] || 0) + 1;
+}
+
 export function tween(target, to, ms, easing = ease.out) {
   const from = {};
   for (const k of Object.keys(to)) from[k] = target[k];
   const start = performance.now();
+  const gen = target[HALTS] || 0;
   return new Promise((resolve) => {
     if (ms <= 0) {
       Object.assign(target, to);
@@ -61,6 +68,10 @@ export function tween(target, to, ms, easing = ease.out) {
       return;
     }
     const tick = () => {
+      if ((target[HALTS] || 0) !== gen) {
+        resolve();
+        return;
+      }
       const t = Math.min(1, (performance.now() - start) / ms);
       const e = easing(t);
       for (const k of Object.keys(to)) target[k] = lerp(from[k], to[k], e);
