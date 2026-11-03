@@ -628,8 +628,12 @@ async function run(said) {
       await shell.openExternal(id ? `https://www.youtube.com/watch?v=${id}` : e.url).catch(() => {});
       return { handled: true, reply: id ? F('Playing {0}!', e.query) : T("I couldn't pick one, so here are the results."), emotion: 'happy', zap: true };
     }
-    case 'song':
-      return { handled: true, reply: await playOnSpotify(e.text), emotion: 'happy', zap: true };
+    case 'song': {
+      const played = await playSong(e.text);
+      // hers: she says so
+      const reply = e.mine && played.ok ? T('My song! "In Love With Myself". Obviously.') : played.reply;
+      return { handled: true, reply, emotion: 'happy', zap: true };
+    }
     case 'open':
       try {
         await openTarget(e.target);
