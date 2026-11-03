@@ -1,6 +1,6 @@
 {
   "name": "capri-desktop",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "description": "Capri, the Project Capricorn construct, living on your desktop: narrates Claude Code, hears you through the mic, runs errands, dares you and glitches your screen (merged with Capri Desktop 2.4).",
   "author": "balaqiang",
   "contributors": [
@@ -63,7 +63,8 @@
       "src/main/windows.ps1",
       "src/main/senses.ps1",
       "src/main/spotify.ps1",
-      "src/main/ocr.ps1"
+      "src/main/ocr.ps1",
+      "src/main/media.ps1"
     ],
     "win": {
       "target": [
