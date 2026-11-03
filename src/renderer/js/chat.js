@@ -19,8 +19,16 @@ export { DEFAULT_PERSONA };
 const EMOTION_TAG = /\[(happy|jealous|bored|glitch|annoyed)\]/i;
 // a move of her body her AI can ask for anywhere in its answer (capri.js MOVES), never shown
 const MOVE_TAG = /\[\[\s*move\s*:\s*([a-z]+)\s*\]\]/i;
+// where her AI sends her when you asked in words the app didn't catch ([[go: cursor]]), and where it may
+const GO_TAG = /\[\[\s*go\s*:\s*([a-z]+)\s*\]\]/i;
+const GO_PLACES = ['cursor', 'left', 'right', 'center', 'taskbar', 'top', 'ride', 'unride', 'home', 'hide', 'sleep', 'wander', 'stay'];
 const MOVE_NAMES = 'wave, nod, shrug, think, bow, dance, laugh, shy, spin, hop, curious, look, turn, flinch';
 // the move each emotion of hers comes with (life.js): moving too, so spaced and learned like her AI's moves
+// her chat's header: CAPRI / her mood, from her emotion of the moment, or what she's doing
+const MOOD = {
+  idle: 'NIGHT CITY', thinking: 'THINKING…', looking: 'WATCHING', music: 'VIBING',
+  happy: 'HAPPY', jealous: 'JEALOUS', bored: 'BORED', glitch: 'GLITCHING', annoyed: 'ANGRY',
+};
 const EMOTION_MOVES = { happy: 'hop', jealous: 'turn', bored: 'look', glitch: 'split', annoyed: 'flinch' };
 const ANY_TAG = /\[(?:happy|jealous|bored|glitch|annoyed|sad|angry|smug|excited|curious|playful|mischievous|proud|shy|tired|surprised|neutral|laughs?|teasing|sassy|smirk|grin|pout)\]\s*/gi;
 // the other AIs she gets jealous of, named in your message
@@ -209,8 +217,8 @@ export class Chat {
     const shown = this.panel.say({
       kind: 'chat',
       face: 'look',
-      badge: t.badge,
-      tag: shortModel,
+      badge: '', // no "AI · LIVE": her header says her mood instead (setMood)
+      tag: MOOD.idle,
       line: tiny ? fmt(t.tiny, { model: shortModel }) : pick(this.history.length ? t.again : t.hello),
       actions: tiny ? [{ id: 'better', label: t.better, primary: true }] : [],
       onAction: () => {
@@ -221,8 +229,6 @@ export class Chat {
         placeholder: t.placeholder,
         send: t.send,
         close: t.close,
-        noteTag: t.noteTag,
-        note: status.local ? t.note : t.noteCloud,
       },
       onSend: (text) => this.send(text),
       onLeave: () => this.close(),
@@ -291,6 +297,7 @@ export class Chat {
       this.history.push({ role: 'user', content: text });
       this.remember({ role: 'assistant', content: line }, { emotion: res.emotion });
       this.panel.stream(line, { done: true });
+      this.panel.setMood(/spotify|lagu|song|music|musik|play|putar|setel|dengerin/i.test(text) ? MOOD.music : MOOD[res.emotion] || MOOD.idle);
       this.panel.setChatBusy(false);
     }
     if (res.memory) this.brain.custom.memories = await this.host.getConfig().then((c) => c.memories || []).catch(() => this.brain.custom.memories);
@@ -317,6 +324,7 @@ export class Chat {
     this.host.addSync(2, 'chat');
     if (!look && !this.agent && !skipErrand) {
       this.panel.chatTurn({ quote: text, face: 'eyes' });
+      this.panel.setMood(MOOD.thinking);
       this.panel.setChatBusy(true);
       if (await this.errand(text)) return;
     }
@@ -329,6 +337,7 @@ export class Chat {
     this.history.push({ role: 'user', content: text });
     this.panel.setChatBusy(true);
     this.panel.chatTurn({ quote: text, face: look ? 'eyes' : 'aside' });
+    this.panel.setMood(look ? MOOD.looking : MOOD.thinking);
     this.capri.pulse();
     // what you asked for plainly happens right away (the music, the volume, an app you named): her
     // line about it comes under her answer (Claude Code, answering her chat, does things its own way)
@@ -394,6 +403,7 @@ export class Chat {
     if (!res.ok) {
       this.history.pop();
       this.panel.setFace('wide');
+      this.panel.setMood(MOOD.glitch);
       // too busy or gone even after trying other models (main.js): said plainly, not the server's JSON
       this.panel.stream(res.code === 'busy' ? this.t.swamped : res.code === 'gone' ? this.t.gone : `${this.t.failed} ${res.error}`, { done: true });
       this.panel.setChatBusy(false);
@@ -405,6 +415,7 @@ export class Chat {
     this.remember({ role: 'assistant', content: answer }, { emotion });
     this.panel.stream(answer, { done: true });
     this.panel.setFace(emotion ? FACE_OF[emotion] : mood(answer));
+    this.panel.setMood(MOOD[emotion] || MOOD.idle);
     const moved = this.acted || MOVE_TAG.test(res.text);
     // her emotion's move (a hop when happy, a turn when jealous…) and its cut-in: not after every answer,
     // only as often as she's learned you want her moving, and never on top of a move her AI picked
@@ -414,6 +425,7 @@ export class Chat {
     if (react) this.motion.played(emoMove, emotion);
     if (this.cfg.debugLog && emoMove) console.log('[move]', emoMove, emotion, react ? 'played' : 'held back', `gap ${this.motion.s.gap}`);
     this.moveFrom(res.text);
+    this.goFrom(res.text, text);
     this.onAnswered?.(answer, emotion);
     this.motion.answered();
     this.panel.setChatBusy(false);
@@ -643,6 +655,7 @@ export class Chat {
     }
     // what the app does itself from plain words (main/errands.js), so she knows and doesn't fake it
     lines.push('The app around you also does these by itself when the user says them plainly: timers, alarms and reminders ("set a timer for 10 minutes", "pasang alarm jam 7"), a study timer, notes about them ("remember that…"), dares ("dare me"), games with you (rock paper scissors: "main suit"; guess the number: "tebak angka"; a coin; dice), web and YouTube searches, and looking at their screen ("look at my screen" or Ctrl+Alt+L, one screenshot when they ask). If they ask you for one of these and nothing happened, tell them to say it plainly like that; never pretend it is done.');
+    lines.push(`When the user asks you to come or go somewhere on their screen in words that didn't move you yet ("temenin aku di deket mouse", "hang out on the left", "get on my pointer"), say you're on it and put one tag [[go: WHERE]] in your reply (never shown), WHERE one of: ${GO_PLACES.join(', ')}. Only when they asked you to move.`);
     lines.push(`You have a body on their screen and you move it yourself: when a gesture really fits what you say, put one tag [[move: NAME]] in your reply (never shown), NAME one of: ${MOVE_NAMES}. It has to match: a greeting: wave; agreeing: nod; not knowing: shrug; pondering: think; showing off: bow; music or joy: dance; something funny: laugh; flattered: shy. ${this.motion.hint()}`);
     lines.push('You cannot see their screen now: no screenshot comes with this message. Asked what is on their screen, in a picture, a note or a window, never guess or make it up: tell them to say "look at my screen" or press Ctrl+Alt+L.');
     lines.push('The app also moves you when asked ("ke kanan", "ke cursor saya", "berhenti bergelantungan di cursor", "jalan-jalan") and shows where files and folders are ("di mana folder Downloads?"). Anything else on their PC (changing settings, editing files) you can\'t do: if they ask, say so in character. But questions, opinions and choices are never things you can\'t do: answer them.');
@@ -680,6 +693,16 @@ export class Chat {
   }
 
   // [[move: wave]] in her answer: that move, once per answer
+  // [[go: cursor]] in her answer: she goes there, only if you asked her to go somewhere (hiding or sleeping only
+  // when you said so)
+  goFrom(raw, said) {
+    const where = GO_TAG.exec(raw)?.[1]?.toLowerCase();
+    if (!where || !GO_PLACES.includes(where)) return;
+    if ((where === 'hide' || where === 'sleep') && !/hide|sembunyi|ngumpet|sleep|tidur|bobo|go away|pergi/i.test(said)) return;
+    if (this.cfg.debugLog) console.log('[go]', where);
+    this.onMove?.(where);
+  }
+
   // (only if what she's learned says so: not too often, not one you keep turning down; as big as you like it)
   moveFrom(raw) {
     const m = MOVE_TAG.exec(raw);
