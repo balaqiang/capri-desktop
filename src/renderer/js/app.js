@@ -124,6 +124,7 @@ async function boot() {
     if (on === interactive) return;
     interactive = on;
     host.setInteractive(on);
+    if (window.__hitLog) console.log('[hit] interactive', on, mouse && `${mouse.x},${mouse.y}`);
   };
   const onChip = () => Boolean(chip.visible && mouse && chip.contains(mouse.x, mouse.y, 0));
   const refreshHit = () => {
@@ -217,6 +218,7 @@ async function boot() {
       || (mask.visible && mask.contains(at.x, at.y, 10))
       || (chip.visible && chip.contains(at.x, at.y, 0))
       || (m && at.x >= m.left && at.x <= m.right && at.y >= m.top && at.y <= m.bottom);
+    if (window.__hitLog) console.log('[hit] poll', at.x, at.y, 'under', Boolean(under), 'hit', capri.hit(at.x, at.y), 'alpha', capri.p.alpha, 'hidden', capri.hidden);
     if (under) {
       mouse = { x: at.x, y: at.y };
       refreshHit();
@@ -271,11 +273,12 @@ async function boot() {
       const at = await host.cursor().catch(() => null);
       if (at) capri.rideTo(at.x, at.y);
     }, 33);
-    panel.say({ kind: 'info', face: 'happy', badge: 'RIDE', line: T('Comfy! {0} to hop off.').replace('{0}', currentCfg.hotkeys?.toggle?.replace(/Control/g, 'Ctrl') || 'Ctrl+Alt+C'), hold: 4500 });
+    panel.say({ kind: 'info', face: 'happy', badge: 'RIDE', line: T('Comfy! Shake me off, or {0} to hop off.').replace('{0}', currentCfg.hotkeys?.toggle?.replace(/Control/g, 'Ctrl') || 'Ctrl+Alt+C'), hold: 4500 });
   };
+  // a double-click on her: a spin. (It used to put her on your cursor, where clicks go through her: closing tabs
+  // fast under her, that's a double-click, and she was stuck there. Now it's "sit on my cursor", or her menu.)
   capri.onDoubleClick = () => {
-    panel.hide();
-    capri.startRide();
+    capri.gesture('spin');
   };
   // now and then she says something about the satellite: while she looks at it, or once
   // the red light has gone up (never during, nothing should cover that)
@@ -293,6 +296,7 @@ async function boot() {
   const HANDLED = {
     thrown: { face: 'happy', emotion: 'happy', chance: 0.45, lines: ['Wheee!', 'Again! Again!', 'Rude. But fun.'] },
     crash: { face: 'annoyed', emotion: 'annoyed', chance: 1, lines: ["Ow. That was on purpose, wasn't it?", 'My pixels! You scattered my pixels.', "Rude. We're filing a complaint."] },
+    shaken: { face: 'annoyed', emotion: 'annoyed', chance: 0.8, lines: ['Whoa! Too fast, choom!', 'Hey! I was sitting there!', 'Rude. Drive slower.'] },
     dizzy: { face: 'glitch', emotion: 'glitch', chance: 1, lines: ["Stop shaking us… everything's spinning.", 'Whoa, whoa… which one of you is the real cursor?', 'All of us in here are seasick now. Thanks.'] },
   };
   capri.onHandled = (what) => {
@@ -572,10 +576,14 @@ async function boot() {
       case 'aiMove': // --dev: one of the moves her AI can ask for ([[move: …]])
         console.log('[act]', cmd.move, capri.gesture(cmd.move));
         break;
+      case 'hitLog': // --dev: log the click-through switching
+        window.__hitLog = Boolean(cmd.on);
+        break;
       case 'state': // --dev: where she is and what she's doing, in the log
         console.log('[state]', JSON.stringify({
           pos: { x: Math.round(capri.pos.x), y: Math.round(capri.pos.y) }, floor: capri.floor, stance: capri.stance,
           busy: capri.busy, dragging: capri.dragging, flight: Boolean(capri.flight), alpha: capri.p.alpha, hidden: capri.hidden,
+          interactive, lastMoveAgo: Math.round(performance.now() - lastMove), riding: capri.riding,
         }));
         break;
       case 'teleport': // --dev: { x, y } where to (her feet), else somewhere
@@ -600,8 +608,9 @@ async function boot() {
         guide.scene(() => setup[cmd.step]?.(...(cmd.args || [])));
         break;
       case 'rearmed': // a new mouse hook (main.js): click-through until the pointer comes over her again
+        interactive = false; // main.js has just made her window click-through: what she thinks follows
         mouse = null;
-        refreshHit();
+        refreshHit(); // (being dragged, she takes the pointer right back)
         break;
       case 'rearm': // --dev: as if she'd noticed the pointer no longer reaches her
         host.rearm();
