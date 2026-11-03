@@ -526,14 +526,14 @@ export class FxLayer {
     this.add({ type: 'dizzy', life, follow, count, radius, smooth: true });
   }
 
-  // ---------- listening to your music, napping through it ----------
+  // ---------- listening to your music, sleeping ----------
 
   // A music note coming off her head, swaying up and away: flat green or red, with its violet copy.
   note(x, y, { dir = 1 } = {}) {
     this.add({ type: 'note', life: rand(1300, 1800), x, y, vx: dir * rand(18, 46), vy: rand(-70, -50), size: rand(9, 13), sway: rand(0, 6), double: Math.random() < 0.35, color: pick([COLORS.green, COLORS.green, COLORS.red, COLORS.paper]) });
   }
 
-  // Z's rising from her while she naps, one after another, until `follow()` (her head) gives null.
+  // Z's rising from her while she sleeps, one after another, until `follow()` (her head) gives null.
   zzz(follow) {
     return this.add({ type: 'zzz', life: 60 * 60 * 1000, follow, smooth: false });
   }
