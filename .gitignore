@@ -1,9 +1,44 @@
+# dependencies (npm install brings them back)
 node_modules/
+
+# builds: the installer and the portable exe (Build.bat makes them again)
 dist/
 out/
+*.exe
+*.blockmap
+
+# local debug captures and logs
+captures/
 *.log
+logs/
+
+# what a running Capri keeps on this PC (it lives in %APPDATA%\capri-desktop, never here, but just in case)
+config.json
+memory.json
+history/
+voices/
+sounds/
+speech/
+voice-log.txt
+growth-log.json
+spotify-buttons.txt
+
+# speech models she downloads (big)
+models/
+*.bin
+*.onnx
+*.gguf
+
+# secrets
+.env
+.env.*
+*.pem
+*.key
+
+# editors and OS
+.vscode/
+.idea/
+*.swp
 .DS_Store
 Thumbs.db
-
-# local debug captures
-captures/
+desktop.ini
