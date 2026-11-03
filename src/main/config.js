@@ -113,6 +113,7 @@ const DEFAULTS = {
     files: true,   // open folders, find files and folders
     close: true,   // close an app (always behind a button)
     web: true,     // open sites and searches in your browser
+    search: true,  // look questions about the world up online first (Wikipedia, Bing): only the question goes out
     media: true,   // the media keys: pause, next, volume
     spotify: true, // search Spotify and press Play
     code: true,    // write code into her Code folder, or open Claude Code for it
@@ -199,7 +200,7 @@ function save(patch) {
   return cache;
 }
 
-// May she do that on your PC (settings › Access)? 'apps', 'files', 'close', 'web', 'media', 'spotify', 'code'
+// May she do that on your PC (settings › Access)? 'apps', 'files', 'close', 'web', 'search', 'media', 'spotify', 'code'
 const allowed = (what) => load().access?.[what] !== false;
 
 module.exports = { load, save, reset, file, allowed, DEFAULTS };
