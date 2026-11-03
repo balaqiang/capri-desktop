@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy"
@@ -13,6 +13,12 @@
   </div>
 
   <canvas id="fx" class="fx" aria-hidden="true"></canvas>
+  <canvas id="glitch" class="glitch" hidden aria-hidden="true"></canvas>
+
+  <!-- her ears (ears.js): click to talk to her; in hands-free, a click is her name -->
+  <button id="mic" class="mic" type="button" hidden data-state="idle" aria-label="Talk to Capri">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" fill="none"/></svg>
+  </button>
 
   <canvas id="chip" class="chip" hidden aria-label="Capri’s biochip"></canvas>
   <canvas id="mask" class="chip" hidden aria-label="Capri, asleep"></canvas>
