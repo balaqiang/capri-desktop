@@ -164,6 +164,23 @@ async function media(action) {
   ).then(() => true, () => false);
 }
 
+// What's playing, through Windows' media session (media.ps1, Spotify first): repeat, shuffle, back to the start,
+// a jump forward or back. -> { ok, app, why, repeat, shuffle }
+const MEDIA_PS1 = path.join(__dirname, 'media.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+function session(action, seconds = 0) {
+  if (!WIN) return Promise.resolve({ ok: false, why: 'windows' });
+  return new Promise((resolve) => {
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', MEDIA_PS1, action, String(seconds)],
+      { windowsHide: true, timeout: 15000 }, (err, out) => {
+        try {
+          resolve(JSON.parse(String(out).trim().split('\n').pop()));
+        } catch {
+          resolve({ ok: false, why: err ? 'failed' : 'unreadable' });
+        }
+      });
+  });
+}
+
 // A Spotify search for it: in the app if it's installed, else on the web.
 async function music(query) {
   const q = String(query || '').trim().slice(0, 200);
@@ -193,4 +210,4 @@ async function site(address) {
   return true;
 }
 
-module.exports = { launchables, match, find, covers, launch, media, music, site, siteUrl };
+module.exports = { launchables, match, find, covers, launch, media, session, music, site, siteUrl };
