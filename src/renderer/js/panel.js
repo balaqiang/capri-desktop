@@ -142,7 +142,8 @@ export class Panel {
     this.el.dataset.kind = msg.kind;
     this.setFace(msg.face || KIND_FACE[msg.kind] || 'grin');
     this.tag.textContent = msg.tag || '';
-    this.state.textContent = msg.badge || this.labels.state[msg.kind] || '';
+    this.state.textContent = msg.badge ?? (this.labels.state[msg.kind] || '');
+    this.state.hidden = !this.state.textContent; // her chat has no badge: nothing, not an empty pill
     this.quote.textContent = msg.quote || '';
     this.quote.hidden = !msg.quote;
     this.setProgress(msg.progress);
@@ -314,6 +315,11 @@ export class Panel {
 
   // A chat turn: what you said goes up top, her answer starts coming in under it (stream), without
   // announcing the panel all over again.
+  // What's next to her name in her chat's header: her mood (CAPRI / ANGRY), or where she is (CAPRI / NIGHT CITY).
+  setMood(label) {
+    if (this.current?.chat) this.tag.textContent = label || '';
+  }
+
   chatTurn({ quote, face }) {
     if (!this.current?.chat) return;
     clearInterval(this.decodeTimer);
