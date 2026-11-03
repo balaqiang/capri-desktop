@@ -334,6 +334,9 @@ async function boot() {
       case 'left': case 'right': case 'center':
         capri.goTo(move);
         break;
+      case 'here': // "where are you?": she comes to your pointer, asleep or put away included
+        if (capri.dormant) capri.wake();
+      // falls through
       case 'cursor': {
         if (capri.riding) break;
         const at = await host.cursor().catch(() => null);
