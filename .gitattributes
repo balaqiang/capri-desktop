@@ -1,4 +1,9 @@
 * text=auto eol=lf
+# Windows wants its batch files with CRLF line endings
+*.bat text eol=crlf
+*.cmd text eol=crlf
 *.png binary
 *.ico binary
+*.jpg binary
+*.webp binary
 *.woff2 binary
