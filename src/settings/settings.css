@@ -631,3 +631,39 @@ kbd {
 .skill-new { display: grid; grid-template-columns: minmax(7em, 1fr) 2fr; gap: 8px; flex: 1; min-width: 0; }
 .skill-new input { width: 100%; min-width: 0; }
 @media (max-width: 560px) { .skill-new { grid-template-columns: 1fr; } }
+
+/* Plugins: each one a small card of its own, and the editor's steps */
+.plugin {
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--line-dim);
+  display: grid;
+  gap: 6px;
+}
+.plugin.is-off .plugin__name, .plugin.is-off .plugin__when, .plugin.is-off .plugin__steps { opacity: 0.55; }
+.plugin__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.plugin__name { color: var(--paper); font-family: var(--display); font-size: 15px; font-weight: 600; letter-spacing: 0.02em; }
+.plugin__when { color: var(--cyan); font-size: 13px; }
+.plugin__steps { color: var(--paper-2); font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+.plugin__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.plugin__days { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.plugin-steps { display: grid; gap: 8px; width: 100%; }
+.plugin-step {
+  display: grid;
+  grid-template-columns: 1.6em minmax(9em, 12em) 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+.plugin-step__n { color: var(--cyan-dim); text-align: right; }
+.plugin-step__fields { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.plugin-step__fields input, .plugin-step__fields select { flex: 1 1 auto; min-width: 0; }
+.plugin-step__tools { display: flex; gap: 4px; }
+.plugin-step__tools .btn { min-width: 32px; padding-inline: 8px; }
+@media (max-width: 640px) {
+  .plugin-step { grid-template-columns: 1.6em 1fr; }
+  .plugin-step__fields, .plugin-step__tools { grid-column: 2; }
+}
+/* a line of controls in a stacked row (the column would stretch them tall) */
+.plugin-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; }
+.plugin-line > input, .plugin-line > select { flex: 1 1 160px; min-width: 0; }
+.plugin-line > .mono, .plugin-line > .plugin__days, .plugin-line > .btn { flex: 0 0 auto; }
+.plugin-steps input, .plugin-steps select { flex: 1 1 auto; }
