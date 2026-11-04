@@ -181,6 +181,101 @@ function session(action, seconds = 0) {
   });
 }
 
+// Typing for you in another app (type.ps1): the apps she knows by name, and their processes; any other name is
+// looked for as a process and in window titles.
+const TYPE_TARGETS = [
+  [/^(?:notepad|catatan)$/, ['Notepad', 'notepad']],
+  [/^notepad\s*\+\+$/, ['notepad++']],
+  [/^(?:vs ?code|visual studio code|code)$/, ['Code']],
+  [/^antigravity$/, ['Antigravity']],
+  [/^cursor$/, ['Cursor']],
+  [/^windsurf$/, ['Windsurf']],
+  [/^(?:google )?chrome$/, ['chrome']],
+  [/^(?:microsoft )?edge$/, ['msedge']],
+  [/^firefox$/, ['firefox']],
+  [/^opera(?: gx)?$/, ['opera']],
+  [/^brave$/, ['brave']],
+  [/^discord$/, ['Discord']],
+  [/^whatsapp$/, ['WhatsApp', 'WhatsApp.Root']],
+  [/^telegram$/, ['Telegram']],
+  [/^slack$/, ['slack']],
+  [/^(?:microsoft )?teams$/, ['ms-teams', 'Teams']],
+  [/^(?:microsoft )?word$/, ['WINWORD']],
+  [/^(?:microsoft )?excel$/, ['EXCEL']],
+  [/^(?:microsoft )?powerpoint$/, ['POWERPNT']],
+  [/^(?:windows )?terminal$/, ['WindowsTerminal']],
+  [/^(?:cmd|command prompt)$/, ['cmd']],
+  [/^(?:windows )?powershell$/, ['powershell', 'pwsh']],
+  [/^obsidian$/, ['Obsidian']],
+  [/^notion$/, ['Notion']],
+];
+const TYPE_PS1 = path.join(__dirname, 'type.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+
+// Text typed into an app (its name: "notepad", "Visual Studio Code"…), or into a window (hwnd), then keys pressed
+// ('enter', 'save'…). fresh: the app was just opened (she waits for its window). onFound(hwnd, app): its window is
+// in front and the typing starts. -> { ok, app, why }
+// the typing going on (one at a time), for her Stop button
+let typing = null;
+function stopTyping() {
+  if (!typing) return false;
+  typing.stopped = true;
+  typing.kill();
+  return true;
+}
+
+// The title of a window ("hello.html - project - Antigravity"): which file is open in it.
+function windowTitle(hwnd) {
+  if (!WIN || !hwnd) return Promise.resolve('');
+  const script = `Add-Type -Namespace CapriW -Name T -MemberDefinition '[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, System.Text.StringBuilder s, int n);'; $s = New-Object System.Text.StringBuilder 512; [void][CapriW.T]::GetWindowText([IntPtr]${Number(hwnd)}, $s, 512); [Console]::OutputEncoding = [Text.Encoding]::UTF8; $s.ToString()`;
+  return new Promise((resolve) => {
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { windowsHide: true, timeout: 6000, encoding: 'utf8' }, (err, out) => resolve(err ? '' : String(out || '').trim()));
+  });
+}
+
+function typeInto({ text = '', target = '', hwnd = 0, keys = [], fresh = false, onFound = null, paste = false } = {}) {
+  if (!WIN) return Promise.resolve({ ok: false, why: 'windows' });
+  const name = String(target || '').trim().toLowerCase();
+  const known = name && TYPE_TARGETS.find(([re]) => re.test(name));
+  const args = ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', TYPE_PS1, '-Wait', fresh ? '12000' : '4000', '-Fresh', fresh ? '1' : '0'];
+  if (hwnd && !name) args.push('-Hwnd', String(hwnd));
+  else if (known) args.push('-Process', known[1].join(','));
+  else if (name) args.push('-Process', name.replace(/\s+/g, ''), '-Title', String(target).trim());
+  else return Promise.resolve({ ok: false, why: 'nowindow' });
+  if (keys.length) args.push('-Keys', keys.join(','));
+  if (paste) args.push('-Paste', '1'); // code: pasted whole, so the editor doesn't indent and close tags as it's typed
+  if (text) args.push('-B64', Buffer.from(String(text), 'utf8').toString('base64')); // every character, as it is
+  return new Promise((resolve) => {
+    stopTyping();
+    const child = spawn('powershell.exe', args, { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
+    typing = child;
+    let out = '';
+    let told = false;
+    const timer = setTimeout(() => child.kill(), 60000);
+    child.stdout.on('data', (d) => {
+      out += d;
+      const first = /^\{[^\n]*"found"[^\n]*\}/m.exec(out);
+      if (first && !told) {
+        told = true;
+        try {
+          const { found, app } = JSON.parse(first[0]);
+          onFound?.(found, app);
+        } catch { /* only for her show */ }
+      }
+    });
+    child.on('error', () => resolve({ ok: false, why: 'failed' }));
+    child.on('close', () => {
+      clearTimeout(timer);
+      if (typing === child) typing = null;
+      if (child.stopped) return resolve({ ok: false, why: 'stopped' });
+      try {
+        resolve(JSON.parse(out.trim().split('\n').pop()));
+      } catch {
+        resolve({ ok: false, why: 'failed' });
+      }
+    });
+  });
+}
+
 // A Spotify search for it: in the app if it's installed, else on the web.
 async function music(query) {
   const q = String(query || '').trim().slice(0, 200);
@@ -210,4 +305,4 @@ async function site(address) {
   return true;
 }
 
-module.exports = { launchables, match, find, covers, launch, media, session, music, site, siteUrl };
+module.exports = { launchables, match, find, covers, launch, media, session, typeInto, stopTyping, windowTitle, music, site, siteUrl };
