@@ -30,6 +30,7 @@ const { writeAtomic, readJson } = require('./store');
 const updater = require('./updater');
 const actionsLog = require('./actions-log');
 const recall = require('./recall');
+const plugins = require('./plugins');
 const { ASSISTANTS, assistant } = require('./assistants');
 const activeAssistant = () => assistant(config.load().assistant); // Claude Code or Codex
 const activeHooks = () => activeAssistant().hooks;
@@ -407,6 +408,8 @@ function rendererConfig() {
 
 function updateConfig(patch) {
   const before = config.load();
+  // plugins: only ever what she can run (plugins.js clean), however they came
+  if (Array.isArray(patch.plugins)) patch = { ...patch, plugins: patch.plugins.map(plugins.clean).filter(Boolean).slice(0, 50) };
   config.save(patch);
   if ('rest' in patch) fitOverlay(); // the taskbar in her window or not
   if ('lang' in patch) lang.load(resolveLang(patch.lang));
@@ -516,6 +519,7 @@ async function settingsState() {
     startup: app.getLoginItemSettings(loginItemOptions()).openAtLogin,
     update: updater.state(),
     actions: actionsLog.list(60),
+    pluginKit: { templates: plugins.TEMPLATES, moves: plugins.MOVES, emotions: plugins.EMOTIONS, maxSteps: plugins.MAX_STEPS },
     defaults: config.DEFAULTS,
   };
 }
@@ -1521,6 +1525,33 @@ function registerIpc() {
       case 'cancelEars': earsDownload?.abort(); break;
       case 'checkUpdate': await updater.check(); break;
       case 'clearActions': actionsLog.clear(); break;
+      case 'pluginRun': return { ok: life.pluginRun(arg) };
+      case 'pluginExport': {
+        const p = plugins.clean((config.load().plugins || []).find((q) => q?.id === arg));
+        if (!p) return { ok: false, error: 'not found' };
+        const name = p.name.replace(/[^\w -]+/g, '').trim() || 'plugin';
+        const { canceled, filePath } = await dialog.showSaveDialog(settingsWin, { defaultPath: `${name}.capri-plugin.json`, filters: [{ name: 'Capri plugin', extensions: ['json'] }] });
+        if (canceled || !filePath) return null;
+        const { on, ...shared } = p; // (whether it's on is yours)
+        fs.writeFileSync(filePath, JSON.stringify({ capriPlugin: 1, ...shared }, null, 2));
+        return { ok: true, file: filePath };
+      }
+      case 'pluginImport': {
+        const { canceled, filePaths } = await dialog.showOpenDialog(settingsWin, { properties: ['openFile', 'multiSelections'], filters: [{ name: 'Capri plugin', extensions: ['json'] }] });
+        if (canceled || !filePaths.length) return null;
+        const have = config.load().plugins || [];
+        const added = [];
+        for (const file of filePaths.slice(0, 20)) {
+          try {
+            const p = plugins.clean(JSON.parse(fs.readFileSync(file, 'utf8')));
+            // from a file: off until you've read it and switched it on; a new id if it's one you have
+            if (p) added.push({ ...p, on: false, id: [...have, ...added].some((q) => q.id === p.id) ? `p${Date.now().toString(36)}${added.length}` : p.id });
+          } catch { /* not a plugin */ }
+        }
+        if (!added.length) return { ok: false, error: 'That isn\'t a Capri plugin.' };
+        updateConfig({ plugins: [...have, ...added].slice(0, 50) });
+        return { ok: true, added: added.length, names: added.map((p) => p.name) };
+      }
       case 'brief': await life.briefNow(); break;
       case 'downloadUpdate': await updater.download(); break;
       case 'installUpdate': updater.install(); break;
@@ -1618,7 +1649,10 @@ async function debugHandler(route, body) {
   if (route === 'settings') {
     // her settings window, on a tab ({ close: true } closes it)
     if (body.close) settingsWin?.destroy();
-    else if (typeof body.find === 'string' && settingsWin) {
+    else if (typeof body.click === 'string' && settingsWin) {
+      // { click: 'Edit' }: the first button with that text (to capture what it opens)
+      await settingsWin.webContents.executeJavaScript(`[...document.querySelectorAll('button')].find((b) => b.textContent.trim().toLowerCase() === ${JSON.stringify(body.click.toLowerCase())})?.click()`);
+    } else if (typeof body.find === 'string' && settingsWin) {
       // scroll to the card with that title (to capture it)
       await settingsWin.webContents.executeJavaScript(`[...document.querySelectorAll('.card__title')].find((n) => n.textContent.includes(${JSON.stringify(body.find)}))?.scrollIntoView()`);
     } else openSettings(body.tab);
@@ -1753,6 +1787,10 @@ function main() {
           return;
         }
         // she stepped aside for a game: an alarm still gets through, as a Windows notification
+        if (evt.type === 'notify') {
+          if (Notification.isSupported()) new Notification({ title: evt.title ? `Capri · ${evt.title}` : 'Capri', body: evt.text, icon: path.join(ROOT, 'assets', 'icons', 'capri.png') }).show();
+          return;
+        }
         if (evt.type === 'alarm' && fullscreenAway && Notification.isSupported()) {
           new Notification({ title: 'Capri', body: evt.text, icon: path.join(ROOT, 'assets', 'icons', 'capri.png') }).show();
         }
