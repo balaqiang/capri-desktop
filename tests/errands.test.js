@@ -210,3 +210,17 @@ test('homework on the screen', () => {
     assert.notEqual(errands.parse(said).task, 'homework', said);
   }
 });
+
+// game mode, focus mode, quiet mode: down to her mask until you call her; and back to normal
+test('her modes: game, focus, quiet, normal', () => {
+  const mode = (said) => { const r = errands.parse(said); return r.kind === 'hold' ? r.mode : r.kind; };
+  for (const said of ['game mode', 'Capri, game mode on', 'turn on gaming mode', 'mode game', 'aku mau main game dulu']) assert.equal(mode(said), 'game', said);
+  for (const said of ['focus mode', 'mode fokus', 'mode belajar', 'I need to focus', 'aku mau fokus dulu']) assert.equal(mode(said), 'focus', said);
+  for (const said of ['do not disturb', 'jangan ganggu aku dulu', 'quiet mode', 'diam dulu ya']) assert.equal(mode(said), 'quiet', said);
+  for (const said of ['normal mode', 'game mode off', 'turn off focus mode', 'udah selesai main', 'mode normal', 'matikan mode game']) assert.equal(mode(said), 'off', said);
+  // not her modes
+  assert.equal(mode('mulai belajar'), 'study');
+  assert.equal(mode('diam'), 'move');
+  assert.equal(mode('wake up'), 'move');
+  assert.equal(mode('main suit'), 'none');
+});
