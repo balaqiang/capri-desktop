@@ -51,6 +51,8 @@ export class Capri {
     this.hidden = false;
     this.stowed = false;  // folded away in her biochip (Ctrl+Alt+C)
     this.dormant = false; // asleep, down to her mask
+    this.hold = null;     // 'game' | 'focus' | 'quiet': kept down to her mask until you call her (holdIn)
+    this.onHold = null;   // (reason | null): her hold, told to her main process (no remarks meanwhile)
     this.wander = true;
     this.possessWindows = true; // tray: "Possess my windows"
     this.restOn = 'corner'; // where she rests when nothing's going on: her corner, or 'taskbar' (her menu)
@@ -831,10 +833,35 @@ export class Capri {
     }
   }
 
-  wake() {
+  // release: you called her (a click on her mask, a command, a hotkey, her chat): it ends a hold too. Without it
+  // (your pointer passing, a song starting, your coding AI), a held mask stays a mask.
+  wake({ release = false } = {}) {
+    if (this.hold && !release) return;
+    if (this.hold) this.setHold(null);
     if (this.mode === 'sleep') this.setMode('idle');
     this.lastActivity = performance.now();
     if (this.dormant) this.rouse(); // down to her mask: she comes back
+  }
+
+  setHold(reason) {
+    this.hold = reason || null;
+    this.onHold?.(this.hold);
+  }
+
+  // Down to her mask and staying there (game mode, focus, quiet mode): no walking, no remarks, nothing wakes her by
+  // itself; a click on her mask, a command of yours, or "normal mode" brings her back.
+  async holdIn(reason) {
+    this.setHold(reason);
+    if (this.stowed || this.dormant) return;
+    for (let i = 0; i < 30 && this.busy; i++) await sleep(150);
+    if (this.hold !== reason || this.dormant) return; // called back meanwhile
+    this.endAct(false);
+    this.setMode('sleep');
+    await this.doze();
+  }
+
+  release() {
+    if (this.hold || this.dormant) this.wake({ release: true });
   }
 
   // Somewhere to be while Claude works: on the window in front if she can sit on it, else her corner.
@@ -1466,6 +1493,7 @@ export class Capri {
   // on her ledge again if it's still there.
   async rouse() {
     if (!this.dormant) return;
+    if (this.hold) this.setHold(null); // she's back (her ledge, a teleport you asked for): the hold is over
     this.dormant = false;
     this.busy = true;
     this.onDoze?.('waking');
