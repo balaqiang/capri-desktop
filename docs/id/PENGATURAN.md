@@ -99,7 +99,8 @@ minta sesuatu yang dimatikan, dia bilang begitu.
 
 ## Timers
 
-Timer dan alarm (pasang, bunyinya), dan timer belajar (lama fokus dan istirahat, sedang di mana).
+Timer dan alarm (pasang, bunyinya), dan timer belajar (lama fokus dan istirahat, sedang di mana, dan **Jadi topeng
+saat aku fokus**: selama sesi fokus dia jadi topeng, tanpa suara, sampai istirahat).
 
 ## History
 
