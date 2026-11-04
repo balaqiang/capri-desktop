@@ -22,6 +22,7 @@ const lyrics = require('./lyrics');
 const { vocabulary } = require('./hearing');
 const actionsLog = require('./actions-log');
 const weather = require('./weather');
+const plugins = require('./plugins');
 
 const { T, F } = lang;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -58,6 +59,8 @@ let askModel = null; // (messages) => Promise<string>: her model, with her perso
 let askPlain = null; // (messages) => Promise<string>: her model as is, for plain questions (main.js)
 let frontWindow = null; // () => the window you were in before talking to her (main.js), for typing in it
 const startedAt = Date.now(); // her morning brief waits until she has settled in
+let pluginEngine = null; // your plugins (plugins.js): what sets them off is seen here
+let pluginTimer = null;
 let cancelled = false; // her Stop button: the task going on ends (the typing at once, a chain before its next step)
 let canLook = () => false;
 let snapshot = null; // () => Promise<base64 jpeg>
@@ -255,6 +258,7 @@ function observe() {
   if (back) {
     state.wasAway = false;
     state.peakIdle = 0;
+    pluginEngine?.onBack(awayMinutes);
   }
   const cpu = cpuPercent();
   state.cpu = cpu;
@@ -292,7 +296,10 @@ function observe() {
 function onSense(msg) {
   if (msg.t === 'front') {
     const name = errands.friendly(msg.app);
-    if (name !== state.front) Object.assign(state, { front: name, frontRaw: msg.app || '', frontSince: Date.now() });
+    if (name !== state.front) {
+      Object.assign(state, { front: name, frontRaw: msg.app || '', frontSince: Date.now() });
+      pluginEngine?.onApp(`${name} ${msg.app || ''}`);
+    }
     // Claude Code is her job, not a rival, while she watches it
     const ai = msg.ai && !(cfg().claude && /claude/i.test(msg.ai)) ? msg.ai : '';
     if (ai !== state.ai) Object.assign(state, { ai, aiSince: Date.now() });
@@ -301,6 +308,7 @@ function onSense(msg) {
     emit({ type: 'fullscreen', on: state.fullscreen, why: msg.why || '' });
   } else if (msg.t === 'power') {
     state.battery = Number(msg.battery);
+    pluginEngine?.onBattery(state.battery);
   } else if (msg.t === 'media') {
     onTrack(msg.title ? msg : null);
   }
@@ -315,6 +323,7 @@ function onTrack(track) {
   const key = track?.playing ? `${track.title}|${track.artist}` : '';
   if (!key || key === state.lastTrackKey) return;
   state.lastTrackKey = key;
+  pluginEngine?.onSong(track);
   const now = Date.now();
   // her favorite song gets a word from her every time
   const favorite = songNote(track)?.favorite;
@@ -689,7 +698,7 @@ function cancel() {
   return launch.stopTyping();
 }
 
-async function run(said, { voice = false } = {}) {
+async function run(said, { voice = false, fromPlugin = false } = {}) {
   const c = cfg();
   // her games first: in the middle of one, "batu" or "50" is a move
   const played = games.handle(said, c);
@@ -700,6 +709,11 @@ async function run(said, { voice = false } = {}) {
   }
   const canonical = errands.canon(said);
   if (canonical) return { handled: true, reply: T(canonical.line), emotion: canonical.emotion };
+  // a plugin of yours set off by what you said (Settings › Plugins)
+  if (!fromPlugin) {
+    const plugged = await pluginEngine?.said(said);
+    if (plugged) return plugged.reply ? plugged : { ...plugged, reply: F('{0}: on it.', plugged.plugin) };
+  }
   // a command of yours ("work mode"): what you taught her, done like you'd said it all
   const own = skillFor(said);
   if (own) {
@@ -781,7 +795,11 @@ const SIGNED = /\b(?:e-?mail|letter|cover letter|invitation|announcement|apology
 const INDONESIAN = /\b(?:tuliskan|tulisin|tulis|buatkan|buatin|bikinin|bikin|buat|karang\w*|susun\w*|surat|pesan|puisi|pantun|cerita|ucapan|untuk|tentang|yang|dan|aku|saya|ibu|ayah|kakak|adik|teman|pacar|guru|bos|sakit|izin|ulang tahun|selamat)\b/i;
 const addressed = (task) => SIGNED.test(task) || /\b(?:message|text|reply|response|note|toast|pesan|balasan|ucapan|kata sambutan)\b|\b(?:to|for|untuk|buat|kepada) (?:my|the|a|ibu|ayah|kakak|adik|teman|pacar|bos|guru)\b/i.test(task);
 // a poem or a story isn't for anyone unless you said so: the "Dear …," a model puts on top of it anyway, gone
-const unaddressed = (text, task) => (addressed(task) ? text : text.replace(/^\s*(?:dear|to|for|untuk|kepada|teruntuk)\s+[^\n,]{1,40},?\s*\n+/i, ''));
+// (and the "Rina, 2024" over a poem, the "— Rina" under it: a byline nobody asked for)
+const unaddressed = (text, task) => (addressed(task) ? text : text
+  .replace(/^\s*(?:dear|to|for|untuk|kepada|teruntuk)\s+[^\n,]{1,40},?\s*\n+/i, '')
+  .replace(/^\s*[\p{L} .'-]{1,30},?\s+(?:\d{1,2}\s+\p{L}+\s+)?\d{4}\s*\n+/u, '')
+  .replace(/\n+\s*[-–—]\s*[\p{L} .'-]{1,30}\s*$/u, ''));
 function draftSystem(task = '') {
   const c = cfg();
   const you = String(c.owner?.nickname || c.userName || '').trim();
@@ -1360,17 +1378,34 @@ function start({ onEvent, model, raw, look, shot, front, coder: coders }) {
     }
   }, 2000);
   startSenses();
+  // your plugins: what you said comes through run(); the time ones are looked at every few seconds
+  pluginEngine?.stop();
+  pluginEngine = plugins.createEngine({
+    list: () => cfg().plugins || [],
+    run: (text, opts) => run(text, opts),
+    say: (evt) => emit({ type: 'plugin', ...evt }),
+    notify: (text, title) => emit({ type: 'notify', text, title }),
+    couldnt: (text) => F("I couldn't do \"{0}\".", text),
+  });
+  clearInterval(pluginTimer);
+  pluginTimer = setInterval(() => pluginEngine?.tick(), 15000);
+  setTimeout(() => pluginEngine?.onStart(), 25000);
 }
+
+// Settings › Plugins › Run now
+const pluginRun = (id) => Boolean(pluginEngine?.runNow(String(id || '')));
 
 function stop() {
   clearInterval(ticker);
+  clearInterval(pluginTimer);
+  pluginEngine?.stop();
   stopSenses();
 }
 
 const quiet = (ms) => { state.quietUntil = Date.now() + ms; };
 
 module.exports = {
-  findPath, browserPath, start, stop, startSenses, run, cancel, typeDraft, briefNow, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
+  findPath, browserPath, start, stop, startSenses, run, cancel, typeDraft, briefNow, pluginRun, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
   addAlarm, removeAlarm, clearAlarms, startStudy, stopStudy, pauseStudy, studyStatus, hackLine, giveDare, quiet, playSong, lyricsChanged, songNow,
   get track() { return state.track; }, get front() { return state.front; }, get fullscreen() { return Boolean(state.fullscreen); },
 };
