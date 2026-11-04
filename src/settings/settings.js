@@ -755,6 +755,7 @@ function pageTimers() {
     card('Study timer',
       row('Focus', null, number('focusMinutes', 1, 180), el('span', { class: 'mono', text: T('min') })),
       row('Break', null, number('breakMinutes', 1, 60), el('span', { class: 'mono', text: T('min') })),
+      row('Mask while I focus', 'During a focus session she goes down to her green mask, not a word, and comes back for the break. Click her mask to call her. Saying "focus mode", "game mode" or "quiet mode" does it any time; "normal mode" brings her back.', toggle('focusMask')),
       row('Now', study.phase === 'off' ? T('Off') : `${T(study.phase === 'focus' ? 'Focus' : 'Break')} · ${F('{0} min left', left)}${study.paused ? ` · ${T('paused')}` : ''} · ${F('{0} done', study.done)}`,
         study.phase === 'off'
           ? button('Start focus', async () => { await act('startStudy'); render(); }, 'primary')
