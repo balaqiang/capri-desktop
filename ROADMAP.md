@@ -8,7 +8,7 @@ Ukuran kerja: **S** (≤ 1 hari), **M** (2–5 hari), **L** (1–2 minggu), **XL
 
 ---
 
-## 0. Status di v0.6.0
+## 0. Status di v0.7.0
 
 **Sudah dikerjakan** (versi pertama yang bisa dipakai, belum versi akhir setiap poin):
 
@@ -21,7 +21,8 @@ Ukuran kerja: **S** (≤ 1 hari), **M** (2–5 hari), **L** (1–2 minggu), **XL
 | 3.2 Asisten menulis | Draft → pratinjau → Ketik / Salin / Ulangi, "lebih singkat" untuk revisi, Shift+Enter di aplikasi chat. |
 | 3.4 Telinga | Kosakata (nama aplikasi, kata-katamu, namamu) jadi prompt Whisper; prompt yang "diulang" Whisper saat hening dibuang. |
 | 3.6 Ingatan semantik | `recall.js`: BM25 + stemming ID/EN untuk catatan dan obrolan lama; embedding Ollama bila ada model embedding. |
-| 3.13 Skill | Perintah buatanmu ("kalau aku bilang mode kerja, …") lewat suara atau Pengaturan › Behavior. |
+| 3.12 Tubuh (sebagian) | Fisika rambut (rantai pegas, `hair.js`) dan IK lengan + tatapan kepala (`ik.js`): meraih pointer-mu, lengan terulur ke jendela yang dia ketik. |
+| 3.13 Skill dan plugin | Perintah buatanmu ("kalau aku bilang mode kerja, …"), dan plugin tanpa coding (Pengaturan › Plugins: pemicu → langkah, template, impor/ekspor `.capri-plugin.json`, impor datang mati). |
 | 3.14 Integrasi harian | Cuaca (Open-Meteo) dan rangkuman pagi sekali sehari. |
 | 3.15 Riwayat aksi | Pengaturan › Access › What she did (tanpa isi yang diketik). Undo belum. |
 | Keamanan mengetik | Tolak kotak password (UI Automation + ES_PASSWORD), berhenti saat kamu menekan tombol, tombol Stop. |
@@ -29,7 +30,7 @@ Ukuran kerja: **S** (≤ 1 hari), **M** (2–5 hari), **L** (1–2 minggu), **XL
 **Belum** (tetap seperti rencana di bawah): 2.2 registry perintah, 2.4 helper Windows yang selalu hidup, 2.5 mengetik
 tanpa keystroke, 3.1 agen rencana-aksi-periksa, 3.3 kendali aplikasi lewat UI Automation, 3.5 suara, 3.7 router model,
 3.8 pencarian web cadangan, 3.9 Spotify Web API, 3.10 lirik lanjutan, 3.11 mesin kepribadian, 3.12 tubuh generasi
-berikutnya, plugin (bagian lain 3.13), undo (bagian lain 3.15).
+berikutnya (selain rambut dan IK: animasi tulang penuh, kaki menapak), plugin dengan kode (bagian lain 3.13), undo (bagian lain 3.15).
 
 ---
 
