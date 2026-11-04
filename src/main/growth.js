@@ -18,6 +18,7 @@ const config = require('./config');
 const lang = require('./lang');
 const history = require('./history');
 const errands = require('./errands');
+const { writeAtomic } = require('./store');
 
 const { T, F } = lang;
 const LESSONS_MAX = 12;
@@ -62,7 +63,7 @@ function readLog() {
 
 function writeLog(data) {
   try {
-    fs.writeFileSync(logFile(), JSON.stringify({ log: data.log.slice(-30), feedback: data.feedback.slice(-40) }, null, 2));
+    writeAtomic(logFile(), JSON.stringify({ log: data.log.slice(-30), feedback: data.feedback.slice(-40) }, null, 2));
   } catch (err) {
     console.error('[capri] growth log:', err.message);
   }
