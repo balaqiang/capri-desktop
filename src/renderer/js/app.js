@@ -207,7 +207,7 @@ async function boot() {
   });
   window.addEventListener('click', (e) => {
     if (chip.visible && chip.contains(e.clientX, e.clientY, 0)) comeOut();
-    else if (mask.visible && mask.contains(e.clientX, e.clientY, 10)) capri.wake(); // asleep down to her mask: a click wakes her
+    else if (mask.visible && mask.contains(e.clientX, e.clientY, 10)) capri.wake({ release: true }); // asleep down to her mask: a click wakes her
   });
   // A panel (its buttons), her mask or her mic that came up under a pointer that isn't moving: Windows only
   // tells her window about the pointer when it moves, so without this a click went through to the desktop
@@ -331,6 +331,22 @@ async function boot() {
   // a move her AI asked for in its answer ([[move: wave]]): played on her rig
   chat.onAct = (name, amp) => capri.gesture(name, { amp });
   chat.onMove = async (move) => {
+    // game mode, focus mode, quiet mode: down to her mask until you call her (her chat closes after her answer)
+    if (move.startsWith('hold-')) {
+      if (move === 'hold-off') capri.release();
+      else {
+        // her line first ("Game mode. Click my mask…"), then she comes apart
+        const reason = move.slice(5);
+        capri.setHold(reason);
+        setTimeout(() => {
+          if (capri.hold !== reason) return; // called back meanwhile
+          if (chat.open) chat.close();
+          capri.holdIn(reason);
+        }, 2600);
+      }
+      return;
+    }
+    if (capri.hold) capri.release(); // a move you asked for: she's out of her mask for it
     if (capri.stowed && move !== 'hide') {
       host.setConfig({ visible: true });
       await capri.unstow();
@@ -340,7 +356,7 @@ async function boot() {
         capri.goTo(move);
         break;
       case 'here': // "where are you?": she comes to your pointer, asleep or put away included
-        if (capri.dormant) capri.wake();
+        if (capri.dormant) capri.wake({ release: true });
       // falls through
       case 'cursor': {
         if (capri.riding) break;
@@ -363,7 +379,7 @@ async function boot() {
         break;
       case 'show': break; // she's out already (above)
       case 'sleep': capri.setMode('sleep'); break;
-      case 'wake': capri.wake(); break;
+      case 'wake': capri.wake({ release: true }); break;
       case 'dance': capri.gesture('dance') || capri.perform('spin'); break;
       case 'wave': capri.gesture('wave'); break;
       case 'bow': capri.gesture('bow'); break;
@@ -375,6 +391,7 @@ async function boot() {
   };
   // she asked you to play or talk, and you said yes
   life.onMove = (move) => chat.onMove(move); // a plugin's move (main/plugins.js)
+  capri.onHold = (reason) => host.lifeHold?.(reason); // her main process keeps quiet while she's held
   life.onInvite = (what) => (what === 'game' ? chat.hear(pick(['main suit', 'tebak angka'])) : chat.start());
   chat.onPoint = async ({ label }, fgBefore) => {
     const front = () => capri.windows.wins.find((w) => w.id === capri.windows.fg) || null;
@@ -471,7 +488,7 @@ async function boot() {
     const caption = (line) => panel.say({ kind: 'info', line, hold: 2200 });
     capri.nextMove = capri.nextGaze = performance.now() + 120000; // nothing of her own in between
     if (capri.stowed) await capri.unstow();
-    if (capri.dormant) capri.wake();
+    if (capri.dormant) capri.wake({ release: true });
     await until(free);
     panel.hide();
 
@@ -519,7 +536,7 @@ async function boot() {
     await wait(2500); // dozing off
     await capri.doze();
     await wait(4500);
-    capri.wake();
+    capri.wake({ release: true });
     await until(free);
     await wait(1200);
 
@@ -688,7 +705,7 @@ async function boot() {
           host.setConfig({ visible: true });
           await capri.unstow();
         }
-        capri.wake();
+        capri.wake({ release: true });
         ears.toggle();
         break;
       case 'look': // Ctrl+Alt+L, or her menu: one look at your screen
@@ -696,12 +713,12 @@ async function boot() {
           host.setConfig({ visible: true });
           await capri.unstow();
         }
-        capri.wake();
+        capri.wake({ release: true });
         chat.look();
         break;
       case 'dare': { // her menu › Dare me now
         if (capri.stowed) await capri.unstow();
-        capri.wake();
+        capri.wake({ release: true });
         const dare = await host.dare().catch(() => null);
         if (dare) {
           panel.say({ kind: 'info', face: 'happy', badge: 'DARE', line: dare, hold: 10000 });
@@ -753,7 +770,7 @@ async function boot() {
           host.setConfig({ visible: true });
           await capri.unstow();
         }
-        capri.wake();
+        capri.wake({ release: true });
         if (brain.report()) capri.perform('curious', capri.towardCenter());
         break;
       case 'fakeClaude': { // --dev: the topmost window (the test window) is where a prompt was typed, and you're elsewhere
@@ -778,7 +795,7 @@ async function boot() {
           host.setConfig({ visible: true });
           await capri.unstow();
         }
-        capri.wake();
+        capri.wake({ release: true });
         if (capri.stance === 'peek') await capri.unpeek();
         if (!capri.gaze({ big: true })) setTimeout(() => capri.gaze({ big: true }), 1500);
         break;
