@@ -1019,12 +1019,180 @@ function pageAbout() {
   ];
 }
 
+// ---- plugins (main/plugins.js): made here, without code ----
+
+let editing = null; // the plugin being made or changed: { id, name, on, when, do, cooldown }, or null
+const WHEN_KINDS = [['said', 'I say something'], ['time', 'At a time'], ['app', 'An app comes to the front'], ['song', 'A song starts'], ['back', "I'm back after a while"], ['start', 'She starts'], ['battery', 'My battery gets low']];
+const STEP_KINDS = [['say', 'Say'], ['command', 'Do a command'], ['wait', 'Wait'], ['move', 'Move'], ['emotion', 'Feel'], ['notify', 'Windows notification']];
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WHEN_DEFAULT = {
+  said: () => ({ type: 'said', phrase: '', match: 'exact' }), time: () => ({ type: 'time', at: '08:00', days: [] }), app: () => ({ type: 'app', app: '' }),
+  song: () => ({ type: 'song', artist: '', title: '' }), back: () => ({ type: 'back', minutes: 30 }), start: () => ({ type: 'start' }), battery: () => ({ type: 'battery', below: 20 }),
+};
+const STEP_DEFAULT = { say: () => ({ type: 'say', text: '' }), command: () => ({ type: 'command', text: '' }), wait: () => ({ type: 'wait', seconds: 5 }), move: () => ({ type: 'move', move: 'wave' }), emotion: () => ({ type: 'emotion', emotion: 'happy' }), notify: () => ({ type: 'notify', text: '' }) };
+const copy = (o) => JSON.parse(JSON.stringify(o));
+
+// its "when", in words
+function whenText(w) {
+  switch (w?.type) {
+    case 'said': return w.match === 'contains' ? F('When you say something with "{0}"', w.phrase) : F('When you say "{0}"', w.phrase);
+    case 'time': {
+      const d = w.days || [];
+      const days = !d.length || d.length === 7 ? T('every day') : d.join() === '1,2,3,4,5' ? T('on weekdays') : d.join() === '0,6' ? T('on weekends') : d.map((i) => T(DAYS[i])).join(', ');
+      return F('At {0}, {1}', w.at, days);
+    }
+    case 'app': return F('When {0} comes to the front', w.app);
+    case 'song': return w.artist || w.title ? F('When a song starts: {0}', [w.title, w.artist].filter(Boolean).join(' · ')) : T('When a song starts');
+    case 'back': return F("When you're back after {0} minutes away", w.minutes);
+    case 'start': return T('When she starts');
+    case 'battery': return F('When your battery drops below {0}%', w.below);
+    default: return '';
+  }
+}
+// its steps, in a line
+const stepsText = (p) => (p.do || []).map((s) => ({
+  say: () => `💬 "${s.text}"`, command: () => `▶ ${s.text}`, wait: () => `⏱ ${s.seconds}s`, move: () => `✦ ${T(s.move)}`, emotion: () => `◆ ${T(s.emotion)}`, notify: () => `🔔 "${s.text}"`,
+}[s.type]?.() || '')).join('  →  ');
+
+const plugins = () => cfg().plugins || [];
+const savePlugins = (list) => save({ plugins: list });
+
+// a select whose options are [value, label] (labels translated)
+function choice(options, value, onChange) {
+  const sel = el('select', { onchange: () => onChange(sel.value) }, ...options.map(([v, label]) => el('option', { value: v, text: T(label) })));
+  sel.value = value;
+  return sel;
+}
+function field(value, onInput, { placeholder = '', max = 300, type = 'text', min, maxN } = {}) {
+  const input = el('input', { type, placeholder: T(placeholder), maxlength: type === 'text' ? max : null, min, max: maxN, spellcheck: 'false' });
+  input.value = value ?? '';
+  input.addEventListener('input', () => onInput(type === 'number' ? Number(input.value) : input.value));
+  return input;
+}
+
+function pluginRow(p) {
+  const on = el('input', { type: 'checkbox', role: 'switch' });
+  on.checked = p.on !== false;
+  on.addEventListener('change', () => savePlugins(plugins().map((q) => (q.id === p.id ? { ...q, on: on.checked } : q))));
+  return el('div', { class: `plugin${p.on === false ? ' is-off' : ''}` },
+    el('div', { class: 'plugin__head' },
+      el('span', { class: 'plugin__name', text: p.name }),
+      el('span', { class: 'switch' }, on, el('span'))),
+    el('div', { class: 'plugin__when', text: whenText(p.when) }),
+    el('div', { class: 'plugin__steps', text: stepsText(p) }),
+    el('div', { class: 'plugin__actions' },
+      button('Run now', async () => { const r = await act('pluginRun', p.id); toast(r?.ok ? F('Running "{0}".', p.name) : T('Switch it on first.'), !r?.ok); }),
+      button('Edit', () => { editing = copy(p); render(); }),
+      button('Export…', async () => { const r = await act('pluginExport', p.id); if (r?.ok) toast(T('Exported.')); }),
+      button('Delete', async () => { if (confirm(F('Delete "{0}"?', p.name))) { await savePlugins(plugins().filter((q) => q.id !== p.id)); render(); } }, 'danger')));
+}
+
+function whenFields(w) {
+  const set = (k) => (v) => { w[k] = v; };
+  switch (w.type) {
+    case 'said': return [field(w.phrase, set('phrase'), { placeholder: 'work mode', max: 60 }), choice([['exact', 'Exactly that'], ['contains', 'In a sentence']], w.match, set('match'))];
+    case 'time': {
+      const days = DAYS.map((d, i) => {
+        const box = el('input', { type: 'checkbox' });
+        box.checked = w.days.includes(i);
+        box.addEventListener('change', () => { w.days = DAYS.map((_, j) => j).filter((j) => (j === i ? box.checked : w.days.includes(j))); });
+        return el('label', { class: 'check' }, box, T(d));
+      });
+      return [field(w.at, set('at'), { type: 'time' }), el('span', { class: 'plugin__days' }, ...days)];
+    }
+    case 'app': return [field(w.app, set('app'), { placeholder: 'Code, Chrome, Discord', max: 40 })];
+    case 'song': return [field(w.title, set('title'), { placeholder: 'Title (any)', max: 60 }), field(w.artist, set('artist'), { placeholder: 'Artist (any)', max: 60 })];
+    case 'back': return [field(w.minutes, set('minutes'), { type: 'number', min: 20, maxN: 600 }), el('span', { class: 'mono', text: T('minutes away') })];
+    case 'battery': return [field(w.below, set('below'), { type: 'number', min: 5, maxN: 80 }), el('span', { class: 'mono', text: '%' })];
+    default: return [];
+  }
+}
+
+function stepFields(s) {
+  const set = (k) => (v) => { s[k] = v; };
+  switch (s.type) {
+    case 'say': return [field(s.text, set('text'), { placeholder: 'Good morning! Ready?' })];
+    case 'command': return [field(s.text, set('text'), { placeholder: 'open spotify and play music' })];
+    case 'notify': return [field(s.text, set('text'), { placeholder: 'Time for a break', max: 200 })];
+    case 'wait': return [field(s.seconds, set('seconds'), { type: 'number', min: 1, maxN: 600 }), el('span', { class: 'mono', text: T('seconds') })];
+    case 'move': return [choice((state.pluginKit?.moves || ['wave']).map((m) => [m, m]), s.move, set('move'))];
+    case 'emotion': return [choice((state.pluginKit?.emotions || ['happy']).map((m) => [m, m]), s.emotion, set('emotion'))];
+    default: return [];
+  }
+}
+
+// what's missing before it can be saved ('' when nothing)
+function pluginProblem(p) {
+  if (!String(p.name || '').trim()) return T('Give it a name.');
+  const w = p.when;
+  if (w.type === 'said' && !String(w.phrase || '').trim()) return T('What do you say to set it off?');
+  if (w.type === 'time' && !/^\d{1,2}:\d{2}$/.test(w.at || '')) return T('Pick a time.');
+  if (w.type === 'app' && !String(w.app || '').trim()) return T('Which app?');
+  const steps = p.do.filter((s) => !['say', 'command', 'notify'].includes(s.type) || String(s.text || '').trim());
+  if (!steps.length) return T('Add a step: what she does.');
+  return '';
+}
+
+function pluginEditor() {
+  const p = editing;
+  const max = state.pluginKit?.maxSteps || 12;
+  const steps = p.do.map((s, i) => el('div', { class: 'plugin-step' },
+    el('span', { class: 'plugin-step__n mono', text: String(i + 1) }),
+    choice(STEP_KINDS, s.type, (v) => { p.do[i] = STEP_DEFAULT[v](); render(); }),
+    el('span', { class: 'plugin-step__fields' }, ...stepFields(s)),
+    el('span', { class: 'plugin-step__tools' },
+      button('↑', () => { if (i > 0) { [p.do[i - 1], p.do[i]] = [p.do[i], p.do[i - 1]]; render(); } }),
+      button('↓', () => { if (i < p.do.length - 1) { [p.do[i + 1], p.do[i]] = [p.do[i], p.do[i + 1]]; render(); } }),
+      button('✕', () => { p.do.splice(i, 1); render(); }, 'danger'))));
+  const saveIt = async (andRun) => {
+    const problem = pluginProblem(p);
+    if (problem) { toast(problem, true); return; }
+    const list = plugins();
+    const i = list.findIndex((q) => q.id === p.id);
+    const next = i >= 0 ? list.map((q) => (q.id === p.id ? p : q)) : [...list, p];
+    await savePlugins(next);
+    if (!plugins().some((q) => q.id === p.id)) { toast(T('Something in it isn\'t right: check its steps.'), true); return; }
+    editing = null;
+    render();
+    toast(F('"{0}" saved.', p.name));
+    if (andRun) act('pluginRun', p.id);
+  };
+  return card(p.name ? F('Plugin: {0}', p.name) : 'New plugin',
+    row('Name', null, field(p.name, (v) => { p.name = v; }, { placeholder: 'Morning routine', max: 60 })),
+    stack('When', 'What sets it off.', el('div', { class: 'plugin-line' }, choice(WHEN_KINDS, p.when.type, (v) => { p.when = WHEN_DEFAULT[v](); render(); }), ...whenFields(p.when))),
+    stack('Do', 'Her steps, one after the other. A command is anything you would say to her ("open spotify and play music", "pasang timer 25 menit", "type hello in notepad"): your Access switches still apply.',
+      el('div', { class: 'plugin-steps' }, ...steps),
+      p.do.length < max && el('div', { class: 'plugin-line' }, button('+ Add step', () => { p.do.push(STEP_DEFAULT.say()); render(); }))),
+    row('Not again for', 'Minutes before it can go off again.', field(p.cooldown, (v) => { p.cooldown = v; }, { type: 'number', min: 0, maxN: 1440 }), el('span', { class: 'mono', text: T('min') })),
+    row('', null, button('Save', () => saveIt(false), 'primary'), button('Save and try', () => saveIt(true)), button('Cancel', () => { editing = null; render(); })));
+}
+
+function pagePlugins() {
+  if (editing) return [pluginEditor()];
+  const list = plugins();
+  const blank = () => ({ id: `p${Date.now().toString(36)}`, name: '', on: true, when: WHEN_DEFAULT.said(), do: [STEP_DEFAULT.say()], cooldown: 1 });
+  return [
+    note('Make her do things on her own, without code: WHEN something happens (you say something, a time, an app, a song…), she DOES your steps. Her commands in them go through the same rules and Access switches as when you ask. Plugins from a file arrive switched off: read their steps first.'),
+    card('Your plugins',
+      ...(list.length ? list.map(pluginRow) : [note('None yet. Start from a ready-made one below, or make your own.')]),
+      row('Add', null, button('New plugin', () => { editing = blank(); render(); }, 'primary'),
+        button('Import…', async () => {
+          const r = await act('pluginImport');
+          if (r?.ok) { state = await api.get(); render(); toast(F('Imported {0}, switched off: read its steps, then switch it on.', r.names.join(', '))); } else if (r && !r.ok) toast(T(r.error), true);
+        }))),
+    card('Ready-made',
+      ...(state.pluginKit?.templates || []).map((t) => row(t.name, `${whenText(t.when)}  →  ${stepsText(t)}`,
+        button('Add', async () => { await savePlugins([...plugins(), { ...copy(t), id: `p${Date.now().toString(36)}`, on: true, cooldown: t.cooldown ?? 1 }]); render(); toast(F('"{0}" added.', T(t.name))); })))),
+  ];
+}
+
 const PAGES = [
   ['capri', '◆', 'Capri', 'Who she is, how she talks and how she shows it.', pageCapri],
   ['owner', '◇', 'Owner', 'Who you are to her: your profile and what she remembers about you.', pageOwner],
   ['voice', '◉', 'Voice', 'Her ears (your microphone) and her voice.', pageVoice],
   ['brain', '▣', 'AI brain', 'Which AI she talks through, and her eyes.', pageBrain],
   ['behavior', '✦', 'Behavior', 'What she does on her own: remarks, dares, mischief, sync.', pageBehavior],
+  ['plugins', '⬡', 'Plugins', 'Make her do things on her own, without code: when something happens, she does your steps.', pagePlugins],
   ['access', '◎', 'Access', 'What she can see, hear and do on your PC, and what she keeps.', pageAccess],
   ['timers', '◷', 'Timers', 'Alarms, timers and the study timer.', pageTimers],
   ['history', '☰', 'History', 'Your chats with her, and her long-term memory of them.', pageHistory],
