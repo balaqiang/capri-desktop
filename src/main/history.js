@@ -9,6 +9,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { app } = require('electron');
+const { writeAtomic } = require('./store');
 
 const dir = () => path.join(app.getPath('userData'), 'history');
 const DAY = /^\d{4}-\d{2}-\d{2}\.jsonl$/;
@@ -136,7 +137,7 @@ function summary() {
 function setSummary(text, upTo = summary().upTo) {
   try {
     fs.mkdirSync(dir(), { recursive: true });
-    fs.writeFileSync(summaryFile(), JSON.stringify({ text: String(text || '').slice(0, 4000), upTo, updated: Date.now() }, null, 2));
+    writeAtomic(summaryFile(), JSON.stringify({ text: String(text || '').slice(0, 4000), upTo, updated: Date.now() }, null, 2));
   } catch (err) {
     console.error('[capri] history summary:', err.message);
   }
