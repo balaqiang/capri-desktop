@@ -12,7 +12,7 @@ import { T } from './i18n.js';
 import { DEFAULT_PERSONA } from './persona.js';
 import { STORY, STORY_SMALL, loreFor } from './lore.js';
 import { Motion } from './motion.js';
-import { LYRICS_TAG, LYRIC_DUMP, aboutLyrics, NO_DUMP_LINE, FAKE_DONE, worldQuestion, webNote, withSums, sumsIn } from './rules.js';
+import { LYRICS_TAG, LYRIC_DUMP, aboutLyrics, NO_DUMP_LINE, FAKE_DONE, worldQuestion, webNote, withSums, sumsIn, fixAnswers } from './rules.js';
 
 export { DEFAULT_PERSONA };
 
@@ -71,7 +71,7 @@ const STAY_MS = 10 * 60 * 1000; // no wandering off mid-conversation
 const LOADING_AFTER_MS = 5000;
 const CLOSE_TAG = /\[\[\s*close\s*:?\s*([^\]]*)\]\]/i; // [[close: AM Music]] at the end of her answer
 // "close", "shut down", "ferme", "quitte", "cierra", "fecha", "закрой"... in any of her languages
-const CLOSE_ASK = /\b(close|shut|quit|kill|exit)|ferm|quitt|coupe|arr[êe]t|cierr|cerra|fech|закр|выключ/i;
+const CLOSE_ASK = /\b(close|shut|quit|kill|exit|tutup)|ferm|quitt|coupe|arr[êe]t|cierr|cerra|fech|закр|выключ/i;
 // her other tags: [[open: Spotify]], [[music: Bad Bunny]], [[media: next]], [[site: youtube.com]]
 const TAG = /\[\[\s*(open|music|media|site)\s*:\s*([^\]]*)\]\]/i;
 // "open", "launch", "ouvre", "lance", "abre", "открой"... in any of her languages
@@ -464,6 +464,7 @@ export class Chat {
       const read = shot.text ? `The text on it, read exactly by OCR:\n"""\n${shot.text}\n"""` : 'No text could be read on it.';
       // homework: the sums on it worked out exactly first (rules.js), for her to use
       const sums = homework ? sumsIn(shot.text) : [];
+      this.homeworkSums = sums; // (her answers set straight by them: showAnswers)
       const exact = sums.length ? `\nA calculator worked out the sums on it exactly (use these results, they are right):\n${sums.map((s) => `- ${s.expr} = ${s.value}`).join('\n')}` : '';
       if (homework) {
         // the questions' own language, said plainly (a model drifts into English otherwise)
@@ -848,7 +849,8 @@ export class Chat {
 
 // Her homework answers: her line on top, the answers under it as written (numbered, a paragraph each), and
   // buttons to type them where the questions are (the window she looked at) or copy them.
-  showAnswers(answer) {
+  showAnswers(said) {
+    const answer = fixAnswers(said, this.homeworkSums || []);
     const [first, ...rest] = answer.split(/\n\s*\n/);
     const body = rest.length && first.length < 160 ? rest.join('\n\n').trim() : answer;
     this.panel.stream(body === answer ? T('Here are the answers:') : first.trim(), { done: true });
