@@ -196,6 +196,11 @@ Whatever Windows shows as playing (Spotify, a browser, any player in the volume 
 - **Dares, sync and mischief**: harmless dares, a 0–100% sync meter, and screen glitches in six styles it unlocks.
 - **She rides your cursor** ("sit on my cursor"): clicks go through her; move it too fast and she falls off. She steps
   aside for fullscreen games and videos, sleeps down to her mask after a quiet while, and looks up at the satellite.
+- **Game, focus and quiet mode**: "game mode", "focus mode", "quiet mode" (or "do not disturb"): she comes apart down to her
+  green mask and stays that way, not a word, no remarks or dares, and nothing wakes her by itself. A click on her mask,
+  her chat, a hotkey, an alarm, any command of yours, or "normal mode" brings her back. During a focus session of her
+  study timer she does it on her own and comes back for the break (Settings › Timers). A fullscreen game hides her
+  completely instead.
 - **She stays reachable**: always on top, clickable, back by herself if something pushed her behind your windows.
 
 ## Petting, grabbing, throwing
