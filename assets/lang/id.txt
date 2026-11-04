@@ -2032,3 +2032,162 @@ kode
 Clipboard-mu lagi dipakai, jadi aku belum nulis apa-apa. Coba lagi?
 > Here are the answers:
 Ini jawabannya:
+
+> Plugins
+Plugin
+> Make her do things on her own, without code: when something happens, she does your steps.
+Buat dia melakukan sesuatu sendiri, tanpa coding: saat sesuatu terjadi, dia menjalankan langkah-langkahmu.
+> Make her do things on her own, without code: WHEN something happens (you say something, a time, an app, a song…), she DOES your steps. Her commands in them go through the same rules and Access switches as when you ask. Plugins from a file arrive switched off: read their steps first.
+Buat dia melakukan sesuatu sendiri, tanpa coding: SAAT sesuatu terjadi (kamu bilang sesuatu, jam tertentu, sebuah aplikasi, sebuah lagu…), dia MENJALANKAN langkah-langkahmu. Perintah di dalamnya melewati aturan dan saklar Access yang sama seperti saat kamu menyuruhnya. Plugin dari file datang dalam keadaan mati: baca dulu langkah-langkahnya.
+> Your plugins
+Plugin-mu
+> None yet. Start from a ready-made one below, or make your own.
+Belum ada. Mulai dari yang sudah jadi di bawah, atau buat sendiri.
+> New plugin
+Plugin baru
+> Ready-made
+Siap pakai
+> Run now
+Jalankan
+> Edit
+Ubah
+> Delete
+Hapus
+> Running "{0}".
+Menjalankan "{0}".
+> Switch it on first.
+Nyalakan dulu.
+> Delete "{0}"?
+Hapus "{0}"?
+> Imported {0}, switched off: read its steps, then switch it on.
+{0} diimpor dalam keadaan mati: baca langkah-langkahnya, lalu nyalakan.
+> "{0}" added.
+"{0}" ditambahkan.
+> "{0}" saved.
+"{0}" disimpan.
+> Plugin: {0}
+Plugin: {0}
+> Name
+Nama
+> When
+Saat
+> What sets it off.
+Yang memicunya.
+> Do
+Lakukan
+> Her steps, one after the other. A command is anything you would say to her ("open spotify and play music", "pasang timer 25 menit", "type hello in notepad"): your Access switches still apply.
+Langkah-langkahnya, satu per satu. Perintah adalah apa saja yang biasa kamu bilang ke dia ("buka spotify terus putar musik", "pasang timer 25 menit", "ketik halo di notepad"): saklar Access-mu tetap berlaku.
+> Not again for
+Jangan diulang selama
+> Minutes before it can go off again.
+Menit sebelum bisa jalan lagi.
+> Save and try
+Simpan dan coba
+> + Add step
++ Tambah langkah
+> Give it a name.
+Kasih nama dulu.
+> What do you say to set it off?
+Kamu bilang apa untuk memicunya?
+> Pick a time.
+Pilih jamnya.
+> Which app?
+Aplikasi apa?
+> Add a step: what she does.
+Tambahkan langkah: apa yang dia lakukan.
+> Something in it isn't right: check its steps.
+Ada yang belum benar: cek langkah-langkahnya.
+> I say something
+Aku bilang sesuatu
+> At a time
+Pada jam tertentu
+> An app comes to the front
+Sebuah aplikasi dibuka di depan
+> A song starts
+Sebuah lagu mulai
+> I'm back after a while
+Aku kembali setelah pergi sebentar
+> She starts
+Dia menyala
+> My battery gets low
+Baterai hampir habis
+> Say
+Bilang
+> Do a command
+Jalankan perintah
+> Wait
+Tunggu
+> Move
+Bergerak
+> Feel
+Rasakan
+> Windows notification
+Notifikasi Windows
+> Exactly that
+Persis itu
+> In a sentence
+Di dalam kalimat
+> minutes away
+menit pergi
+> seconds
+detik
+> Title (any)
+Judul (apa saja)
+> Artist (any)
+Artis (siapa saja)
+> Good morning! Ready?
+Selamat pagi! Siap?
+> Time for a break
+Waktunya istirahat
+> When you say something with "{0}"
+Saat kamu bilang kalimat dengan "{0}"
+> When you say "{0}"
+Saat kamu bilang "{0}"
+> At {0}, {1}
+Jam {0}, {1}
+> every day
+setiap hari
+> on weekdays
+hari kerja
+> on weekends
+akhir pekan
+> Sun
+Min
+> Mon
+Sen
+> Tue
+Sel
+> Wed
+Rab
+> Thu
+Kam
+> Fri
+Jum
+> Sat
+Sab
+> When {0} comes to the front
+Saat {0} dibuka di depan
+> When a song starts: {0}
+Saat lagu mulai: {0}
+> When a song starts
+Saat lagu mulai
+> When you're back after {0} minutes away
+Saat kamu kembali setelah {0} menit pergi
+> When she starts
+Saat dia menyala
+> When your battery drops below {0}%
+Saat baterai di bawah {0}%
+> Morning routine
+Rutinitas pagi
+> Work mode
+Mode kerja
+> Welcome back
+Selamat datang kembali
+> Coding vibes
+Suasana ngoding
+> Lunch break
+Istirahat makan siang
+> Low battery
+Baterai lemah
+> {0}: on it.
+{0}: siap.
