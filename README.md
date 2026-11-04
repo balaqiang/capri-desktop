@@ -58,7 +58,13 @@ On top of mochiiwuff's capri-desktop 0.4.4 (her rig, her animation, Claude Code 
   talks, and a learning system for when and how she moves.
 - **A Windows app**: installer and portable exe, starts with Windows, stays on top and clickable, `.bat` launchers,
   a full settings window dressed like Cyberpunk 2077's menus, with an **Access** page for everything she may see,
-  hear and do on your PC.
+  hear and do on your PC, and a log of what she did. The installed version **updates itself** from GitHub Releases
+  (she asks first).
+- **0.6.0**: she **writes for you** (an email, a letter, a message: drafted, shown, typed on your word), understands
+  commands **in your own words** (her model reads what her rules missed), learns **commands of yours** ("when I say work
+  mode…"), the **weather** and a **morning brief**, **remembers what you told her weeks ago** (her notes and past chats,
+  picked for what you're saying), and never types into a password box. Tested (`npm test`, 34 tests) and checked on
+  every push (lint, name clashes, PowerShell).
 
 ## Who she is
 
@@ -141,13 +147,51 @@ Typed or spoken, in English or Indonesian, no AI needed: see [Commands](#command
   She searches Spotify and presses Play on the song (or the Top result) through Windows' accessibility interface.
   And its **lyrics**: "show lyrics", "hide lyrics", "what's the lyric?" (see [She listens to your music](#she-listens-to-your-music)).
 - **Close an app** ("close Discord"): only behind a button, the way its own close button does.
+- **Type for you** in another app: "type hello in notepad", "ketik halo di antigravity", "write print('hi') in vscode",
+  "tulis selamat pagi ke chat" (or no app: the one you were in). Real keystrokes, any character, then a key if you
+  say so: "press enter" / "kirim", "save it" / "simpan", "select all", "undo". She jacks into the window while she types,
+  like in the show: a bolt from her hand, its frame crackling with her eyes on it, data raining in. Never into the
+  wrong window: if it won't come to the front, or you switch away, she stops. Said out loud, what she types gets the
+  speech recognizer's slips fixed first ("get hub" becomes "GitHub"), and she tells you what she typed (settings ›
+  Voice › Fix what I dictate).
+- **Write for you**: "write an email to my boss saying I'm sick", "tuliskan surat izin di notepad", "draft a tweet
+  about cats", "buatkan pesan ulang tahun untuk ibuku di whatsapp". Her model drafts it (in the request's language,
+  signed with your name when it's a letter), you see all of it, then **Type it** (where you asked, or where you were),
+  **Copy** or **Again**; "make it shorter", "lebih resmi", "in English" change it. In a chat app or a browser, a line
+  break is Shift+Enter, so a long message never goes out line by line.
+- **Code right where you are**: "write simple html here", "buatkan kode python untuk menghitung BMI di sini", "add a
+  login form in vscode". Her model writes it (in the language of the file open in front: `hello.html` gets HTML) and she
+  pastes it into your editor in one go, so the editor doesn't re-indent it or close every tag twice. Ctrl+Z takes it
+  back; your clipboard is put back as it was.
+- **Homework on your screen**: "saya punya pekerjaan rumah, tolong jawabkan pertanyaan yang ada di layar saya", "solve the
+  math problems on my screen", "kerjakan soal ini". She looks (one screenshot and its text, nothing kept), answers every
+  question with its working, in the questions' language, and **Type it** / **Copy** put the answers where the questions
+  are. Sums are worked out by a calculator, not guessed by her model: the ones on the sheet first, and every
+  calculation in her answer ("25 × 4 = [[calc: 25*4]]" becomes the exact result). In her chat too.
+- **Safe typing**: a key of yours (Esc, or any letter) stops her at once, the panel has a **Stop** button, and she never
+  types into a password box (she says so instead).
+- **Several commands at once**: "open notepad and type hello tiktok", "open spotify and play music", "buka notepad lalu
+  ketik halo, terus simpan", "ke kiri lalu joget". One after the other: what one opens is where the next one types.
+  When it's done she says so and asks what's next ("Task done! What else should I write?").
 - **Code for you**: "buatkan kode python untuk menghitung BMI", "bikin game snake pakai html", "write a script that…".
   With [Claude Code](https://code.claude.com/docs/en/quickstart) installed, she opens it in a terminal in your coding
   folder with your task typed in: you see its work and approve its edits there, and she narrates it. Without it (or
   "…sendiri", "…yourself"), she writes it herself with her own model: one file in `Documents\Capri Code`, opened in VS
   Code or Notepad, never run. "pakai claude code" picks Claude Code. Settings › AI brain › Coding: who writes it, and where.
+- **Commands of yours**: "when I say work mode, open vscode and play music", "kalau aku bilang mode santai, putar musik
+  lalu ke kiri". Then "work mode" does all of it. "forget work mode" forgets it; Settings › Behavior › Your commands
+  lists them, and adds or removes one.
+- **In your own words**: "could you crank it up a bit", "puterin yang santai dong", "bring up my downloads": when her
+  rules don't catch a command, her model says which one it is (one short call), she does it and tells you how she took
+  it ("Taking that as 'louder'"). Only ever something you said (no app opened unless you said open, no search unless
+  you said search), and never closing an app or anything behind a button. Settings › AI brain › Commands in my own words.
+- **The weather and your day**: "cuaca hari ini", "cuaca di Bandung besok", "will it rain tomorrow?" (Open-Meteo, free,
+  only the city goes out); "brief me", "rangkuman hari ini", and once a day the first time you're at your PC in the
+  morning: the date, the weather where you are, your alarms for today. Settings › Behavior › Your day.
 - **Timers, alarms, reminders, a study timer** (Pomodoro), web and YouTube searches, notes, dares ("tantang aku"),
   games: rock paper scissors ("main suit"), guess the number ("tebak angka"), a coin, dice.
+- **What she did**: Settings › Access › What she did lists every app, page, search and key, and where she typed for you
+  (how much, never the words), on this PC only.
 
 ## She looks at your screen
 
@@ -268,7 +312,14 @@ Say or type them; no AI needed for these.
 | Lyrics | "show the song lyrics", "stop showing lyrics", "what's the lyric?", "listen to this song" | "perlihatkan lirik lagu ini", "berhenti tampilkan lirik", "liriknya apa?", "dengarkan lagu ini" |
 | Look | "what's on my screen?", "read what's in my notes" | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" |
 | Time | "set a timer for 10 minutes", "wake me at 7am" | "pasang timer 10 menit", "pasang alarm jam 7" |
+| Type | "type hello in notepad", "write hello in vscode", "press enter", "save it" | "ketik halo di antigravity", "tulis halo ke chat", "kirim", "simpan" |
+| Together | "open notepad and type hello tiktok", "open spotify and play music" | "buka notepad lalu ketik halo", "buka spotify terus putar musik" |
 | Code | "write a script that sorts my files", "make a snake game in html with claude code" | "buatkan kode python untuk…", "bikin landing page sendiri", "suruh claude code bikin…" |
+| Code here | "write simple html here", "add a login form in vscode" | "buatkan kode python di sini", "tulis kode html sederhana di antigravity" |
+| Homework | "solve the math problems on my screen", "help me with this homework" | "tolong jawabkan pertanyaan di layar saya", "kerjakan soal ini", "kerjakan PR saya" |
+| Write | "write an email to my boss saying I'm sick", "draft a tweet about cats", "make it shorter" | "tuliskan surat izin di notepad", "buatkan pesan ulang tahun untuk ibuku", "lebih singkat" |
+| Yours | "when I say work mode, open vscode and play music", "work mode", "forget work mode" | "kalau aku bilang mode santai, putar musik lalu ke kiri", "lupakan perintah mode santai" |
+| Weather | "what's the weather?", "will it rain tomorrow?", "weather in Tokyo", "brief me" | "cuaca hari ini", "besok hujan nggak?", "cuaca di Bandung besok", "rangkuman hari ini" |
 | Games | "rock paper scissors", "guess the number" | "main suit", "tebak angka", "lempar koin" |
 | Her | "dare me", "how's our sync?", "who are you?" | "tantang aku", "improve dirimu", "kamu udah belajar apa?" |
 | Moving | "move less", "you can move again" | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" |
@@ -328,7 +379,8 @@ between them), ◁ choices ▷, ON / OFF switches, and what the setting under yo
   time, CPU and battery (her remarks); whether another AI is in front; what's playing; your coding AI.
 - **What she can hear**: your microphone (off, push to talk, always).
 - **What she can do on your PC**: open apps, open folders and find files, close apps, open websites, press the media
-  keys, play songs on Spotify, write code, possess your windows. Ask for something that's off and she tells you so.
+  keys, play songs on Spotify, write code, type for you in another app, possess your windows. Ask for something that's
+  off and she tells you so.
 - **What goes online**: song lyrics (LRCLIB), her notes with a cloud model.
 - **What she keeps on this PC**: her memory of you, your chats, her verdicts on songs ("Forget them"), the lyrics
   cache ("Clear").
@@ -348,12 +400,14 @@ All of them can be changed in settings › Advanced.
 - **By default, almost nothing**: her brain can be Ollama on your PC, her ears Whisper on your PC, her voice Windows' or
   Piper. The one thing that goes out on its own: the title, artist, album and length of the song you're playing, to
   [LRCLIB](https://lrclib.net) to find its lyrics (Settings › Behavior › Song lyrics turns it off), and a question about
-  the world, to Wikipedia and Bing to look it up (Settings › Access › Look things up online).
+  the world, to Wikipedia and Bing to look it up, and a city's name to Open-Meteo for the weather (Settings › Access ›
+  Look things up online). Her updates come from GitHub Releases (Settings › Advanced › Updates: Off stops even the check).
 - **Only what you switch on goes online**, to the service you picked, with your key: your chat messages to a cloud
   brain, her lines (never your voice) to a cloud voice, your speech to Groq or OpenAI if you pick them for her ears, a
   screenshot of the window in front only when you ask her to look and allowed it for cloud models.
 - **Kept on your PC**: your history, her notes, her lessons, what she learned about moving, her verdicts on songs, the
-  lyrics she fetched, your keys (encrypted with your Windows account). Your notes and lessons go to a cloud model only if you switch on "Also with a cloud model".
+  lyrics she fetched, the log of what she did, your keys (encrypted with your Windows account). Your notes and lessons go to a cloud model only if you switch on "Also with a cloud model".
+  What she recalls from your past chats is found on this PC (with an embedding model in Ollama if you have one).
 - **Claude Code hooks** send only what the display needs (tool name, file path, command, Claude's last message) to
   `127.0.0.1`, never your file contents.
 - **What she changes on your system**: her hooks (if you install them), a startup entry, shortcuts. She uninstalls like
@@ -391,6 +445,7 @@ src/main/                 Electron: the transparent click-through window, tray, 
   windows.ps1             where the other windows are, so she can sit on them
   spotify.ps1, ocr.ps1    pressing Play in Spotify; reading the text in a picture (Windows OCR)
   media.ps1, web.js       the song playing (repeat, shuffle, seek); questions looked up on the web
+  type.ps1                typing for you in another app, keys pressed (Enter, Ctrl+S)
 src/renderer/js/
   sprite.js, acting.js    her rig (WebGL shader) and her moves, drawing by drawing
   capri.js                the character: stances, walking, teleport, grab, throw, pet, gestures
