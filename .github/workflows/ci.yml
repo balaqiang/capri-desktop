@@ -1,0 +1,50 @@
+name: CI
+
+# On every push and pull request: the lint (bugs only), her name-clash check, the tests, and her PowerShell
+# helpers parsed and analyzed. On Windows, where she lives.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: windows-latest
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Name clashes
+        run: npm run check:names
+
+      - name: Tests
+        run: npm test
+
+      - name: PowerShell helpers
+        shell: pwsh
+        run: |
+          $bad = 0
+          foreach ($f in Get-ChildItem src/main/*.ps1) {
+            $errs = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$null, [ref]$errs)
+            foreach ($e in $errs) { $bad++; Write-Host "::error file=src/main/$($f.Name),line=$($e.Extent.StartLineNumber)::$($e.Message)" }
+          }
+          if (-not (Get-Module -ListAvailable PSScriptAnalyzer)) { Install-Module PSScriptAnalyzer -Force -Scope CurrentUser }
+          $found = Invoke-ScriptAnalyzer -Path src/main -Severity Error
+          foreach ($r in $found) { $bad++; Write-Host "::error file=src/main/$($r.ScriptName),line=$($r.Line)::$($r.RuleName): $($r.Message)" }
+          if ($bad) { exit 1 }
