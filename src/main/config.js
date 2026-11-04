@@ -142,6 +142,7 @@ const DEFAULTS = {
   // --- errands (settings › Timers) ---
   alarms: [],          // [{ due: ms, label }]
   focusMinutes: 25,
+  focusMask: true,     // a focus session: she goes down to her mask, quiet, until the break
   breakMinutes: 5,
   chime: true,
 
