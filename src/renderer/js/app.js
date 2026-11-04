@@ -605,6 +605,11 @@ async function boot() {
         if (cmd.what === 'eyes') capri.manyEyes();
         else if (cmd.what === 'whoosh') { capri.nextWhoosh = 0; capri.whoosh(h.x, h.y - 20, 2400, 0); }
         else if (cmd.what === 'land') capri.boing({ squash: -3.5, mane: 1.5 });
+        else if (cmd.what === 'hack') { // her show on the biggest window, 3 s, nothing typed (the keyboard isn't touched)
+          const win = [...capri.windows.wins].sort((a, b) => b.w * b.h - a.w * a.h)[0];
+          const show = win && capri.hack(win.id);
+          setTimeout(() => show?.end(true), 3000);
+        }
         else capri.poke(h.x + 30, h.y);
         break;
       }
