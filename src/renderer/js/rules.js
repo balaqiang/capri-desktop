@@ -136,4 +136,35 @@ function sumsIn(text) {
   return out;
 }
 
-export { LYRICS_TAG, LYRIC_DUMP, LYRIC_WORD, WRITE_ASK, aboutLyrics, NO_DUMP_LINE, FAKE_DONE, WORLD_Q, ABOUT_US, CHITCHAT, NEWS, worldQuestion, webNote, calc, number, withSums, sumsIn };
+// Her homework answers, set straight (the model's wording kept):
+//  - one paragraph a question: "…Jawaban: 1000 2. (48 + 72) : 6" -> a blank line before "2."
+//  - a question that is a sum on the sheet (sumsIn) gets the calculator's result as its answer, whatever the
+//    model wrote after "Jawaban:" / "Answer:" (it once wrote 16 under "(48 + 72) : 6 = 20")
+const squash = (s) => String(s).replace(/[×✕✖xX*]/g, '*').replace(/[÷:]/g, '/').replace(/\s+/g, '');
+function fixAnswers(answer, sums = []) {
+  let text = String(answer || '');
+  // the questions in order: each next number starts its own paragraph
+  let from = 0;
+  for (let n = 1; n <= 40; n++) {
+    const re = new RegExp(String.raw`(^|[^\d.,])(${n}[.)])\s`, 'g');
+    re.lastIndex = from;
+    const m = re.exec(text);
+    if (!m) { if (n > 1) break; continue; }
+    const at = m.index + m[1].length;
+    const before = text.slice(0, at);
+    if (at > 0 && !/\n\s*\n\s*$/.test(before)) text = `${before.replace(/\s+$/, '')}\n\n${text.slice(at)}`;
+    from = text.indexOf(m[2], at) + m[2].length;
+  }
+  if (!sums.length) return text;
+  return text.split(/\n\s*\n/).map((para) => {
+    const flat = squash(para);
+    const sum = sums.find((s) => squash(s.expr).length >= 3 && flat.includes(squash(s.expr)));
+    if (!sum) return para;
+    return para.replace(/((?:Jawaban|Jawab|Answer|Hasil(?:nya)?|Result)\s*:\s*)(-?\d[\d.,]*)/gi, (m, label, n) => {
+      const v = [calc(n), calc(n.replace(/\.(?=\d{3}(?!\d))/g, '').replace(/,(?=\d{1,2}(?!\d))/, '.'))];
+      return v.includes(Number(sum.value)) ? m : `${label}${sum.value}`;
+    });
+  }).join('\n\n');
+}
+
+export { fixAnswers, LYRICS_TAG, LYRIC_DUMP, LYRIC_WORD, WRITE_ASK, aboutLyrics, NO_DUMP_LINE, FAKE_DONE, WORLD_Q, ABOUT_US, CHITCHAT, NEWS, worldQuestion, webNote, calc, number, withSums, sumsIn };
