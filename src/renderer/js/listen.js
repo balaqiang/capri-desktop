@@ -118,7 +118,7 @@ export class Listening {
 
   wakeUp() {
     const { capri, panel } = this;
-    if (capri.stowed || !(capri.mode === 'sleep' || capri.dormant)) return;
+    if (capri.stowed || capri.hold || !(capri.mode === 'sleep' || capri.dormant)) return; // (held: a song doesn't wake her)
     capri.wake();
     this.notes(3);
     if (!panel.visible && Math.random() < 0.5) panel.say({ kind: 'info', face: 'happy', badge: '♪', line: T(pick(WAKE_LINES)), hold: 3200 });
