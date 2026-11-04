@@ -19,6 +19,9 @@ const errands = require('./errands');
 const launch = require('./launch');
 const games = require('./games');
 const lyrics = require('./lyrics');
+const { vocabulary } = require('./hearing');
+const actionsLog = require('./actions-log');
+const weather = require('./weather');
 
 const { T, F } = lang;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -53,6 +56,9 @@ let emit = () => {};
 let coder = null;    // { claude(task), self(task) }: code you ask for (main.js)
 let askModel = null; // (messages) => Promise<string>: her model, with her persona (main.js)
 let askPlain = null; // (messages) => Promise<string>: her model as is, for plain questions (main.js)
+let frontWindow = null; // () => the window you were in before talking to her (main.js), for typing in it
+const startedAt = Date.now(); // her morning brief waits until she has settled in
+let cancelled = false; // her Stop button: the task going on ends (the typing at once, a chain before its next step)
 let canLook = () => false;
 let snapshot = null; // () => Promise<base64 jpeg>
 let sensesChild = null;
@@ -255,6 +261,16 @@ function observe() {
   state.cpuBusy = cpu >= 90 ? state.cpuBusy + step / 1000 : 0;
 
   const c = cfg();
+  // the first time you're at your PC in the morning: her brief of your day, once a day
+  const today = new Date().toDateString();
+  if (c.dailyBrief !== false && !state.briefing && c.briefDay !== today && idle < 30 && now - startedAt > 20000 && now > state.quietUntil) {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) {
+      state.briefing = true;
+      config.save({ briefDay: today });
+      briefing().then((b) => emit({ type: 'brief', ...b }), () => {}).finally(() => { state.briefing = false; });
+    }
+  }
   // another AI in front of you: jealous, whatever else is going on (but not too often)
   if (c.jealous && state.ai && now - state.aiSince > 15000 && now > state.quietUntil) {
     if (remark('jealous', 20 * 60000, SAY.jealous, 'jealous', state.ai)) {
@@ -662,12 +678,18 @@ const SESSION_ACTIONS = {
 };
 
 // What each errand needs from you in settings › Access, and what she says when it's off.
-const NEEDS = { code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media' };
-const ACCESS_NAMES = { apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code' };
+const NEEDS = { weather: 'search', code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media', type: 'type', key: 'type' };
+const ACCESS_NAMES = { search: 'Look things up online', apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code', type: 'Type for me' };
 const allowed = (what) => config.allowed(what);
-const denied = (what) => ({ handled: true, reply: F("I'm not allowed to do that. Settings › Access › {0}.", T(ACCESS_NAMES[what])), emotion: 'annoyed' });
+const denied = (what) => ({ handled: true, reply: F("I'm not allowed to do that. Settings › Access › {0}.", T(ACCESS_NAMES[what])), emotion: 'annoyed', denied: true });
 
-async function run(said) {
+// Her Stop button (the panel while she types for you): the typing ends at once, a chain before its next step.
+function cancel() {
+  cancelled = true;
+  return launch.stopTyping();
+}
+
+async function run(said, { voice = false } = {}) {
   const c = cfg();
   // her games first: in the middle of one, "batu" or "50" is a move
   const played = games.handle(said, c);
@@ -678,7 +700,322 @@ async function run(said) {
   }
   const canonical = errands.canon(said);
   if (canonical) return { handled: true, reply: T(canonical.line), emotion: canonical.emotion };
-  const e = errands.parse(said);
+  // a command of yours ("work mode"): what you taught her, done like you'd said it all
+  const own = skillFor(said);
+  if (own) {
+    const steps = stepsOf(own.run);
+    if (steps) {
+      const done = await runChain(steps, { voice, routed: '' });
+      return { ...done, reply: `${F('{0}!', own.name)} ${done.reply || ''}`.trim(), skill: own.name };
+    }
+  }
+  // "forget work mode": one of yours forgotten (anything else to forget is her memory's)
+  const forgetting = errands.UNTEACH_ASK.exec(errands.plain(said));
+  const forgotten = forgetting && skillFor(forgetting[1]);
+  if (forgotten) {
+    emit({ type: 'setConfig', patch: { skills: (cfg().skills || []).filter((s) => s !== forgotten) } });
+    return { handled: true, reply: F('Forgot "{0}".', forgotten.name), emotion: 'happy' };
+  }
+  // several commands at once ("open notepad and type hello", "buka spotify lalu putar musik"): one after the other
+  const steps = errands.chain(said);
+  const one = steps ? null : errands.parse(said);
+  // a draft on screen and "make it shorter", "lebih resmi" (and not a command of hers: "change the song" is one)
+  if (one?.kind === 'none' && lastDraft && Date.now() - lastDraft.at < 15 * 60000 && errands.plain(said).length < 160 && REVISE.test(errands.plain(said))) {
+    return revise(errands.plain(said));
+  }
+  // in words her rules don't know ("could you crank it up", "puterin yang santai dong"), or read as something she
+  // couldn't do ("show me what they are singing" isn't a file to find): her model says which command it is, and
+  // she says how she took it
+  const guessed = async (unlike = null) => {
+    const guess = await route(said);
+    const kinds = guess && (guess.steps ? guess.steps.map((s) => s.e.kind) : [guess.e.kind]);
+    if (!guess || (unlike && kinds.length === 1 && kinds[0] === unlike)) return null;
+    const done = guess.steps ? await runChain(guess.steps, { voice, routed: guess.line }) : await act(guess.e, { voice, routed: guess.line });
+    return done?.handled ? { ...done, routed: guess.line, reply: `${F('(Taking that as "{0}".)', guess.line)} ${done.reply || ''}`.trim() } : null;
+  };
+  let res = one?.kind === 'none' ? await guessed() : null;
+  if (!res) res = steps ? await runChain(steps, { voice }) : await act(one, { voice });
+  if (!res?.handled && one && one.kind !== 'none') res = (await guessed(one.kind)) || res;
+  // a task done (typing for you, several commands): she says so, and asks what's next
+  if (res?.handled && res.task && !res.denied && res.emotion !== 'annoyed') res.reply = `${res.reply} ${T(pick(TASK_DONE[res.task]))}`;
+  return res;
+}
+
+// What you meant, when her rules didn't catch a command (errands.routable: it sounds like one): her model, asked
+// in one short call, answers with one of her own commands, which her rules then read (errands.routed), so it can
+// only ever be something she does anyway, and nothing she does only behind a button. A few seconds at most.
+const ROUTE_PROMPT = `You turn what someone said to their desktop assistant into ONE of her commands, or NONE.
+Her commands (write one exactly like these, with their words filled in):
+open <app, website or folder> | play <song> by <artist> | play music | pause the music | next song | previous song | louder | quieter | mute | repeat this song | shuffle on | show lyrics | hide lyrics | what song is this | search <words> | search <words> on spotify | type <their exact words> in <app> | write <the code they want, like "a simple HTML page"> here | press enter | set a timer for <n> minutes | wake me at <time> | what time is it | move to the left | move to the right | come to my cursor | dance
+Two commands: join them with " and ". Keep names, song titles and the text to type exactly as they said them (don't translate them).
+If it's chat, a question, a feeling or anything that isn't one of these: NONE.`;
+async function route(said) {
+  if (!askPlain || cfg().intentRouter === false || !errands.routable(said)) return null;
+  const ask = [{ role: 'system', content: ROUTE_PROMPT }, { role: 'user', content: `They said: """${said}"""\nReply with the command line only.` }];
+  const answer = await Promise.race([askPlain(ask).catch(() => ''), new Promise((done) => setTimeout(() => done(''), 7000))]);
+  const guess = errands.routed(String(answer || '').replace(/<think>[\s\S]*?<\/think>/g, ''), said);
+  if (guess) console.log(`[capri] took "${said.slice(0, 60)}" as "${guess.line}"`);
+  return guess;
+}
+
+// ---- something to write for you (errands 'draft'): her model drafts it, you see it, she types it on your word ----
+const DRAFT_PROMPT = `You write what the user asks for, ready to paste: the text itself and nothing else. No preamble ("Here's…", "Sure"), no notes after it, no markdown (no **, no #, no bullet symbols unless the text needs a list). Use the name and date given below; a detail you can't know (someone else's name, a place) goes in [brackets] for them to fill in, and only when the text needs it. In the language of the request (an Indonesian request gets Indonesian). An email starts with its greeting (no "Subject:" line unless they asked for one). As long as that kind of text usually is, at most about 180 words unless they asked for a long one.`;
+let lastDraft = null; // { text, target, task, at }: the one on screen, for "make it shorter" and her Type it button
+const REVISE = /^(?:make it|make that|bikin|buat(?:lah)?|jadikan|jadiin)\s+(?:it\s+|that\s+|lebih\s+|jadi\s+)?(?:shorter|longer|more|less|formal|casual|funnier|nicer|simpler|polite|lebih|singkat|pendek|panjang|resmi|santai|lucu|sopan|sederhana)\b|^(?:shorter|longer|more formal|more casual|lebih (?:singkat|pendek|panjang|resmi|santai|lucu|sopan|sederhana)|tambah(?:kan)?|add|remove|hapus|ganti|change|without|tanpa|in english|dalam bahasa (?:inggris|indonesia)|translate|terjemahkan)\b/i;
+
+const cleanDraft = (s) => String(s || '').replace(/<think>[\s\S]*?<\/think>/g, '')
+  .replace(/^\s*(?:sure|okay|ok|here(?:'s| is)|berikut(?: ini)?|tentu)[^\n]*:\s*\n+/i, '')
+  .replace(/\*\*([^*]+)\*\*/g, '$1').replace(/^#+\s*/gm, '')
+  .replace(/\n{3,}/g, '\n\n').trim();
+
+async function draftFor(messages) {
+  if (!askPlain) return '';
+  const answer = await Promise.race([askPlain(messages, { timeout: 60000 }).catch(() => ''), new Promise((done) => setTimeout(() => done(''), 60000))]);
+  return cleanDraft(answer).slice(0, 4000);
+}
+
+// who's writing and when: the name and date a letter needs, so the model doesn't leave [Your Name] in it
+// (only a letter, an email, an invitation gets the name and the date: a poem with a date on it is a letter)
+const SIGNED = /\b(?:e-?mail|letter|cover letter|invitation|announcement|apology|surat|undangan|pengumuman|permintaan maaf|izin)\b/i;
+// the request's own language, said plainly (a model drifts into the language of whatever else it's told)
+const INDONESIAN = /\b(?:tuliskan|tulisin|tulis|buatkan|buatin|bikinin|bikin|buat|karang\w*|susun\w*|surat|pesan|puisi|pantun|cerita|ucapan|untuk|tentang|yang|dan|aku|saya|ibu|ayah|kakak|adik|teman|pacar|guru|bos|sakit|izin|ulang tahun|selamat)\b/i;
+const addressed = (task) => SIGNED.test(task) || /\b(?:message|text|reply|response|note|toast|pesan|balasan|ucapan|kata sambutan)\b|\b(?:to|for|untuk|buat|kepada) (?:my|the|a|ibu|ayah|kakak|adik|teman|pacar|bos|guru)\b/i.test(task);
+// a poem or a story isn't for anyone unless you said so: the "Dear …," a model puts on top of it anyway, gone
+const unaddressed = (text, task) => (addressed(task) ? text : text.replace(/^\s*(?:dear|to|for|untuk|kepada|teruntuk)\s+[^\n,]{1,40},?\s*\n+/i, ''));
+function draftSystem(task = '') {
+  const c = cfg();
+  const you = String(c.owner?.nickname || c.userName || '').trim();
+  const parts = [DRAFT_PROMPT];
+  if (SIGNED.test(task)) {
+    const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    parts.push(`It is signed: sign it ${you ? `as ${you}` : 'without a name'}. If it needs a date, today is ${date} (written the way the text's language writes dates).`);
+  }
+  // a text with someone it's for (a letter, a message, a reply): written as them, to that someone
+  if (addressed(task)) {
+    parts.push('You write it as them, to whoever it is for: never to them, never about this request.');
+  } else {
+    parts.push('It is not addressed to anyone unless the request says so: no "To …" or "Dear …" line, no signature.');
+  }
+  parts.push(INDONESIAN.test(task) ? 'Write it in Indonesian.' : 'Write it in English, unless the request itself is in another language.');
+  return parts.join('\n');
+}
+// "Subject: …" when you didn't ask for one: typed into an email's body, it would be in the mail
+const unasked = (text, task) => (/\b(?:subject|subjek|perihal)\b/i.test(task) ? text : text.replace(/^\s*(?:subject|subjek|perihal)\s*:[^\n]*\n+/i, ''));
+
+// what a model leaves blank that she knows: your name ("[Your Name]", "[Nama Anda]"); a whole sentence in
+// brackets is the text, not a blank
+function filled(text) {
+  const c = cfg();
+  const you = String(c.owner?.nickname || c.userName || '').trim();
+  let t = text.replace(/\[([^\]\n]{25,}[.!?])\]/g, '$1');
+  if (you) t = t.replace(/\[(?:your (?:full )?name|name|sender'?s? name|nama(?: lengkap)?(?: anda| kamu|mu)?|nama pengirim)\]/gi, you);
+  return t;
+}
+
+async function draft(task, target) {
+  const text = filled(unaddressed(unasked(await draftFor([{ role: 'system', content: draftSystem(task) }, { role: 'user', content: task }]), task), task));
+  if (!text) return { handled: true, reply: T("My brain didn't answer. Try again in a moment?"), emotion: 'annoyed' };
+  lastDraft = { text, target, task, at: Date.now() };
+  return { handled: true, reply: target ? F('Here it is. Say the word and I type it in {0}.', target) : T('Here it is. Want me to type it where you were?'), draft: { text, target }, emotion: 'happy' };
+}
+
+async function revise(how) {
+  const d = lastDraft;
+  const text = filled(await draftFor([
+    { role: 'system', content: draftSystem(d.task) },
+    { role: 'user', content: d.task },
+    { role: 'assistant', content: d.text },
+    { role: 'user', content: `Rewrite it: ${how}. The whole text again, nothing else.` },
+  ]));
+  if (!text) return { handled: true, reply: T("My brain didn't answer. Try again in a moment?"), emotion: 'annoyed' };
+  lastDraft = { ...d, text, at: Date.now() };
+  return { handled: true, reply: T('Changed. Better?'), draft: { text, target: d.target }, emotion: 'happy' };
+}
+
+// Her Type it button under a draft: typed where you asked, or where you were.
+async function typeDraft({ text, target } = {}) {
+  const words = String(text || lastDraft?.text || '').slice(0, 4000);
+  if (!words) return { handled: false };
+  const res = await act({ kind: 'type', text: words, target: target || '' }, { voice: false });
+  if (res?.handled && !res.denied) lastDraft = null;
+  return res;
+}
+
+// ---- commands of yours (config.skills, settings › Behavior): a name, and what to do in your own words ----
+const MAX_SKILLS = 30;
+function skillFor(said) {
+  const name = errands.skillName(said);
+  return name ? (cfg().skills || []).find((s) => errands.skillName(s.name) === name) || null : null;
+}
+// what one does, as her commands: several, or one (never teaching another)
+function stepsOf(run) {
+  const steps = errands.chain(run);
+  if (steps) return steps.some((s) => s.e.kind === 'teach') ? null : steps;
+  const e = errands.parse(run);
+  return e.kind === 'none' || e.kind === 'teach' ? null : [{ said: run, e }];
+}
+function teach(name, run) {
+  if (!stepsOf(run)) return { handled: true, reply: F("I don't know how to \"{0}\" yet, so I can't learn it. Say it the way you'd ask me.", run), emotion: 'annoyed' };
+  const key = errands.skillName(name);
+  if (!key || errands.parse(name).kind !== 'none') return { handled: true, reply: F('"{0}" is already a command of mine. Pick another name.', name), emotion: 'annoyed' };
+  const others = (cfg().skills || []).filter((s) => errands.skillName(s.name) !== key);
+  if (others.length >= MAX_SKILLS) return { handled: true, reply: T('I can keep 30 of those. Forget one first (Settings › Behavior).'), emotion: 'annoyed' };
+  emit({ type: 'setConfig', patch: { skills: [...others, { name: name.slice(0, 40), run: run.slice(0, 300) }] } });
+  return { handled: true, reply: F('Got it. When you say "{0}", I {1}.', name, run), emotion: 'happy', zap: true };
+}
+
+// ---- the weather (weather.js, Open-Meteo) and her brief of your day ----
+function weatherLine(w, when = 'today') {
+  const where = w.place.name;
+  const [day0, day1] = w.days;
+  const umbrella = (d) => ((d?.rain ?? 0) >= 50 || weather.wet(d?.code) ? ` ${T('Bring an umbrella.')}` : '');
+  if (when === 'tomorrow' && day1) {
+    return F('{0} tomorrow: {1}, {2}–{3}°C, {4}% chance of rain.', where, T(weather.describe(day1.code)), day1.min, day1.max, day1.rain ?? 0) + umbrella(day1);
+  }
+  const line = F('{0}: {1}°C, {2} (feels like {3}°).', where, w.now.temp, T(weather.describe(w.now.code)), w.now.feels);
+  return day0 ? `${line} ${F('Today {0}–{1}°, {2}% chance of rain.', day0.min, day0.max, day0.rain ?? 0)}${umbrella(day0)}` : line;
+}
+
+const BRIEF_END = ["Go get 'em.", "That's the day. Don't make me nag you.", "I'll be right here. Obviously.", 'Make it a good one. Or at least an interesting one.'];
+// { title, text }: hello, the date, the weather where you are, today's alarms, what's playing, a word of hers
+async function briefing() {
+  const c = cfg();
+  const now = new Date();
+  const hour = now.getHours();
+  const you = String(c.owner?.nickname || c.userName || '').trim();
+  const part = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const title = you ? F(`${part}, {0}!`, you) : T(`${part}!`);
+  const locale = lang.code === 'id' ? 'id-ID' : 'en-GB';
+  const lines = [F("It's {0}.", now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' }))];
+  if (c.weatherCity && allowed('search')) {
+    const w = await weather.forecast(c.weatherCity).catch(() => null);
+    if (w) lines.push(weatherLine(w, 'today'));
+  }
+  const alarms = (c.alarms || []).filter((a) => a.due > Date.now() && new Date(a.due).toDateString() === now.toDateString()).sort((a, b) => a.due - b.due);
+  if (alarms.length) {
+    const at = (ms) => new Date(ms).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    lines.push(F('Alarms today: {0}.', alarms.map((a) => `${at(a.due)}${a.label ? ` ${a.label}` : ''}`).join(', ')));
+  }
+  if (state.track?.playing) lines.push(F('Playing: {0}.', brief(state.track)));
+  lines.push(T(pick(BRIEF_END)));
+  return { title, text: lines.join('\n') };
+}
+
+// her settings' "Brief me now"
+function briefNow() {
+  return briefing().then((b) => { emit({ type: 'brief', ...b }); return true; }, () => false);
+}
+
+// ---- code written right where you are (errands 'code' with here): her model writes it, she pastes it in ----
+const CODE_LANGS = { html: 'HTML', htm: 'HTML', css: 'CSS', scss: 'SCSS', js: 'JavaScript', mjs: 'JavaScript', cjs: 'JavaScript', jsx: 'JavaScript (React)', ts: 'TypeScript', tsx: 'TypeScript (React)', vue: 'Vue', svelte: 'Svelte', py: 'Python', java: 'Java', kt: 'Kotlin', c: 'C', h: 'C', cpp: 'C++', cc: 'C++', cs: 'C#', php: 'PHP', go: 'Go', rs: 'Rust', rb: 'Ruby', swift: 'Swift', dart: 'Dart', lua: 'Lua', sql: 'SQL', sh: 'Bash', ps1: 'PowerShell', bat: 'Batch', json: 'JSON', yaml: 'YAML', yml: 'YAML', md: 'Markdown', xml: 'XML' };
+const NAMED_LANG = /\b(HTML|CSS|SCSS|JavaScript|TypeScript|React|Vue|Svelte|Python|Java|Kotlin|C\+\+|C#|PHP|Go|Golang|Rust|Ruby|Swift|Dart|Lua|SQL|Bash|PowerShell|JSON|YAML|Markdown)\b/i;
+const CODE_PROMPT = `You write code that is pasted straight into the file the user has open in their code editor. Reply with ONLY the code: complete, working, ready to paste. No explanation before or after it, no markdown code fences, nothing that isn't code. Short comments only where they help. Indent with 2 spaces (4 for Python). A web page is one HTML file, its CSS in a <style> and its script in a <script>.`;
+
+// the code in a model's answer: what's inside its fences, if it put any, without what it said around them
+function codeOf(answer) {
+  const text = String(answer || '').replace(/<think>[\s\S]*?<\/think>/g, '');
+  const fenced = /```[\w+#.-]*[ \t]*\r?\n([\s\S]*?)```/.exec(text);
+  return (fenced ? fenced[1] : text.replace(/^```[\w+#.-]*\s*|```\s*$/g, '')).replace(/\s+$/, '').replace(/^\n+/, '');
+}
+
+async function codeHere(e, opts = {}) {
+  if (!allowed('type')) return denied('type');
+  if (!askPlain) return { handled: true, reply: T('I need a brain for that: set one up in my settings, AI brain.'), emotion: 'annoyed' };
+  // the file open in front ("hello.html - Antigravity"): its language, when you didn't name one
+  const hwnd = e.target ? 0 : frontWindow?.() || 0;
+  const title = hwnd ? await launch.windowTitle(hwnd).catch(() => '') : '';
+  const file = /([\w.-]+\.([a-z][a-z0-9]{0,5}))(?![\w.])/i.exec(title); // ("hello.html●": the dot of an unsaved file after it)
+  const named = NAMED_LANG.exec(e.task)?.[1];
+  const langName = named ? named.replace(/^golang$/i, 'Go').replace(/^react$/i, 'JavaScript (React)') : CODE_LANGS[file?.[2]?.toLowerCase()] || '';
+  say({ text: T('On it: writing the code…'), emotion: 'happy', hold: 40000, kind: 'work' });
+  const ask = [
+    { role: 'system', content: `${CODE_PROMPT}${langName ? `\nLanguage: ${langName}.` : ''}${file ? `\nThe file open: ${file[1]}.` : ''}` },
+    { role: 'user', content: e.task },
+  ];
+  const answer = await Promise.race([askPlain(ask, { timeout: 90000 }).catch(() => ''), new Promise((done) => setTimeout(() => done(''), 90000))]);
+  const code = codeOf(answer).slice(0, 20000);
+  if (!code.trim()) return { handled: true, reply: T("My brain didn't answer. Try again in a moment?"), emotion: 'annoyed' };
+  return actNow({ kind: 'type', text: code, target: e.target || '', paste: true, code: langName || T('code') }, opts);
+}
+
+// her word when a task of yours is done, and what she asks next
+const TASK_DONE = {
+  write: ['Task done! What else should I write?', "Done. Anything else to type? I'm on a roll.", "All typed. What's next, boss?"],
+  chain: ['All done. What next?', 'Done and done. Anything else?', 'Easy. Give me another one.'],
+};
+
+// The steps of a chain, in order: what one opened is where the next one types ("open notepad and type hello"); a
+// step that can't be done ends it there. Her lines for them, one after the other (the same one only once).
+async function runChain(steps, opts = {}) {
+  const lines = [];
+  const out = { handled: true, emotion: 'happy' };
+  let opened = '';
+  cancelled = false;
+  let fresh = false; // something just opened: the first typing into it waits for its window
+  for (const [i, step] of steps.entries()) {
+    if (cancelled) {
+      lines.push(T('Stopped.'));
+      out.emotion = 'annoyed';
+      break;
+    }
+    const typing = step.e.kind === 'type' || step.e.kind === 'key';
+    const e = typing ? { ...step.e, target: step.e.target || opened, fresh: fresh && !step.e.target }
+      : step.e.kind === 'draft' ? { ...step.e, target: step.e.target || opened } : step.e;
+    if (typing) fresh = false;
+    const res = await act(e, opts).catch(() => null);
+    if (!res?.handled) {
+      lines.push(F("I couldn't do \"{0}\".", step.said));
+      out.emotion = 'annoyed';
+      break;
+    }
+    if (res.reply && !lines.includes(res.reply)) lines.push(res.reply);
+    // a draft waits for your word: what came after it in the sentence goes with it
+    if (res.draft) {
+      out.draft = res.draft;
+      break;
+    }
+    out.task = res.task === 'write' || out.task === 'write' ? 'write' : 'chain';
+    if (res.opened) {
+      opened = res.opened;
+      fresh = true;
+    }
+    if (res.emotion && res.emotion !== 'happy') out.emotion = res.emotion;
+    for (const k of ['move', 'point', 'zap']) if (res[k]) out[k] = res[k];
+    if (res.reply === T("Hm, that won't open!") || res.denied) break;
+    // a moment between them: what one opened comes up, music starts
+    if (i < steps.length - 1 && !opened) await new Promise((done) => setTimeout(done, 300));
+  }
+  return { ...out, reply: lines.join(' ') };
+}
+
+// One command of hers (errands.parse), done.
+// What you dictated to be typed, with the speech recognizer's slips fixed by her model ("is free on get hub" ->
+// "It's free on GitHub"): misheard words, spelling, capitals, punctuation, and nothing else, in the same language.
+// A few seconds at most; anything that isn't plainly that text, fixed (an answer, a much longer or shorter one),
+// and she types what you said as it was.
+async function fixDictation(text) {
+  if (!askPlain || text.length > 600) return text;
+  const ask = `Speech-to-text wrote this, which the user dictated to be typed into an app:
+"""${text}"""
+Words they use, spelled right: ${vocabulary(cfg()).join(', ')}.
+Fix only what speech recognition got wrong: misheard words (product names too, like GitHub or YouTube), spelling, capital letters, punctuation. Keep their words, their meaning and their language; add nothing, answer nothing, translate nothing. Reply with the fixed text only, nothing else.`;
+  const answer = await Promise.race([askPlain([{ role: 'user', content: ask }]).catch(() => ''), new Promise((done) => setTimeout(() => done(''), 9000))]);
+  const fixed = String(answer || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim().replace(/^"""|"""$/g, '').replace(/^["“](.*)["”]$/s, '$1').trim();
+  const sane = fixed && fixed.length <= text.length * 1.6 + 12 && fixed.length >= text.length * 0.5 && !/\n\s*\n/.test(fixed)
+    && !/^(?:sure|here|okay|ok|the fixed|fixed text|corrected)\b/i.test(fixed);
+  return sane ? fixed : text;
+}
+
+// opts.voice: you said it (her ears), so what she types gets its speech-to-text slips fixed first
+// One errand done, and kept in her action log (settings › Access › What she did) when it touched your PC.
+async function act(e, opts = {}) {
+  const res = await actNow(e, opts);
+  actionsLog.record(e, res, { via: opts.voice ? 'voice' : 'typed', routed: opts.routed });
+  return res;
+}
+
+async function actNow(e, opts = {}) {
+  const c = cfg();
   const need = e.kind === 'open' ? (/^https?:/i.test(e.target) ? 'web' : /^[a-z]+\.exe$|^ms-settings/i.test(e.target) ? 'apps' : 'files') : NEEDS[e.kind];
   if (need && !allowed(need)) return denied(need);
   switch (e.kind) {
@@ -695,6 +1032,7 @@ async function run(said) {
       return { handled: true, reply: T(lines[e.move] || 'Going!'), emotion: e.move === 'sleep' ? 'bored' : gesture ? null : 'happy', move: e.move };
     }
     case 'code': { // code you asked for: Claude Code in a terminal, or her own, in a file
+      if (e.here) return codeHere(e, opts);
       if (!coder) return { handled: false };
       const who = e.via || c.coder || 'auto';
       if (who !== 'self') {
@@ -800,7 +1138,7 @@ async function run(said) {
       return { handled: true, reply: F(found.folder ? 'There: {0}' : 'Found it: {0}', found.path), emotion: 'happy', point: { label: path.basename(found.path) } };
     }
     case 'look':
-      return { handled: true, look: true };
+      return { handled: true, look: true, lookTask: e.task || '' };
     case 'sync':
       return { handled: true, reply: syncLine(), emotion: syncPercent() >= 50 ? 'happy' : 'bored' };
     case 'dare': {
@@ -865,7 +1203,9 @@ async function run(said) {
       try {
         await openTarget(e.target);
         const folder = !/^[a-z]+\.exe$|^ms-settings|^https?:/i.test(e.target);
-        return { handled: true, reply: e.more ? F('Opened {0}. The rest I can\'t do yet.', e.text) : folder ? F('There: {0}', e.target) : T(pick(SAY.done)), emotion: 'happy', zap: true, ...(folder && { point: { label: path.basename(e.target) } }) };
+        const opened = /^[a-z]+\.exe$/i.test(e.target) ? e.target.replace(/\.exe$/i, '') : '';
+        // (more: there was more to what you said that she didn't catch: she says so, never just leaves it)
+        return { handled: true, reply: e.more ? F('Opened {0}. The rest I can\'t do yet.', e.text) : folder ? F('There: {0}', e.target) : F('Opened {0}.', e.text), emotion: 'happy', zap: true, opened, ...(folder && { point: { label: path.basename(e.target) } }) };
       } catch {
         return { handled: true, reply: T("Hm, that won't open!"), emotion: 'annoyed' };
       }
@@ -881,10 +1221,64 @@ async function run(said) {
       if (!item) return { handled: false };
       try {
         await launch.launch(item);
-        return { handled: true, reply: e.more ? F('Opened {0}. The rest I can\'t do yet.', item.name) : T(pick(SAY.done)), emotion: 'happy', zap: true };
+        return { handled: true, reply: e.more ? F('Opened {0}. The rest I can\'t do yet.', item.name) : F('Opened {0}.', item.name), emotion: 'happy', zap: true, opened: item.name };
       } catch {
         return { handled: true, reply: T("Hm, that won't open!"), emotion: 'annoyed' };
       }
+    }
+    case 'draft':
+      return draft(e.task, e.target);
+    case 'teach':
+      return teach(e.name, e.run);
+    case 'weather': {
+      const city = e.city || c.weatherCity;
+      if (!city) return { handled: true, reply: T('Which city? Say "weather in Bandung", or set yours in Settings › Behavior › Your day.'), emotion: null };
+      const w = await weather.forecast(city).catch(() => null);
+      if (!w) return { handled: true, reply: F("I couldn't get the weather for {0}.", city), emotion: 'annoyed' };
+      return { handled: true, reply: weatherLine(w, e.when), emotion: 'happy' };
+    }
+    case 'brief': {
+      const b = await briefing();
+      return { handled: true, reply: `${b.title} ${b.text.replace(/\n/g, ' ')}`, emotion: 'happy' };
+    }
+    case 'type':
+    case 'key': { // typing for you (or a key: Enter, Ctrl+S…) in an app by name, the one just opened, or the one you were in
+      const where = e.target ? {} : { hwnd: frontWindow?.() || 0 };
+      // her show while she types (the overlay: she jacks into that window, capri.js hack), from the moment it's in front
+      let hacking = false;
+      const onFound = (hwnd, app) => {
+        hacking = true;
+        emit({ type: 'hack', phase: 'start', hwnd, app, typing: e.kind === 'type', chars: words.length });
+      };
+      const said = e.kind === 'type' ? e.text : '';
+      const words = said && opts.voice && c.fixDictation !== false && !e.paste ? await fixDictation(said) : said;
+      const typeIt = (fresh) => launch.typeInto({ text: words, target: e.target || '', ...where, keys: e.kind === 'key' ? [e.key] : [], fresh, onFound, paste: Boolean(e.paste) });
+      let res = await typeIt(Boolean(e.fresh));
+      // "type hello in notepad" with Notepad closed: opened first, then typed in
+      if (!res.ok && res.why === 'nowindow' && e.target && !e.fresh && allowed('apps')) {
+        const item = await launch.find(e.target).catch(() => null);
+        if (item && (await launch.launch(item).then(() => true, () => false))) res = await typeIt(true);
+      }
+      const app = res.app ? res.app.replace(/^WINWORD$/, 'Word').replace(/^Code$/, 'VS Code').replace(/^msedge$/, 'Edge') : (e.target || T('that window'));
+      if (res.ok) {
+        const done = { enter: 'Pressed Enter.', save: 'Saved.', selectall: 'Selected it all.', undo: 'Undone.', newline: 'New line.', tab: 'Tab.' };
+        if (hacking) emit({ type: 'hack', phase: 'end', ok: true });
+        const typed = e.code ? F('Wrote {0} lines of {1} in {2}. Ctrl+Z takes it back.', words.split('\n').length, e.code, app)
+          : words !== said ? F('Typed "{0}" in {1}.', words, app) : F('Typed it in {0}.', app);
+        return { handled: true, reply: e.kind === 'type' ? typed : T(done[e.key] || 'Done!'), emotion: 'happy', task: 'write' };
+      }
+      if (hacking) emit({ type: 'hack', phase: 'end', ok: false });
+      const why = {
+        nowindow: e.target ? F("I can't find {0} open.", e.target) : T("I don't know which window you mean. Name it: \"in notepad\"."),
+        gone: T('That window is gone.'),
+        focus: F("{0} wouldn't come to the front, so I typed nothing.", app),
+        moved: T('You switched windows, so I stopped typing.'),
+        you: T('You pressed a key, so I stopped typing. Your keyboard, your rules.'),
+        password: T("That's a password box. I never type into those: that one's yours."),
+        stopped: T('Stopped.'),
+        clipboard: T('Your clipboard was busy, so I wrote nothing. Try again?'),
+      };
+      return { handled: true, reply: why[res.why] || T("Hm, that didn't work."), emotion: 'annoyed', denied: true };
     }
     case 'media': {
       if (e.action === 'pause' && state.track && !state.track.playing) return { handled: true, reply: T("Nothing's playing!"), emotion: 'bored' };
@@ -914,7 +1308,8 @@ async function run(said) {
 }
 
 // What her model is told about you and how close she is (chat.js adds it to her persona).
-function brainContext({ cloud = false } = {}) {
+// facts: her notes picked for this message (recall.js), else the newest; past: lines from your past chats about it
+function brainContext({ cloud = false, facts: picked = null, past = [] } = {}) {
   const c = cfg();
   // the moment, so she never guesses the time or the day
   const now = new Date();
@@ -922,9 +1317,12 @@ function brainContext({ cloud = false } = {}) {
     `RIGHT NOW (their local time): ${now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}, ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}.`,
     `HOW CLOSE SHE IS TO THE USER RIGHT NOW (sync ${syncPercent()}%): ${syncTier()}`,
   ];
-  const facts = memories();
+  const facts = picked || memories().slice(-25);
   if (c.memoryOn && facts.length && (!cloud || c.cloudMemory)) {
-    parts.push(`WHAT THE USER HAS TOLD YOU (use one only when it really fits what they said; never list them or say you keep notes):\n${facts.slice(-25).map((f) => `- ${f}`).join('\n')}`);
+    parts.push(`WHAT THE USER HAS TOLD YOU (use one only when it really fits what they said; never list them or say you keep notes):\n${facts.map((f) => `- ${f}`).join('\n')}`);
+  }
+  if (c.memoryOn && past.length && (!cloud || c.cloudMemory)) {
+    parts.push(`FROM YOUR PAST CHATS WITH THEM, about this (bring one up only if it really fits, like you just remembered it; never say you looked it up):\n${past.map((m) => `- ${m.day}, they said: "${m.text.slice(0, 240)}"`).join('\n')}`);
   }
   if (state.track?.playing && c.music !== 'off') {
     parts.push(`Playing right now on their PC: ${brief(state.track)}. When they say "this song", "this one" or "lagu ini", they mean THIS song, not your own favorite song.`);
@@ -944,8 +1342,9 @@ function hackLine() {
 }
 
 let ticker = null;
-function start({ onEvent, model, raw, look, shot, coder: coders }) {
+function start({ onEvent, model, raw, look, shot, front, coder: coders }) {
   coder = coders || null;
+  frontWindow = front || null;
   emit = onEvent;
   askModel = model;
   askPlain = raw || model;
@@ -971,7 +1370,7 @@ function stop() {
 const quiet = (ms) => { state.quietUntil = Date.now() + ms; };
 
 module.exports = {
-  findPath, browserPath, start, stop, startSenses, run, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
+  findPath, browserPath, start, stop, startSenses, run, cancel, typeDraft, briefNow, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
   addAlarm, removeAlarm, clearAlarms, startStudy, stopStudy, pauseStudy, studyStatus, hackLine, giveDare, quiet, playSong, lyricsChanged, songNow,
   get track() { return state.track; }, get front() { return state.front; }, get fullscreen() { return Boolean(state.fullscreen); },
 };
