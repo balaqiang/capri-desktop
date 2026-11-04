@@ -1,8 +1,8 @@
 'use strict';
 
-const fs = require('node:fs');
 const path = require('node:path');
 const { app } = require('electron');
+const { writeAtomic, readJson } = require('./store');
 
 const DEFAULTS = {
   scale: 0.6,        // sprite scale, 0.6 ≈ 250px tall
@@ -46,12 +46,14 @@ const DEFAULTS = {
   // --- who you are (settings › Owner) ---
   owner: { nickname: '', pronouns: '', birthday: '', about: '', likes: '', dislikes: '', relationship: 'host', relationshipCustom: '' },
   memoryOn: true,     // she keeps what you tell her to remember, and uses it in chat
+  recallChats: true,  // ...and recalls what you said about it in past chats (her history, on this PC: recall.js)
   cloudMemory: false, // ...also with a cloud model
 
   // --- her brain (settings › AI) ---
   temperature: 0.85,
   maxTokens: 300,
   contextMessages: 20, // messages she has in mind when answering
+  intentRouter: true,  // a command in words her rules don't know: her model says which command it is (one short call)
   coder: 'auto',       // who writes code you ask for: 'auto' (Claude Code if installed, else her), 'claude', 'self'
   codeFolder: '',      // where it goes ('': Documents/Capri Code)
   lookOn: true,        // she may look at your screen when you ask (one screenshot, kept in memory only)
@@ -68,7 +70,9 @@ const DEFAULTS = {
   maxUtterance: 15,    // seconds, at most
   sttEngine: 'auto',   // 'auto', 'whisper' (local), 'groq', 'openai', 'windows'
   sttLanguage: 'auto', // 'auto' (her language), or a code: 'id', 'en'...
+  sttWords: '',        // words she should hear right, spelled as written (names, apps, terms of yours): Whisper's prompt
   micButton: true,     // the little mic next to her
+  fixDictation: true,  // what you say to be typed: its speech-to-text slips fixed by her model first
   tts: false,          // she reads her answers out loud
   ttsVoice: '',        // a voice's name ('' : the first one in her reply language)
   ttsRate: 1.05,
@@ -105,7 +109,13 @@ const DEFAULTS = {
   music: 'comment',    // 'off', 'show' (what's playing), 'comment' (and a word about it)
   lyrics: true,        // the words of the song under her as they're sung (LRCLIB, main/lyrics.js)
   musicMood: true,     // she listens along: grooves, dances to songs she likes, dozes off to boring ones
-  tastes: {},          // what she thinks of the songs she's heard: { 'title|artist': 'love' | 'like' | 'meh' }
+  tastes: {},
+  weatherCity: '',     // where you are, for the weather and her brief of your day (Open-Meteo): '' asks
+  dailyBrief: true,    // the first time you're at your PC in the morning, her brief of your day
+  briefDay: '',        // the day she gave it          // what she thinks of the songs she's heard: { 'title|artist': 'love' | 'like' | 'meh' }
+
+  skills: [],          // commands of yours: [{ name: 'work mode', run: 'open vscode and play music' }] (settings › Behavior)
+  actionLog: true,     // what she did on your PC, kept on this PC to look at (settings › Access › What she did)
 
   // --- what she may do on your PC (settings › Access; what she may see and hear has its own switches) ---
   access: {
@@ -117,6 +127,7 @@ const DEFAULTS = {
     media: true,   // the media keys: pause, next, volume
     spotify: true, // search Spotify and press Play
     code: true,    // write code into her Code folder, or open Claude Code for it
+    type: true,    // type for you in another app (Notepad, VS Code, a chat), and press Enter or Ctrl+S when you ask
   },
   pats: true,          // hover over her for a head pat
   hideInFullscreen: true, // she steps aside while a game or a full screen video is in front (2.4)
@@ -139,6 +150,7 @@ const DEFAULTS = {
   // --- advanced ---
   hotkeys: { toggle: 'Control+Alt+C', chat: 'Control+Alt+T', talk: 'Control+Alt+V', look: 'Control+Alt+L', settings: 'Control+Alt+S' },
   debugLog: false,
+  autoUpdate: 'notify', // new versions from her GitHub Releases: 'notify' (she asks), 'auto' (downloaded, installed when you close her), 'off'
   spotifyVerb: '',     // the wording of Spotify's Play buttons, learned (2.4)
   // --- she improves herself (growth.js) and keeps your history (history.js) ---
   // --- her local brain: a small Ollama model for her quick jobs and when her main brain fails ---
@@ -168,11 +180,8 @@ function file() {
 
 function load(fresh = false) {
   if (cache && !fresh) return cache;
-  try {
-    cache = { ...DEFAULTS, ...JSON.parse(fs.readFileSync(file(), 'utf8')) };
-  } catch {
-    cache = { ...DEFAULTS };
-  }
+  const kept = readJson(file());
+  cache = { ...DEFAULTS, ...(kept && typeof kept === 'object' && !Array.isArray(kept) ? kept : {}) };
   for (const key of NESTED) cache[key] = { ...DEFAULTS[key], ...(cache[key] || {}) };
   return cache;
 }
@@ -182,7 +191,7 @@ function reset({ keepKeys = true } = {}) {
   const keep = keepKeys ? { apiKeys: load().apiKeys, customUrl: load().customUrl } : {};
   cache = null;
   try {
-    fs.writeFileSync(file(), JSON.stringify({ ...keep, welcomed: true }, null, 2));
+    writeAtomic(file(), JSON.stringify({ ...keep, welcomed: true }, null, 2));
   } catch (err) {
     console.error('[capri] could not reset config:', err.message);
   }
@@ -192,15 +201,14 @@ function reset({ keepKeys = true } = {}) {
 function save(patch) {
   cache = { ...load(), ...patch };
   try {
-    fs.mkdirSync(path.dirname(file()), { recursive: true });
-    fs.writeFileSync(file(), JSON.stringify(cache, null, 2));
+    writeAtomic(file(), JSON.stringify(cache, null, 2));
   } catch (err) {
     console.error('[capri] could not save config:', err.message);
   }
   return cache;
 }
 
-// May she do that on your PC (settings › Access)? 'apps', 'files', 'close', 'web', 'search', 'media', 'spotify', 'code'
+// May she do that on your PC (settings › Access)? 'apps', 'files', 'close', 'web', 'search', 'media', 'spotify', 'code', 'type'
 const allowed = (what) => load().access?.[what] !== false;
 
 module.exports = { load, save, reset, file, allowed, DEFAULTS };
