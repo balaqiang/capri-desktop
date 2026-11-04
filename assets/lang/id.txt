@@ -2191,3 +2191,16 @@ Istirahat makan siang
 Baterai lemah
 > {0}: on it.
 {0}: siap.
+
+> Game mode. I'll keep to my mask. Click it, or say "normal mode", when you're done. GLHF!
+Mode game. Aku jadi topeng saja ya. Klik topengku, atau bilang "mode normal", kalau sudah selesai. GLHF!
+> Focus mode. Not a peep from me. Click my mask, or say "normal mode", when you need me.
+Mode fokus. Aku nggak akan bersuara. Klik topengku, atau bilang "mode normal", kalau butuh aku.
+> Quiet mode. Just my mask, not a word. Click it when you want me back.
+Mode senyap. Cuma topengku, tanpa suara. Klik saja kalau mau aku kembali.
+> I'm back! Did you miss me?
+Aku kembali! Kangen nggak?
+> Mask while I focus
+Jadi topeng saat aku fokus
+> During a focus session she goes down to her green mask, not a word, and comes back for the break. Click her mask to call her. Saying "focus mode", "game mode" or "quiet mode" does it any time; "normal mode" brings her back.
+Selama sesi fokus dia berubah jadi topeng hijaunya, tanpa suara, lalu kembali saat istirahat. Klik topengnya untuk memanggilnya. Bilang "mode fokus", "mode game", atau "mode senyap" kapan saja; "mode normal" memanggilnya kembali.
