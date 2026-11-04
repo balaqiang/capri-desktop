@@ -114,6 +114,7 @@ const DEFAULTS = {
   dailyBrief: true,    // the first time you're at your PC in the morning, her brief of your day
   briefDay: '',        // the day she gave it          // what she thinks of the songs she's heard: { 'title|artist': 'love' | 'like' | 'meh' }
 
+  plugins: [],         // plugins of yours, made without code: [{ id, name, on, when, do: [steps], cooldown }] (plugins.js)
   skills: [],          // commands of yours: [{ name: 'work mode', run: 'open vscode and play music' }] (settings › Behavior)
   actionLog: true,     // what she did on your PC, kept on this PC to look at (settings › Access › What she did)
 
