@@ -96,7 +96,8 @@ she tells you so.
 
 ## Timers
 
-Timers and alarms (set one, the chime), and the study timer (focus and break lengths, where you are in it).
+Timers and alarms (set one, the chime), and the study timer (focus and break lengths, where you are in it, and **Mask
+while I focus**: during a focus session she goes down to her mask, not a word, until the break).
 
 ## History
 
