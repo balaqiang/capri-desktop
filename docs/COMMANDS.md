@@ -13,6 +13,7 @@ hello"). Said in other words, her model works out which command you meant ([in y
 | Move | "move left", "go to the middle", "come to my cursor", "Capri, where are you?" | "ke samping kanan", "ke tengah", "ke cursor saya", "kamu di mana?", "kemari" |
 | Cursor | "sit on my cursor", "get off my cursor" (or move it fast) | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" |
 | Moods | "dance", "wave", "take a bow", "sleep", "hide" | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" |
+| Modes | "game mode", "focus mode", "quiet mode" / "do not disturb", "normal mode" | "mode game", "mode fokus", "jangan ganggu aku dulu", "mode normal" |
 | Moving | "move less", "you can move again" | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" |
 | Her | "dare me", "how's our sync?", "who are you?" | "tantang aku", "improve dirimu", "kamu udah belajar apa?" |
 | Notes | "remember that my cat is called Neko", "forget about my cat" | "ingat bahwa…", "lupakan soal…" |
