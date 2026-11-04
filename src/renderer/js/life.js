@@ -4,7 +4,7 @@
 // a stretch or a yawn now and then, and her voice out loud (tts.js).
 
 import { pick, reducedMotion } from './util.js';
-import { T } from './i18n.js';
+import { T, F } from './i18n.js';
 
 const PAT_LINES = ['Mmh, right there! Don\'t stop!', 'Hehe! Careful, I might get used to this!', 'Oh? Oh! Okay, that\'s allowed!', 'Pats are a very good bribe, you know!'];
 // petted a long while: all of her in there have gone soft
@@ -234,6 +234,44 @@ export class Life {
       }
       case 'looking':
         this.cut('eyes', 900);
+        break;
+      case 'hack': // typing for you in another window: she jacks into it while the words go in (capri.js hack)
+        if (evt.phase === 'start') {
+          this.hacking?.end(false);
+          this.hacking = capri.hack(evt.hwnd);
+          if (evt.typing) {
+            this.cut('eyesGlitch', 700);
+            // as long as the typing goes on, with her Stop (a key of yours stops her too)
+            panel.say({
+              kind: 'info', face: 'glitch', badge: 'HACK', line: F('Jacking into {0}…', evt.app || T('that window')), hold: Math.min(60000, 2600 + (evt.chars || 0) * 25),
+              actions: [{ id: 'stop', label: T('Stop') }], onAction: () => { this.host.cancelTask?.(); panel.hide(); },
+            });
+          }
+        } else {
+          this.hacking?.end(evt.ok !== false);
+          this.hacking = null;
+          if (panel.current?.badge === 'HACK') panel.hide();
+        }
+        break;
+      case 'brief': // her brief of your day (main/life.js briefing): the morning's first time at your PC, or asked
+        panel.say({ kind: 'info', face: 'happy', badge: 'TODAY', line: evt.title, reply: evt.text, hold: 20000 });
+        capri.perform?.('wave');
+        break;
+      case 'update': // a new version of her (main/updater.js): asked once, then told when it's ready
+        if (!evt.ask) break;
+        if (evt.phase === 'available') {
+          panel.say({
+            kind: 'info', face: 'happy', badge: 'UPDATE', line: F('A new me is out: v{0}. Download it?', evt.version), hold: 20000,
+            actions: [{ id: 'yes', label: T('Download'), primary: true }, { id: 'later', label: T('Later') }],
+            onAction: (id) => { this.host.update?.(id === 'yes' ? 'download' : 'later'); panel.hide(); },
+          });
+        } else if (evt.phase === 'ready') {
+          panel.say({
+            kind: 'info', face: 'happy', badge: 'UPDATE', line: F('v{0} is ready. Restart me now? (Or it installs when you close me.)', evt.version), hold: 20000,
+            actions: [{ id: 'now', label: T('Restart now'), primary: true }, { id: 'later', label: T('Later') }],
+            onAction: (id) => { if (id === 'now') this.host.update?.('install'); panel.hide(); },
+          });
+        }
         break;
       default:
         break;
