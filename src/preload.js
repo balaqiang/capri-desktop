@@ -65,6 +65,7 @@ contextBridge.exposeInMainWorld('host', {
   update: (name) => ipcRenderer.invoke('update:act', name),
   setPersona: (text) => ipcRenderer.send('persona:set', text),
   lifeContext: (about = '') => ipcRenderer.invoke('life:context', about),
+  lifeHold: (reason) => ipcRenderer.send('life:hold', reason || null),
   songNow: () => ipcRenderer.invoke('life:song'),
   webLookup: (question) => ipcRenderer.invoke('web:lookup', question),
   addSync: (points, source) => ipcRenderer.send('life:sync', { points, source }),
