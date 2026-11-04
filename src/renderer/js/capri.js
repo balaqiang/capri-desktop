@@ -1505,6 +1505,58 @@ export class Capri {
       && this.windows.wins.some((w) => w.id === this.perch?.id);
   }
 
+  // Typing for you in another window (main/life.js): she jacks into it, like in the show. She turns to it, a bolt
+  // goes from her hand into it, its frame crackles with her eyes on it (fx.possess) and data glyphs rain into it
+  // while the words go in; done, a burst off it and a boing off her. Only her overlay draws it: the keyboard stays
+  // with that window. -> { end(ok) }
+  hack(id) {
+    const rect = () => this.windows.wins.find((w) => w.id === id) || null;
+    const win = rect();
+    const none = { end() {} };
+    if (!win || this.stowed || this.hidden || this.dormant || reducedMotion.matches) return none;
+    if (this.mode === 'sleep') this.wake();
+    const s = this.scale;
+    const aim = { x: clamp(win.x + win.w / 2, 0, this.view.w), y: clamp(win.y + Math.min(win.h / 2, 160), 0, this.view.h) };
+    const dir = aim.x < this.pos.x ? -1 : 1;
+    if (!this.zap(aim.x, aim.y)) {
+      // busy with something else: a bolt from her hand all the same
+      const { hand } = this.limb(this.armToward(dir));
+      this.fx.bolt(hand, aim, { life: 420, forks: 2, width: 3 });
+    }
+    this.fx.sparks(aim.x, aim.y, { count: 16, power: 0.9 });
+    this.voice.play('bolt');
+    const covers = () => {
+      const front = [];
+      for (const o of this.windows.wins) {
+        if (o.id === id) break;
+        front.push(o);
+      }
+      return front;
+    };
+    const taken = this.fx.possess(rect, { covers, entry: win.w / 2, look: () => this.mouse });
+    setTimeout(() => this.voice.play('possess'), 300);
+    const rain = setInterval(() => {
+      const r = rect();
+      if (r) this.fx.glyph(r.x + rand(24, Math.max(25, r.w - 24)), r.y + rand(36, Math.max(37, Math.min(r.h - 20, 320))));
+    }, 110);
+    let ended = false;
+    const end = (ok = true) => {
+      if (ended) return;
+      ended = true;
+      clearInterval(rain);
+      taken.leave();
+      const r = rect();
+      if (r && ok) {
+        this.fx.burst(r.x + r.w / 2, r.y + 40 * s, { count: 14, power: 0.6, spread: Math.min(r.w / 3, 200) });
+        this.fx.sparks(r.x + r.w / 2, r.y + 30, { count: 12, power: 0.8, colors: [COLORS.paper, COLORS.green, COLORS.red] });
+      }
+      this.boing({ squash: ok ? 1.8 : -1.2, mane: 2 });
+      this.lastActivity = performance.now();
+    };
+    setTimeout(() => end(true), 60000); // never left hanging
+    return { end };
+  }
+
   // Like in the show, she gets into things: she dives into the window she sits on and takes it
   // over (fx.possess: its frame crackles, it glitches, it looks at you with her eyes), then comes
   // out of another window, or further along this one if there's no other.
