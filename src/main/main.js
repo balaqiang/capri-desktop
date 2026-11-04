@@ -1331,6 +1331,7 @@ function registerIpc() {
   ipcMain.handle('lang:table', () => lang.table());
   // her own growth first ("improve yourself", "from now on…"), then her errands
   ipcMain.handle('task:cancel', () => life.cancel());
+  ipcMain.on('life:hold', (_e, reason) => life.setHold(reason)); // she's held down to her mask, or back
   // a draft of hers (her Type it and Copy buttons)
   ipcMain.handle('draft:type', (_e, d) => life.typeDraft({ text: String(d?.text || '').slice(0, 4000), target: String(d?.target || '').slice(0, 60) }));
   ipcMain.handle('draft:copy', (_e, text) => { clipboard.writeText(String(text || '').slice(0, 20000)); return true; });
