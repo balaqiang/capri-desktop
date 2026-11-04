@@ -91,16 +91,22 @@ function place(name) {
     videos: path.join(home, 'Videos'), 'videos folder': path.join(home, 'Videos'), video: path.join(home, 'Videos'),
     'music folder': path.join(home, 'Music'), 'folder musik': path.join(home, 'Music'),
     'file explorer': 'explorer.exe', explorer: 'explorer.exe', files: 'explorer.exe', 'this pc': 'explorer.exe', 'penjelajah file': 'explorer.exe',
-    notepad: 'notepad.exe', calculator: 'calc.exe', calc: 'calc.exe', kalkulator: 'calc.exe', paint: 'mspaint.exe',
+    notepad: 'notepad.exe', 'note pad': 'notepad.exe', calculator: 'calc.exe', calc: 'calc.exe', kalkulator: 'calc.exe', paint: 'mspaint.exe',
     'task manager': 'taskmgr.exe', 'pengelola tugas': 'taskmgr.exe', settings: 'ms-settings:', 'windows settings': 'ms-settings:', pengaturan: 'ms-settings:', setelan: 'ms-settings:',
     'snipping tool': 'snippingtool.exe', 'control panel': 'control.exe', cmd: 'cmd.exe', 'command prompt': 'cmd.exe', terminal: 'wt.exe',
   };
   return table[n] || null;
 }
 
+// Her name as a speech recognizer may write it, and what people say before it ("Hello Capri.", "Um, Capri,",
+// "Hey, Kapri!", "Okay Capri"): stripped before anything is read as a command.
+const NAME = String.raw`(?:capri|cappy|kapri|caprie|capree|coppery|copri|cabri|kaprie|kapre)`;
+const GREETING = String.raw`(?:hey|hi|hello|helo|hallo|halo|hai|ok|okay|oke|yo|eh|woy|oi|um+|uh+|uhm+|erm|hmm+)`;
+const CALLED = new RegExp(String.raw`^(?:${GREETING}[\s,.!]+)*(?:${NAME}[\s,.!:?]+)?`, 'i');
+
 function plain(text) {
   let t = String(text || '').trim().replace(/[‘’]/g, "'");
-  t = t.replace(/^(?:(?:hey|hi|ok|okay|yo|halo|hai|eh|woy|oi)[ ,]+)?(?:capri|cappy|kapri|caprie|capree|coppery|copri|cabri|kaprie)?[,!. ]+/i, '');
+  t = t.replace(CALLED, '');
   for (let i = 0; i < 3; i++) {
     t = t.replace(/^(?:can you|could you|would you|will you|please|just|go ahead and|i want you to|i need you to|tolong|coba|bisa|bisakah|bisa gak|bisa nggak|bisa tolong|minta|aku mau kamu|aku minta|dong|yuk)\s+/i, '');
   }
@@ -174,6 +180,23 @@ const LOOK_ASK = new RegExp([
   String.raw`(?:lihat|liat) ini|apa yang (?:kamu|lu|lo) (?:lihat|liat)|apa (?:yang )?(?:ada )?di layar(?:ku)?|kamu (?:bisa )?(?:lihat|liat) (?:layar|ini|itu|gambar|foto)|ini apa(?:an)?\b|apa ini\b`,
 ].map((p) => `(?:${p})`).join('|'), 'i');
 
+// Homework on your screen: "saya punya pekerjaan rumah, tolong jawabkan pertanyaan yang ada di layar saya", "solve
+// the math problems on my screen", "kerjakan soal ini", "help me with this homework": she looks (one screenshot and
+// its text), and answers each question (chat.js, the homework look). A question written out in the message itself
+// ("answer this: what is 2+2") is a chat.
+const HOMEWORK_VERB = /\b(?:answer|solve|do|work out|complete|finish|check|help(?: me)?(?: with| solve| answer| do)?|explain|jawab\w*|kerja\w*|selesai\w*|bantu\w*|hitung\w*|isi\w*|cek\w*|periksa\w*|jelaskan|jelasin|terangkan)\b/i;
+const HOMEWORK_THING = /\b(?:questions?|answers?|jawaban\w*|problems?|homework|home work|assignment|exercises?|quiz|test|exam|math|maths|equations?|sums|worksheet|soal\w*|pertanyaan\w*|pr\b|pekerjaan rumah|tugas\w*|latihan\w*|ulangan|ujian|kuis|matematika|mtk|persamaan|hitungan)\b/i;
+const HOMEWORK_PLACE = /\b(?:screen|layar\w*|monitor|on (?:it|there)|here|di ?sini|di situ|this|these|that|those|ini|itu|tersebut|yang ada|in front|di depan)\b/i;
+const HOMEWORK_OWN = /\b(?:homework|home work|assignment|worksheet|pekerjaan rumah|pr\b|tugas(?:ku| saya| aku)?)\b/i;
+function homeworkAsk(said) {
+  const t = politely(plain(said));
+  if (!HOMEWORK_VERB.test(t) || !HOMEWORK_THING.test(t)) return null;
+  // the question is in the message (after a colon, or a sum in it): her chat answers it
+  if (/:\s*\S.{8,}/.test(t) || /\d\s*[-+*/x×÷^=]\s*\d/.test(t)) return null;
+  if (!HOMEWORK_PLACE.test(t) && !HOMEWORK_OWN.test(t)) return null;
+  return { kind: 'look', text: String(said).trim(), task: 'homework' };
+}
+
 // ---- moving her, by words ("tolong ke kanan", "move left", "ke cursor saya", "berhenti bergelantungan di cursor") ----
 const MOVE_CUE = /^(?:pindah|geser|jalan|pergi|move|go|walk|berada|berdiri|stand|duduk|sit|ke|be|stay|diam|minggir|datang|come|get|lari|run|nongkrong|tunggu)\b/;
 const MOVES = [
@@ -211,6 +234,133 @@ function moveIn(text) {
 }
 
 // ---- what you're listening to, Spotify searches, a browser of your choice, where a file is ----
+// Typing for you in another app ("type hello tiktok", "ketik halo di notepad", "tulis selamat pagi ke chat", "type
+// print('hi') in vscode"): the text as you said it (its case, its quotes), and where (an app she knows by name, or
+// the window you were in: "the chat", nothing). "write"/"tulis" only with a place: "write a script…" is code.
+const TYPE_APPS = String.raw`notepad\s*\+\+|note ?pad|catatan|vs ?code|visual studio code|antigravity|cursor|windsurf|(?:google )?chrome|(?:microsoft )?edge|firefox|opera(?: gx)?|brave|discord|whatsapp|telegram|slack|(?:microsoft )?teams|(?:microsoft )?word|(?:microsoft )?excel|(?:microsoft )?powerpoint|(?:windows )?terminal|cmd|command prompt|(?:windows )?powershell|obsidian|notion|(?:the |kolom |kotak )?chat(?:nya| box)?|(?:the )?(?:app|window|aplikasi|jendela)(?: ini| itu| in front| di depan)?`;
+const TYPE_ASK = new RegExp(String.raw`^(?:(?:please|tolong|coba)\s+)?(?:type|ketik(?:kan|in)?|tuliskan|tulisin|(?:write|tulis)(?=[\s\S]+\s(?:in|into|on|di|ke|dalam)\s+(?:the\s+)?(?:${TYPE_APPS})\s*$))[.,:;!]?(?!\s+(?:of|\d)\b)\s+(?:out\s+)?([\s\S]{1,2000}?)(?:\s+(?:in|into|on|to|di|ke|pada|dalam)\s+(?:the\s+)?(${TYPE_APPS}))?\s*$`, 'i');
+const WINDOW_WORDS = /^(?:(?:the |kolom |kotak )?chat(?:nya| box)?|(?:the )?(?:app|window|aplikasi|jendela)(?: ini| itu| in front| di depan)?)$/i;
+// Code written right where you are, in the editor in front ("write simple html here", "buatkan kode python di sini",
+// "add a login form in vscode", "can you write HTML right here, a basic website"): her model writes it, and she
+// pastes it in (life.js codeHere). Not typed as you said it, and not a file of her own (that's "code" without "here").
+// The speech recognizer's spellings of the languages first ("@stml" is HTML).
+const CODE_SPELLINGS = [
+  [/(?:@|\bat\s?)s?\s?t\s?m\s?l\b|\bh\.?\s?t\.?\s?m\.?\s?l\b|\bhdml\b|\bhtlm\b|\bhtml\b/gi, 'HTML'],
+  [/\bjava\s+script\b/gi, 'JavaScript'], [/\btype\s+script\b(?=.*\b(?:code|component|function|file|interface|here|di ?sini)\b)/gi, 'TypeScript'],
+  [/\b(?:pie\s?thon|phyton|pyton|paiton)\b/gi, 'Python'], [/\bc\s?s\s?s\b/gi, 'CSS'], [/\bjay\s?son\b|\bj\s?son\b/gi, 'JSON'], [/\bsequel\b|\bs\s?q\s?l\b/gi, 'SQL'],
+];
+const codeSpelled = (t) => CODE_SPELLINGS.reduce((s, [re, to]) => s.replace(re, to), String(t || ''));
+const CODE_HERE_WHERE = new RegExp(String.raw`\b(?:right here|in here|here|di ?sini|di file ini|ke file ini|in(?:to)? this file|in(?:to)? (?:the |my )?editor|di editor|ke editor|in(?:to)? (?:the )?(?:${TYPE_APPS})|di (?:${TYPE_APPS})|ke (?:${TYPE_APPS}))\b`, 'i');
+const CODE_THING = /\b(?:code|kode|koding|html|css|javascript|typescript|python|java|c\+\+|c#|php|sql|json|yaml|bash|powershell|script|skrip|function|fungsi|class|component|komponen|website|web ?page|webpage|landing page|page|halaman|form|formulir|login|navbar|button|tombol|tabel|table|loop|program|regex|query|api|endpoint|game|kalkulator|calculator|template|boilerplate)\b/i;
+const CODE_VERB = /^(?:write|code|make|create|build|generate|add|put|insert|implement|give me|buat\w*|bikin\w*|tulis\w*|tambah\w*|kasih|ketik\w*|type)\b/i;
+// a literal "type html here" / "ketik 'print'" stays typing: generating needs a thing to make ("a basic website",
+// "simple html", "kode python", "a function that…")
+const CODE_MAKE = /\b(?:a|an|some|simple|basic|sederhana|contoh|example|sample|full|lengkap|template|kode|code|website|web ?page|landing page|page|halaman|form|formulir|function|fungsi|script|skrip|program|component|komponen|game|class)\b/i;
+function codeHereAsk(said) {
+  const raw = politely(plain(said)).trim();
+  if (/["“”'‘’`]/.test(raw)) return null; // quoted: those words, typed as they are
+  const t = codeSpelled(raw);
+  if (!CODE_VERB.test(t) || !CODE_THING.test(t) || !CODE_HERE_WHERE.test(t)) return null;
+  if (/^(?:type|ketik\w*)\b/i.test(t) && !CODE_MAKE.test(t.replace(/^\S+\s+/, ''))) return null;
+  const app = new RegExp(String.raw`\b(?:in(?:to)?|di|ke)\s+(?:the\s+)?(${TYPE_APPS})\b`, 'i').exec(t)?.[1]?.toLowerCase().replace(/\s+/g, ' ') || '';
+  const task = t.replace(/\s*(?:,\s*)?\b(?:right here|in here|here|di ?sini)\b\s*,?/gi, ' ').replace(/\s+(?:to|for) me\b/gi, '').replace(/\s+/g, ' ').trim();
+  return { kind: 'code', task, via: 'here', here: true, target: app && !WINDOW_WORDS.test(app) ? app : '' };
+}
+
+// Something to be written for you, not typed as you said it ("write an email to my boss saying I'm sick", "tuliskan
+// surat lamaran kerja di notepad", "draft a tweet about cats"): her model drafts it, you see it, and she types it
+// when you say so (life.js 'draft'). A kind of text is named; a song's words stay in her chat, code has its own.
+const DRAFT_KINDS = String.raw`(?:e-?mail|letter|cover letter|message|text message|text|tweet|post|caption|poem|story|short story|paragraph|essay|reply|response|note|bio|description|summary|speech|toast|apology|invitation|announcement|review|article|status|thank[- ]you note|surat(?: lamaran(?: kerja)?| izin| resmi| pengunduran diri)?|pesan|puisi|pantun|cerita|cerpen|paragraf|esai|balasan|ucapan(?: [a-z]+)?|undangan|pengumuman|ringkasan|deskripsi|pidato|artikel|permintaan maaf|kata sambutan)`;
+const DRAFT_ASK = new RegExp(String.raw`^(?:(?:please|tolong|coba)\s+)?(?:write|draft|compose|prepare|buat(?:kan|in)?|bikin(?:in|kan)?|tulis(?:kan|in)?|karang(?:kan)?|susun(?:kan)?|siapkan)\s+(?:me\s+|aku\s+|saya\s+|untukku\s+|for me\s+)?(?:an?\s+|the\s+|some\s+|sebuah\s+|satu\s+)?(?:(?:short|long|quick|formal|casual|nice|sweet|funny|polite|professional|singkat|pendek|panjang|resmi|santai|lucu|sopan|romantis|romantic)\s+)*${DRAFT_KINDS}\b([\s\S]{0,400}?)(?:\s+(?:in|into|on|di|ke|dalam)\s+(?:the\s+)?(${TYPE_APPS}))?\s*[.!]?$`, 'i');
+function draftAsk(said) {
+  const raw = politely(said).trim();
+  const m = DRAFT_ASK.exec(raw);
+  if (!m) return null;
+  const where = (m[2] || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const task = (m[2] ? raw.slice(0, raw.length - m[0].length + m[0].lastIndexOf(m[2])).replace(/\s+(?:in|into|on|di|ke|dalam)\s+(?:the\s+)?$/i, '') : raw).trim();
+  return { kind: 'draft', task, target: where && !WINDOW_WORDS.test(where) ? where : '' };
+}
+
+function typeAsk(said) {
+  // "…here", "…di sini": the window you're in (nothing to type of it)
+  const raw = politely(said).replace(/\s+(?:right here|in here|here|di ?sini)\s*([.!?]*)$/i, '$1');
+  let m = TYPE_ASK.exec(raw);
+  if (!m) return null;
+  // "…in notepad." (a spoken sentence's full stop): the place is still the place
+  if (!m[2] && /[.!]+$/.test(raw)) {
+    const again = TYPE_ASK.exec(raw.replace(/\s*[.!]+$/, ''));
+    if (again?.[2]) m = again;
+  }
+  const words = m[1].trim();
+  const quoted = /^["'“”‘’](.*)["'“”‘’]$/s.exec(words);
+  const text = quoted ? quoted[1] : words.replace(/(?<!\.)\.$/, '');
+  if (!text) return null;
+  const where = (m[2] || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  return { kind: 'type', text, target: where && !WINDOW_WORDS.test(where) ? where : '' };
+}
+
+// a key to press in the app you're in ("press enter", "kirim", "save it", "pilih semua")
+const KEY_ASK = [
+  ['enter', /^(?:(?:press|hit|tekan|pencet)\s+)?(?:the\s+)?(?:enter|return)(?:\s+key)?$|^(?:send|kirim)(?:\s+(?:it|that|aja|sekarang|pesan(?:nya| ini)?|chat(?:nya)?))?$/],
+  ['save', /^(?:save|simpan)(?:\s+(?:it|that|the file|file(?:nya)?|aja|sekarang))?$/],
+  ['selectall', /^(?:select all|pilih semua|blok semua)$/],
+  ['undo', /^(?:undo(?: that)?|batalkan(?: itu)?)$/],
+  ['newline', /^(?:new line|baris baru)$/],
+  ['tab', /^(?:(?:press|tekan)\s+)?tab$/],
+];
+function keyAsk(text) {
+  const hit = KEY_ASK.find(([, re]) => re.test(text));
+  return hit ? { kind: 'key', key: hit[0] } : null;
+}
+
+// Several commands in one sentence ("open notepad and type hello tiktok", "buka spotify lalu putar musik", "ke kiri
+// terus joget"): split where they join, kept only when every part is a command of hers (else it's one command, a
+// song or a search with "and" in it, or a chat). What to type runs on to the end, or to a key to press after it.
+const JOIN = /\s*,?\s+(?:and then|and|then|after that|lalu|terus|trus|kemudian|habis itu|abis itu|setelah itu|dan|&)\s+|\s*[;,]\s+/gi;
+const MAX_STEPS = 5;
+// her name and a polite start ("Capri, can you…", "tolong…", "bisa nggak…"): not a command of their own
+const ASKING = new RegExp(String.raw`^(?:${GREETING}[\s,.!]+)*(?:${NAME}[\s,.!:?]+)?(?:(?:can you|could you|would you|will you|please|pls|tolong|coba|bisa(?:kah| tolong| nggak| gak| ga)?|aku mau kamu|i want you to|go ahead and)[\s,]+)*`, 'i');
+// what you asked, without her name or the polite start; asked as a question ("can you…?"), its question mark is
+// the request's, not part of what to type
+function politely(said) {
+  const raw = String(said || '').trim();
+  const start = ASKING.exec(raw)?.[0] || '';
+  const rest = raw.slice(start.length);
+  return /\b(?:can|could|would|will) you\b|\bbisa\b/i.test(start) ? rest.replace(/\s*\?+$/, '') : rest;
+}
+
+function chain(said) {
+  const raw = politely(said);
+  const pieces = [];
+  const joins = [];
+  let last = 0;
+  for (const m of raw.matchAll(JOIN)) {
+    pieces.push(raw.slice(last, m.index));
+    joins.push(m[0]);
+    last = m.index + m[0].length;
+  }
+  pieces.push(raw.slice(last));
+  if (pieces.length < 2) return null;
+  const steps = [];
+  for (let i = 0; i < pieces.length; i++) {
+    let part = pieces[i].trim();
+    if (!part) continue;
+    let e = parse(part);
+    if (e.kind === 'type') {
+      let j = i + 1;
+      while (j < pieces.length && parse(pieces[j].trim()).kind !== 'key') {
+        part += joins[j - 1] + pieces[j];
+        j++;
+      }
+      e = parse(part.trim());
+      i = j - 1;
+    }
+    if (e.kind === 'none') return null;
+    steps.push({ said: part.trim(), e });
+  }
+  return steps.length >= 2 && steps.length <= MAX_STEPS ? steps : null;
+}
+
 // The song playing, handled (life.js, through Windows' media session): next, previous, repeat, shuffle, back to the
 // start, a jump forward or back. Checked before "play X", which would take "putar ulang lagu ini" for a song to find.
 const SONG_CONTROLS = [
@@ -219,6 +369,7 @@ const SONG_CONTROLS = [
   ['repeat-one', /^(?:(?:repeat|loop)(?: (?:this|the|that|current))?(?: (?:song|track|one))?(?: (?:on|again|forever|terus))?|put (?:this|it|the song) on (?:repeat|loop)|(?:ulang-ulang|repeat|loop|ulang(?:i)? terus)(?: lagu(?:nya)?(?: ini)?)?(?: terus)?|(?:putar|setel) (?:terus|berulang)(?: lagu(?:nya)?(?: ini)?)?)$/],
   ['shuffle-off', /^(?:(?:turn |switch )?(?:off|stop) (?:the )?shuffl(?:e|ing)|shuffle off|stop shuffling|no (?:more )?shuffle|(?:matikan|matiin|stop|jangan) (?:shuffle|acak(?:-acak)?|diacak)(?: lagu(?:nya)?)?|jangan (?:di)?acak(?: lagi)?)$/],
   ['shuffle-on', /^(?:shuffle(?: (?:on|it|the (?:songs|playlist|music)|my (?:music|playlist)))?|(?:turn|switch) on (?:the )?shuffle|(?:acak|acakin|shuffle) (?:lagu(?:nya)?|playlist(?:nya)?|musik(?:nya)?)|putar acak|(?:nyalakan|nyalain|aktifkan) (?:shuffle|acak))$/],
+  ['play', /^(?:play|putar(?:kan)?|setel|nyalain|nyalakan|mainkan)(?: (?:some|the|my))? (?:music|musik|lagu|song)(?:nya)?(?: dong| lagi)?$/],
   ['restart', /^(?:restart(?: (?:the|this) (?:song|track))?|(?:play|start) (?:it|this(?: song)?|the song) (?:from the (?:start|beginning|top)|over|again from the (?:start|beginning))|from the (?:start|beginning|top)|start (?:it |this song )?over|putar ulang(?: lagu(?:nya)?(?: ini)?)?|ulangi lagu(?:nya)?(?: ini)?|(?:ulang|mulai|putar) (?:lagi )?dari awal(?: lagi)?|dari awal(?: lagi)?)$/],
   ['next', /^(?:next(?: one| song| track| lagu)?|skip(?: it| this(?: one)?| lagu(?:nya)?(?: ini)?)?|(?:play )?(?:the )?next (?:one|song|track)|another (?:song|one)|ganti lagu(?:nya)?(?: lain)?|lagu lain|(?:putar |lanjut(?: ke)? )?lagu (?:berikut(?:nya)?|selanjutnya)|lewati(?: lagu(?:nya)?(?: ini)?)?)$/],
   ['previous', /^(?:prev(?:ious)?(?: one| song| track)?|(?:play |go back to )?(?:the )?(?:previous|last) (?:one|song|track)(?: again)?|back to the (?:previous|last) (?:song|track)|go back (?:a|one) (?:song|track)|(?:putar |balik(?: ke)? |kembali(?: ke)? )?lagu (?:sebelum(?:nya)?|tadi|yang tadi))$/],
@@ -312,12 +463,60 @@ function arithmetic(text) {
   return { expr: e.replace(/\*\*/g, '^').replace(/\*/g, '×').replace(/\//g, '÷'), value: Math.round(value * 1e8) / 1e8 };
 }
 
+// A command of your own, taught in words ("when I say work mode, open vscode and play music", "kalau aku bilang
+// mode santai, putar musik lalu ke kiri"), and forgotten ("forget work mode", "lupakan perintah mode santai").
+// What it does is your own words, run like you'd said them (life.js skills).
+const TEACH_ASK = /^(?:when(?:ever)? i say|if i say|each time i say|kalau (?:aku|saya|gue|gw) bilang|jika (?:aku|saya) (?:bilang|berkata|mengatakan)|setiap (?:aku|saya) bilang|tiap (?:aku|saya) bilang)\s+["“']?([^"”',:]{2,40}?)["”']?\s*(?:[,:]|\s+(?:then|you|kamu|maka))\s*(?:(?:you|kamu)\s+)?(?:(?:should|harus|tolong)\s+)?(.{3,300})$/i;
+const UNTEACH_ASK = /^(?:forget|delete|remove|lupakan|hapus)\s+(?:the |my |your |perintah |command |skill )*["“']?(.{2,40}?)["”']?(?:\s+(?:command|skill|perintah))?$/i;
+function teachAsk(said) {
+  const m = TEACH_ASK.exec(politely(plain(said)));
+  return m ? { kind: 'teach', name: m[1].trim(), run: m[2].trim().replace(/[.!]+$/, '') } : null;
+}
+
+// The weather ("what's the weather", "cuaca di Bandung besok", "will it rain tomorrow?", "besok hujan nggak?")
+const WEATHER_ASK = /^(?:(?:what(?:'s| is| will be)|how(?:'s| is))\s+(?:the\s+)?(?:weather|forecast|temperature)\b|(?:check|show me|tell me)\s+(?:the\s+)?(?:weather|forecast)\b|(?:weather|forecast|temperature)\b|(?:(?:gimana|bagaimana|cek|lihat|liat)\s+)?(?:cuaca|ramalan cuaca|prakiraan cuaca|suhu)\b|(?:will|is) it (?:going to )?(?:rain|snow|be (?:hot|cold|sunny|rainy))\b|(?:is it|it's) raining\b|how (?:hot|cold|warm) is it\b|(?:apakah |apa )?(?:besok |nanti |hari ini |nanti sore |nanti malam )?(?:bakal |akan |mau )?hujan\s+(?:nggak|gak|ga|enggak|tidak|ya|kah|gak sih|nggak sih)\b|(?:bakal|akan) hujan\b)/i;
+const WEATHER_CITY = /\b(?:in|di|at|for|untuk|daerah|kota)\s+([\p{L}][\p{L} .'-]{1,40}?)(?:\s+(?:today|tomorrow|now|tonight|this (?:morning|afternoon|evening|week)|besok|hari ini|sekarang|nanti|malam ini|sore ini|minggu ini))?\s*[?.!]*$/iu;
+function weatherAsk(text) {
+  if (!WEATHER_ASK.test(text)) return null;
+  // "cuaca di Bandung", "weather in Tokyo"; or right after the word ("cek cuaca jakarta")
+  const city = (WEATHER_CITY.exec(text)?.[1] || /\b(?:cuaca|weather|forecast)\s+(?!(?:hari|besok|today|tomorrow|now|sekarang|nanti|is|di|in|for|untuk|gimana|bagaimana)\b)([\p{L}][\p{L} .'-]{1,30}?)\s*[?.!]*$/iu.exec(text)?.[1] || '').trim();
+  return { kind: 'weather', city: /^(?:here|sini|my (?:city|area)|kotaku|daerahku)$/i.test(city) ? '' : city, when: /\b(?:tomorrow|besok)\b/i.test(text) ? 'tomorrow' : 'today' };
+}
+
+// Her brief of your day ("brief me", "what's my day", "rangkuman hari ini"; "good morning", "selamat pagi" in the morning)
+const BRIEF_ASK = /^(?:brief me|daily brief|my day|what'?s (?:my|on my|on) (?:day|agenda)|what(?:'s| is) (?:up )?today|how(?:'s| is) my day(?: looking)?|rangkuman(?: hari ini)?|ringkasan(?: hari ini)?|apa (?:agenda|jadwal|rencana)(?:ku| aku| saya)? hari ini|hari ini ada apa(?: aja)?)$/i;
+const MORNING = /^(?:good morning|morning|mornin'?|selamat pagi|pagi|met pagi|pagi capri)$/i;
+function briefAsk(text) {
+  const hour = new Date().getHours();
+  return BRIEF_ASK.test(text) || (MORNING.test(text) && hour >= 4 && hour < 12) ? { kind: 'brief' } : null;
+}
+
+// the name of a command of yours as you'd say it: lowercase, no punctuation, no "please" or her name around it
+const skillName = (s) => politely(plain(s)).toLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+
 function parse(said) {
   const cased = plain(said);
   const text = cased.toLowerCase();
   if (!text) return { kind: 'none' };
   let m;
 
+  const taught = teachAsk(said);
+  if (taught) return taught;
+  const weather = weatherAsk(cased);
+  if (weather) return weather;
+  const brief = briefAsk(text.replace(/[.!?]+$/, ''));
+  if (brief) return brief;
+
+  const homework = homeworkAsk(said);
+  if (homework) return homework;
+  const coding = codeHereAsk(said);
+  if (coding) return coding;
+  const drafting = draftAsk(said);
+  if (drafting) return drafting;
+  const typing = typeAsk(said);
+  if (typing) return typing;
+  const key = keyAsk(text);
+  if (key) return key;
   if (LOOK_ASK.test(text)) return { kind: 'look', text: String(said).trim() };
   const move = moveIn(text);
   if (move) return { kind: 'move', move };
@@ -345,7 +544,7 @@ function parse(said) {
   m = /^(?:cari(?:kan|in)?|search(?: for)?|find)\s+(?:lagu\s+|song\s+|musik\s+)?(.{2,80}?)\s+(?:di|on|in)\s+spotify$/i.exec(cased);
   if (m) return { kind: 'spotifySearch', text: m[1].trim() };
   m = /^(?:open|buka(?:kan|in)?|launch)\s+spotify\s*,?\s+(?:and|dan|terus|lalu|then|&)\s+(?:cari(?:kan|in)?|search(?: for)?|find|play|putar|puterin|setel)\s+(?:lagu\s+|song\s+|musik\s+)?(.{2,80})$/i.exec(cased);
-  if (m) return { kind: 'spotifySearch', text: m[1].trim().replace(/^["'“”‘’]+|["'“”‘’]+$/g, '') };
+  if (m && !/^(?:some |the |my )?(?:music|musik|lagu|songs?|something|sesuatu)(?:nya)?$/i.test(m[1].trim())) return { kind: 'spotifySearch', text: m[1].trim().replace(/^["'“”‘’]+|["'“”‘’]+$/g, '') };
 
   m = /^(?:buka(?:kan|in)?|open|launch)\s+(.{2,60}?)\s+(?:di|in|on|pakai|pake|with|lewat)\s+(chrome|brave|edge|firefox|opera)$/i.exec(cased);
   if (m) {
@@ -404,7 +603,7 @@ function parse(said) {
   if (FAVORITE.test(cased)) return { kind: 'song', text: 'In Love With Myself Petite Meller', mine: true };
   // "(can you) play In Love With Myself", "putar lagu Die For You", "setel lagu X dari Y": that song, played
   // on Spotify (its top match), not just looked up. Not "play it again", a game, or YouTube.
-  m = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan|nyalain)\s+(?:(?:the |a |some )?(?:song|track|lagu|musik)\s+)?(.{2,80}?)(?:\s+(?:by|dari|oleh|from)\s+(.{2,40}?))?$/i.exec(cased);
+  m = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan|nyalain(?=\s+(?:the |a |some )?(?:song|track|lagu|musik)\s))\s+(?:(?:the |a |some )?(?:song|track|lagu|musik)\s+)?(.{2,80}?)(?:\s+(?:by|dari|oleh|from)\s+(.{2,40}?))?$/i.exec(cased);
   // ("play me X" is X; "play me some music vibes, I'm happy" isn't a title, nor is a sentence after a comma)
   const asked = m && m[1].trim().replace(/^(?:me|us|for me)\s+/i, '').replace(/^some\s+/i, '');
   if (m && !NOT_A_SONG.test(asked) && !/,\s*(?:i|i'm|im|aku|saya|karena|because|soalnya)\b/i.test(asked) && !/\s(?:on|in|di)\s+(?:youtube|google|bing|duckduckgo)$/i.test(cased)) {
@@ -422,7 +621,7 @@ function parse(said) {
     }
   }
 
-  m = /^(?:open|launch|start|run|show me|buka(?:kan|in)?|jalankan|nyalakan)(?: up)?\s+(?:my |the |a |folder )?(.{2,30}?)(?:\s+(?:and|then|,|terus|lalu|dan)\s+(.{3,}))?$/i.exec(text);
+  m = /^(?:open|launch|start|run|show me|fire up|boot up|buka(?:kan|in)?|jalankan|nyala(?:kan|in))(?: up)?\s+(?:my |the |a |folder )?(.{2,30}?)(?:\s+(?:and|then|,|terus|lalu|dan)\s+(.{3,}))?$/i.exec(text);
   if (m) {
     const wanted = m[1].trim();
     const bare = wanted.replace(/^(?:my|the|folder|file)\s+/, '').replace(/\s+(?:files?|folders?|directory|dir|ku|saya|aku)$/, '').replace(/(?:ku|nya)$/, '');
@@ -472,4 +671,58 @@ async function firstVideo(query) {
   }
 }
 
-module.exports = { parse, canon, sensitive, describe, firstVideo, dareCategory, checkDare, friendly, DARES, length, nextClock, plain, place, siteFor, BROWSERS };
+// ---- what her rules missed: her model asked what you meant (life.js route) ----
+// Only a sentence that sounds like a command ("could you fire up spotify", "tolong nyalain notepad dong", "kecilin
+// suaranya"), so a plain chat never waits for it; a question about the world never is one.
+const ROUTE_HINT = /\b(?:open|launch|start|fire up|boot|run|load|bring up|pull up|play|pause|resume|stop the|skip|next|previous|turn (?:up|down|on|off)|crank|volume|louder|quieter|softer|mute|unmute|tunes?|hear|listen|type|write|enter|search|google|look up|find|show|hide|set|timer|alarm|remind|wake me|move|go to|go (?:left|right)|stand|sit|come|dance|lyrics?|music|song|track|playlist|spotify|notepad|vs ?code|chrome|edge|browser|youtube|discord|whatsapp|telegram|folder|downloads?|documents?|buka\w*|nyala\w*|jalan\w*|putar\w*|puter\w*|setel\w*|mainkan|lanjut\w*|ganti|lewati|skip\w*|ketik\w*|tulis\w*|cari\w*|tampil\w*|sembunyi\w*|pasang\w*|ingatkan|bangunin|kecil\w*|gede\w*|besar\w*|keras\w*|pelan\w*|lagu\w*|musik\w*|lirik\w*|suara\w*|pindah\w*|ke (?:kiri|kanan|tengah|sini)|joget\w*)\b/i;
+const ROUTE_QUESTION = /^(?:who|what|why|how|when|where|which|whose|is|are|was|were|does|did|siapa|apa|apakah|kenapa|mengapa|bagaimana|gimana|kapan|di ?mana|berapa)\b/i;
+// what she may do from her model's reading of you (never closing an app, forgetting, clearing alarms, writing code)
+const ROUTE_KINDS = new Set(['app', 'open', 'find', 'browser', 'web', 'song', 'media', 'spotifySearch', 'lyrics', 'listen', 'nowPlaying', 'move', 'timer', 'clock', 'time', 'type', 'key']);
+
+// talk to her, about her, or about the world: a chat, whatever words are in it ("kamu suka musik apa?", "tell me
+// about spotify's history")
+const ROUTE_CHAT = /^(?:tell me|ceritakan|ceritain|explain|jelaskan|describe|what do you think|menurutmu|do you|are you|kamu suka|kamu tau|apa kamu|i (?:love|like|hate)|aku (?:suka|cinta|benci))\b/i;
+
+function routable(said) {
+  const t = politely(plain(said));
+  if (t.length < 3 || t.length > 160 || /\n/.test(t)) return false;
+  const asking = /^(?:can|could|would|will) you\b/i.test(politely(String(said || '')).trim()) || /^(?:can|could|would|will) you\b|^(?:tolong|bisa)\b/i.test(String(said || '').trim());
+  if ((ROUTE_QUESTION.test(t) || /\?\s*$/.test(t)) && !asking) return false;
+  if (ROUTE_CHAT.test(t)) return false;
+  return ROUTE_HINT.test(t);
+}
+
+// What her model's guess may be, by what you said: an app opened only when you said to open something, a search
+// only when you said search, typing only when you said type... (a guess is never more than your own words).
+const ROUTE_GROUNDS = {
+  app: /\b(?:open|launch|start|fire up|boot|run|load|bring up|pull up|go to|buka\w*|nyala\w*|jalan\w*)\b/i,
+  find: /\b(?:find|where|open|bring up|pull up|cari\w*|mana|buka\w*)\b/i,
+  web: /\b(?:search|google|look up|cari\w*|carikan|googling\w*)\b/i,
+  song: /\b(?:play|put on|hear|listen|tunes?|music|songs?|track|putar\w*|puter\w*|setel\w*|dengar\w*|denger\w*|lagu\w*|musik\w*|mainkan)\b/i,
+  timer: /\b(?:timer|alarm|remind|wake|minutes?|hours?|o'?clock|ingat\w*|bangun\w*|menit|jam|pukul)\b/i,
+  type: /\b(?:type|write|enter|press|send|save|ketik\w*|tulis\w*|tekan|kirim|simpan)\b/i,
+};
+const GROUND_OF = { app: 'app', open: 'app', browser: 'app', find: 'find', web: 'web', song: 'song', spotifySearch: 'song', timer: 'timer', clock: 'timer', type: 'type', key: 'type' };
+const grounded = (e, said) => !GROUND_OF[e.kind] || ROUTE_GROUNDS[GROUND_OF[e.kind]].test(said);
+
+// The one line her model answered, read by her own rules: what to do, or null (NONE, something she may not do
+// from a guess, or more than you said).
+function routed(line, said = '') {
+  let t = String(line || '').trim().split(/\r?\n/)[0].replace(/^["'`]+|["'`]+$/g, '').replace(/^(?:command|answer)\s*:\s*/i, '').trim();
+  if (!t || /^none\b/i.test(t) || t.length > 200) return null;
+  // a small model copying the list back ("open <app> | play music"): not an answer
+  if (/[|<>]/.test(t)) return null;
+  // "play blinding lights by <someone>": the artist only if you named them (a model guesses one, and wrong)
+  const fold = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  if (said) t = t.replace(/\s+by\s+([^,]+?)(?=\s+and\s|$)/i, (m, who) => (fold(said).includes(fold(who)) && !/^(?:aku|saya|me|i|myself|you|kamu)$/i.test(who.trim()) ? m : ''));
+  // (code only written into the editor in front, "write … here": never a terminal or a file from a guess)
+  const ok = (e) => (ROUTE_KINDS.has(e.kind) || (e.kind === 'code' && e.here && CODE_THING.test(codeSpelled(said || e.task)))) && (!said || grounded(e, said));
+  const steps = chain(t);
+  // several commands back for one thing you asked: a guess too far
+  if (steps && said && !new RegExp(JOIN.source, 'i').test(politely(said))) return null;
+  if (steps) return steps.every((s) => ok(s.e)) ? { line: t, steps } : null;
+  const e = parse(t);
+  return ok(e) ? { line: t, e } : null;
+}
+
+module.exports = { parse, chain, canon, routable, routed, ROUTE_KINDS, skillName, UNTEACH_ASK, sensitive, describe, firstVideo, dareCategory, checkDare, friendly, DARES, length, nextClock, plain, place, siteFor, BROWSERS };
