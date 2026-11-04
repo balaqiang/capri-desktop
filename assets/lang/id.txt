@@ -1743,3 +1743,292 @@ Cari di internet
 Pertanyaan tentang dunia ("siapa presiden indonesia", "who is the CEO of Nvidia") dicari dulu di Wikipedia dan Bing, sekitar satu detik, jadi dia menjawab dari web hari ini. Yang dikirim cuma pertanyaanmu.
 > Her word on your songs, her dares: fast and free, without spending your online quota. (With Ollama as her main brain, they use that same model: two models at once push each other out of your graphics card.)
 Komentarnya soal lagumu, tantangannya: cepat dan gratis, tanpa memakai kuota online-mu. (Kalau otak utamanya Ollama, tugas-tugas ini memakai model yang sama: dua model sekaligus saling mendorong keluar dari kartu grafismu.)
+
+# ---- several commands at once, typing for you (0.5.6) ----
+> Opened {0}.
+{0} sudah dibuka.
+> Typed it in {0}.
+Sudah kuketik di {0}.
+> Pressed Enter.
+Enter sudah ditekan.
+> Saved.
+Tersimpan.
+> Selected it all.
+Semua sudah dipilih.
+> Undone.
+Sudah dibatalkan.
+> New line.
+Baris baru.
+> Tab.
+Tab.
+> I can't find {0} open.
+Aku nggak nemu {0} yang terbuka.
+> I don't know which window you mean. Name it: "in notepad".
+Aku nggak tahu jendela yang mana. Sebut aja: "di notepad".
+> That window is gone.
+Jendela itu udah nggak ada.
+> {0} wouldn't come to the front, so I typed nothing.
+{0} nggak mau muncul di depan, jadi aku nggak ngetik apa-apa.
+> You switched windows, so I stopped typing.
+Kamu pindah jendela, jadi aku berhenti ngetik.
+> I couldn't do "{0}".
+Aku nggak bisa "{0}".
+> that window
+jendela itu
+> Type for me
+Ketik untukku
+> Type what you say into another app ("type hello in notepad", "buka notepad lalu ketik halo"), and press Enter or Ctrl+S when you ask. Only into the app you name or the one you were in.
+Mengetik apa yang kamu bilang ke aplikasi lain ("ketik halo di notepad", "buka notepad lalu ketik halo"), dan menekan Enter atau Ctrl+S kalau kamu minta. Hanya ke aplikasi yang kamu sebut atau yang tadi kamu pakai.
+> Jacking into {0}…
+Masuk ke {0}…
+> Task done! What else should I write?
+Task selesai! Mau aku tulis apa lagi?
+> Done. Anything else to type? I'm on a roll.
+Beres. Ada lagi yang mau diketik? Aku lagi semangat nih.
+> All typed. What's next, boss?
+Semua sudah kuketik. Selanjutnya apa, bos?
+> All done. What next?
+Semua beres. Terus apa lagi?
+> Done and done. Anything else?
+Beres dan beres. Ada lagi?
+> Easy. Give me another one.
+Gampang. Kasih aku satu lagi.
+
+# ---- voice: dictation fixed, her model's claims set straight (0.5.8) ----
+> Typed "{0}" in {1}.
+Sudah kuketik "{0}" di {1}.
+> Fix what I dictate
+Perbaiki yang kudiktekan
+> When you say "type…" out loud, her model fixes what speech recognition misheard ("get hub" becomes "GitHub", "every one" becomes "everyone") before she types it, and tells you what she typed. What you type by hand is never changed.
+Saat kamu bilang "ketik…" lewat suara, modelnya memperbaiki yang salah didengar oleh pengenal suara ("get hub" jadi "GitHub", "every one" jadi "everyone") sebelum diketik, lalu memberi tahu apa yang dia ketik. Yang kamu ketik sendiri tidak pernah diubah.
+> (Nothing was typed or opened, though. Say it plainly: "open notepad and type hello".)
+(Tapi belum ada yang diketik atau dibuka. Bilang dengan jelas: "buka notepad lalu ketik halo".)
+
+> Words to hear right
+Kata yang harus didengar benar
+> Names, apps and words of yours, comma separated, spelled the way they are written: Whisper hears them better ("Antigravity", not "anti gravity"). App names like Notepad and VS Code are in already.
+Nama, aplikasi dan kata-katamu, pisahkan dengan koma, tulis seperti ejaan aslinya: Whisper jadi lebih tepat mendengarnya ("Antigravity", bukan "anti gravity"). Nama aplikasi seperti Notepad dan VS Code sudah ada.
+
+> Stopped.
+Berhenti.
+> You pressed a key, so I stopped typing. Your keyboard, your rules.
+Kamu pencet tombol, jadi aku berhenti ngetik. Keyboard-mu, aturanmu.
+> That's a password box. I never type into those: that one's yours.
+Itu kotak password. Aku nggak pernah ngetik di situ: itu urusanmu.
+
+> Updates
+Pembaruan
+> This copy can't update itself (the portable one, or run from her source). New versions: her GitHub Releases page.
+Versi ini nggak bisa update sendiri (versi portable, atau dijalankan dari source). Versi baru: halaman GitHub Releases-nya.
+> Looking…
+Lagi nyari…
+> v{0}: the latest.
+v{0}: yang terbaru.
+> v{0} is out.
+v{0} sudah keluar.
+> Downloading v{0}… {1}%
+Lagi download v{0}… {1}%
+> v{0} is downloaded: it installs when she restarts.
+v{0} sudah ter-download: terpasang waktu dia restart.
+> Could not check: {0}
+Nggak bisa cek: {0}
+> Download
+Download
+> Restart and update
+Restart dan update
+> Check now
+Cek sekarang
+> Ask me: she tells you when there is a new version. Automatic: downloaded on its own, installed when you close her. Checked against the release before it installs.
+Tanya aku: dia kasih tahu kalau ada versi baru. Otomatis: di-download sendiri, terpasang waktu kamu tutup dia. Dicek dulu dengan rilisnya sebelum dipasang.
+> Ask me
+Tanya aku
+> A new me is out: v{0}. Download it?
+Aku versi baru sudah keluar: v{0}. Download sekarang?
+> Restart now
+Restart sekarang
+> v{0} is ready. Restart me now? (Or it installs when you close me.)
+v{0} sudah siap. Restart aku sekarang? (Atau terpasang waktu kamu tutup aku.)
+
+> (Taking that as "{0}".)
+(Kuanggap maksudmu "{0}".)
+> Commands in my own words
+Perintah dengan kata-kataku sendiri
+> "Could you crank it up", "puterin yang santai": when her rules miss a command, her model says which one it is (one short call) and she tells you how she took it. Never closing an app or anything behind a button.
+"Could you crank it up", "puterin yang santai": kalau aturannya nggak nangkep perintahnya, modelnya bilang itu perintah yang mana (satu panggilan singkat) dan dia kasih tahu gimana dia ngartiinnya. Nggak pernah nutup aplikasi atau apa pun yang butuh tombol.
+
+> Here it is. Say the word and I type it in {0}.
+Ini dia. Bilang aja, nanti aku ketik di {0}.
+> Here it is. Want me to type it where you were?
+Ini dia. Mau aku ketik di jendela yang tadi kamu pakai?
+> Changed. Better?
+Sudah kuubah. Lebih bagus?
+> My brain didn't answer. Try again in a moment?
+Otakku nggak jawab. Coba lagi sebentar lagi?
+> Type it
+Ketik
+> Copy
+Salin
+> Copied!
+Tersalin!
+> Again
+Ulangi
+
+> What she did
+Yang sudah dia lakukan
+> Keep a log
+Simpan catatan
+> Every app, page, search and key, and where she typed for you (how much, never the words), on this PC only. The last 300.
+Setiap aplikasi, halaman, pencarian dan tombol, dan di mana dia mengetik untukmu (berapa banyak, bukan isinya), hanya di PC ini. 300 terakhir.
+> Nothing yet. Ask her to open something.
+Belum ada. Suruh dia membuka sesuatu.
+> Log cleared.
+Catatan dihapus.
+> Opened
+Membuka
+> Opened in a browser
+Membuka di browser
+> Searched
+Mencari
+> Played a video
+Memutar video
+> Played
+Memutar
+> Searched Spotify
+Mencari di Spotify
+> Media
+Media
+> Typed
+Mengetik
+> Pressed
+Menekan
+> Closed
+Menutup
+> Code
+Kode
+> said
+diucapkan
+> taken as "{0}"
+dianggap "{0}"
+> did not work
+tidak berhasil
+
+> Forgot "{0}".
+"{0}" sudah kulupakan.
+> I don't know how to "{0}" yet, so I can't learn it. Say it the way you'd ask me.
+Aku belum tahu cara "{0}", jadi belum bisa kupelajari. Bilang seperti kamu nyuruh aku biasanya.
+> "{0}" is already a command of mine. Pick another name.
+"{0}" sudah jadi perintahku. Pilih nama lain.
+> I can keep 30 of those. Forget one first (Settings › Behavior).
+Aku cuma bisa simpan 30. Lupakan satu dulu (Pengaturan › Perilaku).
+> Got it. When you say "{0}", I {1}.
+Oke. Kalau kamu bilang "{0}", aku {1}.
+> work mode
+mode kerja
+> open vscode and play music
+buka vscode lalu putar musik
+> She can keep 30 of those.
+Dia cuma bisa simpan 30.
+> "{0}" learned.
+"{0}" sudah dipelajari.
+> Your commands
+Perintahmu
+> Say the name and she does all of it, one after the other: "work mode", "mode santai". Or teach her out loud: "when I say work mode, open vscode and play music".
+Sebut namanya dan dia kerjakan semuanya, satu per satu: "mode kerja", "mode santai". Atau ajari langsung: "kalau aku bilang mode kerja, buka vscode lalu putar musik".
+> New command
+Perintah baru
+> Its name, and what to do in your words (several things with "and", "lalu", "terus").
+Namanya, dan apa yang harus dilakukan dengan kata-katamu (beberapa hal pakai "dan", "lalu", "terus").
+
+> Bring an umbrella.
+Bawa payung ya.
+> {0} tomorrow: {1}, {2}–{3}°C, {4}% chance of rain.
+{0} besok: {1}, {2}–{3}°C, peluang hujan {4}%.
+> {0}: {1}°C, {2} (feels like {3}°).
+{0}: {1}°C, {2} (terasa seperti {3}°).
+> Today {0}–{1}°, {2}% chance of rain.
+Hari ini {0}–{1}°, peluang hujan {2}%.
+> clear sky
+cerah
+> mostly clear
+cerah berawan
+> partly cloudy
+berawan sebagian
+> cloudy
+berawan
+> foggy
+berkabut
+> drizzle
+gerimis
+> light rain
+hujan ringan
+> rain
+hujan
+> heavy rain
+hujan lebat
+> snow
+salju
+> snow showers
+hujan salju
+> thunderstorms
+badai petir
+> thunderstorms with hail
+badai petir dan hujan es
+> mixed weather
+cuaca campur aduk
+> Go get 'em.
+Hajar!
+> That's the day. Don't make me nag you.
+Itu harimu. Jangan bikin aku ngomel ya.
+> I'll be right here. Obviously.
+Aku di sini kok. Jelas.
+> Make it a good one. Or at least an interesting one.
+Bikin hari ini bagus. Atau minimal seru.
+> Good morning, {0}!
+Selamat pagi, {0}!
+> Good afternoon, {0}!
+Selamat siang, {0}!
+> Good evening, {0}!
+Selamat malam, {0}!
+> Good morning!
+Selamat pagi!
+> Good afternoon!
+Selamat siang!
+> Good evening!
+Selamat malam!
+> It's {0}.
+Hari ini {0}.
+> Alarms today: {0}.
+Alarm hari ini: {0}.
+> Playing: {0}.
+Lagi diputar: {0}.
+> Which city? Say "weather in Bandung", or set yours in Settings › Behavior › Your day.
+Kota mana? Bilang "cuaca di Bandung", atau atur kotamu di Pengaturan › Perilaku › Harimu.
+> I couldn't get the weather for {0}.
+Aku nggak bisa dapat cuaca untuk {0}.
+> Your day
+Harimu
+> Your city
+Kotamu
+> For the weather ("cuaca hari ini", "will it rain tomorrow?") and her brief of your day. From Open-Meteo: only the city goes out.
+Untuk cuaca ("cuaca hari ini", "besok hujan nggak?") dan rangkuman harimu. Dari Open-Meteo: hanya nama kota yang dikirim.
+> Morning brief
+Rangkuman pagi
+> The first time you are at your PC in the morning: the date, the weather, your alarms for today. Or say "brief me", "rangkuman hari ini".
+Pertama kali kamu di depan PC pagi hari: tanggal, cuaca, alarm hari ini. Atau bilang "brief me", "rangkuman hari ini".
+> Brief me now
+Rangkum sekarang
+> Recall past chats
+Ingat obrolan lama
+> When you talk about something you told her before (weeks ago too), she remembers it: the lines it is about, found in your chats kept on this PC. With an embedding model in Ollama (nomic-embed-text), by meaning too.
+Kalau kamu membahas sesuatu yang pernah kamu ceritakan (berminggu-minggu lalu juga), dia ingat: kalimat yang relevan, dicari di obrolanmu yang tersimpan di PC ini. Dengan model embedding di Ollama (nomic-embed-text), juga berdasarkan makna.
+
+> On it: writing the code…
+Siap: lagi nulis kodenya…
+> Wrote {0} lines of {1} in {2}. Ctrl+Z takes it back.
+Sudah kutulis {0} baris {1} di {2}. Ctrl+Z untuk membatalkan.
+> code
+kode
+> Your clipboard was busy, so I wrote nothing. Try again?
+Clipboard-mu lagi dipakai, jadi aku belum nulis apa-apa. Coba lagi?
+> Here are the answers:
+Ini jawabannya:
