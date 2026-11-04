@@ -190,6 +190,7 @@ export class Life {
     switch (evt.type) {
       case 'say': {
         if (capri.stowed && evt.kind !== 'jealous') return;
+        if (capri.hold) return; // held down to her mask (game, focus, quiet mode): not a word
         const shown = panel.say({ kind: 'info', face: EMOTIONS[evt.emotion]?.face || 'look', line: evt.text, quote: evt.quote || '', hold: evt.hold || 6500, ...(evt.kind === 'jealous' && { badge: 'JEALOUS' }), ...(evt.kind === 'dare' && { badge: 'DARE' }), ...(evt.kind === 'evolve' && { badge: 'EVOLVE' }) });
         if (shown) {
           if (capri.dormant) capri.wake();
@@ -201,7 +202,7 @@ export class Life {
       case 'alarm': {
         // a finished timer breaks in on whatever she was saying
         if (capri.stowed) capri.unstow();
-        if (capri.dormant) capri.wake();
+        if (capri.dormant || capri.hold) capri.wake({ release: true }); // an alarm of yours: out of her mask, game mode or not
         // her own recorded line for it, else the chime
         const voiced = this.voice.say(evt.study ? 'study' : 'alarm', { force: true });
         if (!voiced && this.cfg.chime !== false) {
@@ -213,9 +214,14 @@ export class Life {
         if (!voiced) this.speak(evt.text, evt.emotion);
         break;
       }
-      case 'study':
+      case 'study': {
+        // a focus session: down to her mask, quiet, until the break (settings › Timers › Mask while I focus)
+        const was = this.focusing;
         this.focusing = evt.phase === 'focus' && !evt.paused;
+        if (this.focusing && !was && this.cfg.focusMask !== false && !capri.hold) capri.holdIn('focus');
+        else if (!this.focusing && was && capri.hold === 'focus') capri.release();
         break;
+      }
       case 'sync':
         if (evt.line && this.cfg.syncShown !== false) {
           panel.say({ kind: 'error', face: 'manyEyes', badge: 'SYNC', line: evt.line, hold: 6000 });
