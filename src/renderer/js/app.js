@@ -374,6 +374,7 @@ async function boot() {
     }
   };
   // she asked you to play or talk, and you said yes
+  life.onMove = (move) => chat.onMove(move); // a plugin's move (main/plugins.js)
   life.onInvite = (what) => (what === 'game' ? chat.hear(pick(['main suit', 'tebak angka'])) : chat.start());
   chat.onPoint = async ({ label }, fgBefore) => {
     const front = () => capri.windows.wins.find((w) => w.id === capri.windows.fg) || null;
