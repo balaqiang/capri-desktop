@@ -97,15 +97,38 @@ function pickEngine(cfg, engines) {
 
 const clean = (text) => String(text || '').replace(/\[[^\]]*\]|\([^)]*\)|\*[^*]*\*/g, ' ').replace(/\s+/g, ' ').trim();
 
-function runWhisper(wav, language) {
+// The words she should hear right, spelled the way they're written: Whisper takes its prompt for what was
+// said just before, so "Notepad" in it makes "note pad" come out as "Notepad", "VS Code" not "vs cold".
+// Names only, never a command: on silence Whisper sometimes repeats its prompt, and a repeated "open
+// Notepad and type…" would be done (heardPrompt() below throws a repeated list away).
+const VOCABULARY = ['Notepad', 'VS Code', 'Spotify', 'Chrome', 'Discord', 'WhatsApp', 'Antigravity', 'Telegram', 'YouTube', 'GitHub', 'Claude', 'Ollama', 'Word', 'Excel'];
+function vocabulary(cfg) {
+  const mine = String(cfg?.sttWords || '').split(/[,\n;]/).map((s) => s.trim()).filter(Boolean).slice(0, 40);
+  const you = String(cfg?.owner?.nickname || cfg?.userName || '').trim();
+  return [...new Set([...mine, ...(you ? [you] : []), ...VOCABULARY])];
+}
+function promptFor(cfg, language) {
+  const hello = language === 'id' ? 'Halo Capri.' : 'Hey Capri.';
+  return `${hello} ${vocabulary(cfg).join(', ')}.`.slice(0, 700);
+}
+// Whisper gave back (some of) its own prompt: silence, or a noise it couldn't make out
+function heardPrompt(text, prompt) {
+  const fold = (s) => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const said = fold(text);
+  if (!said) return false;
+  const known = new Set(fold(prompt).split(' ').concat(['hey', 'hi', 'halo', 'hello', 'capri']));
+  const words = said.split(' ');
+  return words.length >= 2 && words.every((w) => known.has(w)) && fold(prompt).includes(said.split(' ').slice(-2).join(' '));
+}
+
+function runWhisper(wav, language, prompt) {
   const program = whisperProgram();
   const model = whisperModel(language);
   if (!program || !model) return Promise.reject(new Error('Whisper isn\'t set up'));
   const file = path.join(os.tmpdir(), `capri-${crypto.randomUUID()}.wav`);
   fs.writeFileSync(file, wav);
   const args = ['-m', model, '-f', file, '-nt', '-np', '-l', language || 'auto', '-t', String(Math.max(2, Math.min(8, os.cpus().length))), '-bs', '1', '-bo', '1'];
-  if (language === 'en') args.push('--prompt', 'Hello Capri.');
-  if (language === 'id') args.push('--prompt', 'Halo Capri.');
+  if (prompt) args.push('--prompt', prompt);
   return new Promise((resolve, reject) => {
     execFile(program, args, { windowsHide: true, timeout: 40000, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 }, (err, out) => {
       fs.rm(file, { force: true }, () => {});
@@ -115,14 +138,14 @@ function runWhisper(wav, language) {
   });
 }
 
-async function runCloud(kind, wav, language, key) {
+async function runCloud(kind, wav, language, key, prompt) {
   const url = kind === 'groq' ? 'https://api.groq.com/openai/v1/audio/transcriptions' : 'https://api.openai.com/v1/audio/transcriptions';
   const form = new FormData();
   form.append('file', new Blob([wav], { type: 'audio/wav' }), 'capri.wav');
   form.append('model', kind === 'groq' ? 'whisper-large-v3-turbo' : 'whisper-1');
   form.append('response_format', 'json');
   if (language && language !== 'auto') form.append('language', language);
-  form.append('prompt', language === 'id' ? 'Halo Capri.' : 'Hey Capri.');
+  form.append('prompt', prompt || (language === 'id' ? 'Halo Capri.' : 'Hey Capri.'));
   const res = await fetch(url, { method: 'POST', headers: { authorization: `Bearer ${key}` }, body: form, signal: AbortSignal.timeout(30000) });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body?.error?.message || `${kind} answered ${res.status}`);
@@ -170,10 +193,15 @@ async function transcribe(wav, { cfg, keys, language }) {
   const started = Date.now();
   try {
     let text;
-    if (engine === 'whisper') text = await runWhisper(wav, language);
-    else if (engine === 'groq') text = await runCloud('groq', wav, language, keyFor(cfg, keys, 'groq', 'GROQ_API_KEY'));
-    else if (engine === 'openai') text = await runCloud('openai', wav, language, keyFor(cfg, keys, 'openai', 'OPENAI_API_KEY'));
+    const prompt = promptFor(cfg, language);
+    if (engine === 'whisper') text = await runWhisper(wav, language, prompt);
+    else if (engine === 'groq') text = await runCloud('groq', wav, language, keyFor(cfg, keys, 'groq', 'GROQ_API_KEY'), prompt);
+    else if (engine === 'openai') text = await runCloud('openai', wav, language, keyFor(cfg, keys, 'openai', 'OPENAI_API_KEY'), prompt);
     else text = await runWindows(wav, language);
+    if (engine !== 'windows' && heardPrompt(text, prompt)) {
+      log(`${engine} ${language} ${seconds}s -> its own prompt back (silence), dropped`);
+      text = '';
+    }
     log(`${engine} ${language} ${seconds}s -> ${text.length} chars in ${Date.now() - started} ms`);
     return { ok: true, text, engine };
   } catch (err) {
@@ -276,5 +304,5 @@ async function downloadEars(onProgress, signal) {
   log('better ears installed');
 }
 
-module.exports = { transcribe, status, downloadEars, speechDir, logFile, EARS };
+module.exports = { transcribe, status, downloadEars, speechDir, logFile, EARS, promptFor, heardPrompt, vocabulary };
 
