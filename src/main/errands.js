@@ -473,6 +473,20 @@ function teachAsk(said) {
   return m ? { kind: 'teach', name: m[1].trim(), run: m[2].trim().replace(/[.!]+$/, '') } : null;
 }
 
+// Her modes for when you need her out of the way: game mode, focus mode, quiet mode (down to her mask, not a word
+// until you call her), and back to normal ("normal mode"; "wake up" too). The renderer holds her (capri.holdIn).
+const HOLD_ASK = [
+  ['off', /^(?:(?:turn off|stop|exit|end|leave|matikan|keluar(?: dari)?|selesai(?:kan)?|akhiri) (?:the )?(?:mode )?(?:game|gaming|focus|fokus|study|belajar|quiet|silent|senyap|diam|do not disturb)(?: mode)?|(?:game|gaming|focus|study|quiet|silent|do not disturb) mode off|mode (?:game|gaming|fokus|focus|belajar|diam|senyap|tenang|hening) (?:off|mati|selesai|udahan)|normal mode|mode normal|back to normal|kembali normal|(?:i'?m |aku |saya )?(?:(?:udah|sudah) )?(?:done|udah|sudah|selesai) (?:gaming|playing|main(?: game)?|nge-?game|fokus|focusing|belajar)|udahan (?:main(?: game)?|nge-?game|fokus|belajar))$/i],
+  ['game', /^(?:(?:turn on|start|enter|nyalakan|aktifkan|masuk(?: ke)?) )?(?:(?:game|gaming) mode|mode (?:game|gaming|main game|nge-?game))(?: on)?$|^(?:i'?m|i am) (?:going to play|gaming|playing a game)(?: now)?$|^(?:aku|saya) (?:mau|lagi) (?:main game|nge-?game)(?: dulu)?$/i],
+  ['focus', /^(?:(?:turn on|start|enter|nyalakan|aktifkan|masuk(?: ke)?) )?(?:(?:focus|study) mode|mode (?:fokus|focus|belajar))(?: on)?$|^(?:i need to|let me|i have to|i want to|i wanna) focus(?: now)?$|^(?:aku|saya) (?:mau|perlu|harus) fokus(?: dulu)?$/i],
+  ['quiet', /^(?:do not disturb(?: mode)?|don'?t disturb(?: me)?|(?:turn on )?(?:quiet|silent) mode|mode (?:diam|senyap|tenang|hening)|jangan ganggu(?: aku| saya)?(?: dulu)?|diam dulu)$/i],
+];
+function holdAsk(text) {
+  const t = String(text || '').trim().replace(/[.!?]+$/, '');
+  const hit = HOLD_ASK.find(([, re]) => re.test(t));
+  return hit ? { kind: 'hold', mode: hit[0] } : null;
+}
+
 // The weather ("what's the weather", "cuaca di Bandung besok", "will it rain tomorrow?", "besok hujan nggak?")
 const WEATHER_ASK = /^(?:(?:what(?:'s| is| will be)|how(?:'s| is))\s+(?:the\s+)?(?:weather|forecast|temperature)\b|(?:check|show me|tell me)\s+(?:the\s+)?(?:weather|forecast)\b|(?:weather|forecast|temperature)\b|(?:(?:gimana|bagaimana|cek|lihat|liat)\s+)?(?:cuaca|ramalan cuaca|prakiraan cuaca|suhu)\b|(?:will|is) it (?:going to )?(?:rain|snow|be (?:hot|cold|sunny|rainy))\b|(?:is it|it's) raining\b|how (?:hot|cold|warm) is it\b|(?:apakah |apa )?(?:besok |nanti |hari ini |nanti sore |nanti malam )?(?:bakal |akan |mau )?hujan\s+(?:nggak|gak|ga|enggak|tidak|ya|kah|gak sih|nggak sih)\b|(?:bakal|akan) hujan\b)/i;
 const WEATHER_CITY = /\b(?:in|di|at|for|untuk|daerah|kota)\s+([\p{L}][\p{L} .'-]{1,40}?)(?:\s+(?:today|tomorrow|now|tonight|this (?:morning|afternoon|evening|week)|besok|hari ini|sekarang|nanti|malam ini|sore ini|minggu ini))?\s*[?.!]*$/iu;
@@ -502,6 +516,8 @@ function parse(said) {
 
   const taught = teachAsk(said);
   if (taught) return taught;
+  const holding = holdAsk(text);
+  if (holding) return holding;
   const weather = weatherAsk(cased);
   if (weather) return weather;
   const brief = briefAsk(text.replace(/[.!?]+$/, ''));
