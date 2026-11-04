@@ -253,6 +253,15 @@ export class Life {
           if (panel.current?.badge === 'HACK') panel.hide();
         }
         break;
+      case 'plugin': { // a plugin of yours (main/plugins.js): her line, a feeling, a move
+        if (evt.move) this.onMove?.(evt.move);
+        if (evt.text) {
+          const shown = panel.say({ kind: 'info', face: EMOTIONS[evt.emotion]?.face || 'happy', badge: 'PLUGIN', tag: evt.plugin || '', line: evt.text, hold: 7000 });
+          if (shown) this.speak(evt.text, evt.emotion);
+        }
+        if (evt.emotion) this.react(evt.emotion, { quiet: Boolean(evt.text) });
+        break;
+      }
       case 'brief': // her brief of your day (main/life.js briefing): the morning's first time at your PC, or asked
         panel.say({ kind: 'info', face: 'happy', badge: 'TODAY', line: evt.title, reply: evt.text, hold: 20000 });
         capri.perform?.('wave');
