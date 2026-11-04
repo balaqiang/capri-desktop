@@ -12,6 +12,7 @@ import { T } from './i18n.js';
 import { DEFAULT_PERSONA } from './persona.js';
 import { STORY, STORY_SMALL, loreFor } from './lore.js';
 import { Motion } from './motion.js';
+import { LYRICS_TAG, LYRIC_DUMP, aboutLyrics, NO_DUMP_LINE, FAKE_DONE, worldQuestion, webNote, withSums, sumsIn } from './rules.js';
 
 export { DEFAULT_PERSONA };
 
@@ -22,42 +23,6 @@ const MOVE_TAG = /\[\[\s*move\s*:\s*([a-z]+)\s*\]\]/i;
 // where her AI sends her when you asked in words the app didn't catch ([[go: cursor]]), and where it may
 const GO_TAG = /\[\[\s*go\s*:\s*([a-z]+)\s*\]\]/i;
 const GO_PLACES = ['cursor', 'left', 'right', 'center', 'taskbar', 'top', 'ride', 'unride', 'home', 'hide', 'sleep', 'wander', 'stay'];
-// her lyrics shown or put away when you asked in words the app didn't catch ([[lyrics: show]])
-const LYRICS_TAG = /\[\[\s*lyrics?\s*:\s*(show|hide|on|off)\s*\]\]/i;
-// a song's words written out in her bubble (a model asked about lyrics makes them up): never shown; the real
-// ones show over her head, line by line (listen.js)
-const LYRIC_DUMP = /\((?:intro|verse|pre-?chorus|chorus|bridge|outro|hook|refrain)\b[^)]{0,12}\)|\[(?:intro|verse|pre-?chorus|chorus|bridge|outro|hook|refrain)\b[^\]]{0,12}\]/i;
-const LYRIC_WORD = /\b(?:lyrics?|lirik\w*)\b/i;
-// a song you asked her to write herself: hers to write out
-const WRITE_ASK = /\b(?:write|make|create|compose|bikin\w*|buat\w*|tulis\w*|karang\w*|ciptakan)\b/i;
-const aboutLyrics = (said) => LYRIC_WORD.test(said || '') && !WRITE_ASK.test(said || '');
-const NO_DUMP_LINE = "Lyrics? Look over my head: they show line by line, as they're sung.";
-
-// A question about the world, looked up on the web first ("siapa presiden indonesia", "who is the ceo of nvidia",
-// "harga emas hari ini?"): not one about her, you or the two of you, not chit-chat.
-const WORLD_Q = /^(?:siapa(?:kah)?|apa(?:kah)? (?:itu|sih|arti|nama|ibu ?kota)|apakah|kapan(?:kah)?|di ?mana(?:kah)?|berapa(?:kah)?|bagaimana (?:cara|sejarah)|gimana cara|jelaskan|ceritakan tentang|who(?:'s| is| was| are| were| won| invented| wrote| made| founded| owns| directed| sang)|what(?:'s| is| are| was| were| does| did)|when (?:is|was|did|does|will)|where (?:is|was|are)|how (?:many|much|old|tall|far|long|big)|which (?:country|team|city|company|year)|define|explain)\b/i;
-const ABOUT_US = /\b(?:kamu|kau|lu|lo|elo|anda|km|you|your|yours|yourself|capri|aku|saya|gue|gw|me|my|mine|kita|we|our|us|(?:umur|nama|rumah|pacar|teman|lagu|hobi|kabar|warna|makanan|film)(?:mu|ku))\b/i;
-const CHITCHAT = /^(?:what(?:'s| is) (?:up|new|good|wrong|happening|going on)|apa kabar)\b/i;
-const NEWS = /\b(?:harga|kurs|cuaca|skor|hasil|berita|terbaru|price|weather|score|news|latest)\b/i;
-function worldQuestion(text) {
-  const t = String(text || '').trim().replace(/^(?:(?:hey|hi|halo|hai) )?(?:capri|kapri)[,\s]+/i, '');
-  if (t.length < 8 || t.length > 200 || ABOUT_US.test(t) || CHITCHAT.test(t)) return false;
-  return WORLD_Q.test(t) || (NEWS.test(t) && /\?$/.test(t));
-}
-
-// What the web said (main/web.js), for her model: newer than what it remembers, so used first, briefly.
-function webNote(question, found) {
-  if (!found) return '';
-  const results = (found.results || []).slice(0, 6);
-  if (!results.length) return `They asked something to look up ("${question}"), but the web search found nothing useful: answer from what you know, and say so if you're not sure.`;
-  // (said this firmly because a model trusts its own memory first: it answered last year's president otherwise)
-  return [
-    `Today is ${new Date().toDateString()}. What you remember stops years ago and is OUT OF DATE: who holds an office, prices, scores and news have changed since.`,
-    `You just searched the web for their question "${question}". The results, from today:`,
-    ...results.map((r, i) => `${i + 1}. ${r.title} (${r.from}): ${r.text}`),
-    `Answer "${question}" ONLY from these results: if they name a person, a number or a date, that is the answer, even if you remember something else. Never answer it from memory. If they don't answer it, say you couldn't find it. One or two sentences, in character.`,
-  ].join('\n');
-}
 const MOVE_NAMES = 'wave, nod, shrug, think, bow, dance, laugh, shy, spin, hop, curious, look, turn, flinch';
 // the move each emotion of hers comes with (life.js): moving too, so spaced and learned like her AI's moves
 // her chat's header: CAPRI / her mood, from her emotion of the moment, or what she's doing
@@ -299,35 +264,41 @@ export class Chat {
       capri.perform('curious', capri.towardCenter());
       return;
     }
+    // (said, not typed: what she types for you from it gets its speech-to-text slips fixed first, main/life.js)
     if (this.open) {
-      this.send(text);
+      this.send(text, { voice: true });
       return;
     }
-    const done = await this.errand(text, { panelOnly: true });
+    const done = await this.errand(text, { panelOnly: true, voice: true });
     if (done) return;
     if (await this.start({ focus: false })) this.send(text, { skipErrand: true });
   }
 
   // "Look at my screen" (Ctrl+Alt+L, her menu, or asked in words): one screenshot to her model.
-  async look(question = '') {
+  // task 'homework': the questions on it answered, each one (homeworkPersona)
+  async look(question = '', { task = '' } = {}) {
     if (!this.open && !(await this.start({ focus: false }))) return;
-    this.send(question || T('What am I looking at?'), { look: true, skipErrand: true });
+    this.send(question || T('What am I looking at?'), { look: true, skipErrand: true, task });
   }
 
   // An errand from your words (main/life.js): done, and her line about it, without a model.
   // In her chat it's a chat turn; otherwise (you spoke while it was closed) a panel of its own.
-  async errand(text, { panelOnly = false } = {}) {
+  async errand(text, { panelOnly = false, voice = false } = {}) {
     const fgBefore = this.capri.windows?.fg; // a window she opens comes up in front of it (onPoint)
-    const res = await this.host.errand(text).catch(() => null);
+    const res = await this.host.errand(text, { voice }).catch(() => null);
     if (!res?.handled) return false;
     if (res.look) {
       if (this.open) this.panel.setChatBusy(false);
-      this.look(text);
+      this.look(text, { task: res.lookTask || '' });
       return true;
     }
     if (res.zap) this.zap();
     if (res.move) this.onMove?.(res.move);
     if (res.point) this.onPoint?.(res.point, fgBefore);
+    if (res.draft) {
+      this.showDraft(res.draft, clean(res.reply || ''), text, { panelOnly });
+      return true;
+    }
     const line = clean(res.reply || '…');
     if (panelOnly || !this.open) {
       this.panel.say({ kind: 'info', face: FACE_OF[res.emotion] || 'happy', badge: res.evolved ? 'EVOLVE' : 'CAPRI', quote: text, line, hold: 7000 });
@@ -343,6 +314,48 @@ export class Chat {
     this.onEmotion?.(res.emotion);
     this.onAnswered?.(line, res.emotion);
     return true;
+  }
+
+  // A draft of hers (main/life.js 'draft'): shown whole, with Type it (where you asked, or where you were), Copy,
+  // and Again. "Make it shorter" in her chat changes it.
+  showDraft(draft, line, asked, { panelOnly = false } = {}) {
+    const actions = [{ id: 'type', label: T('Type it'), primary: true }, { id: 'copy', label: T('Copy') }, { id: 'again', label: T('Again') }];
+    const onAction = async (id) => {
+      if (id === 'copy') {
+        await this.host.copyText(draft.text).catch(() => {});
+        this.panel.setActions([{ id: 'type', label: T('Type it'), primary: true }, { id: 'copied', label: T('Copied!') }], onAction);
+        return;
+      }
+      if (id === 'copied') return;
+      this.panel.setActions([]);
+      if (id === 'again') {
+        if (this.open) this.panel.setChatBusy(true);
+        await this.errand(asked, { panelOnly: !this.open });
+        return;
+      }
+      if (id === 'type') {
+        if (this.open) this.close(); // the window you were in comes back in front, and she types there
+        else this.panel.hide();
+        const res = await this.host.typeDraft(draft).catch(() => null);
+        const said = clean(res?.reply || T("Hm, that didn't work."));
+        this.panel.say({ kind: 'info', face: FACE_OF[res?.emotion] || 'happy', badge: 'CAPRI', line: said, hold: 6000 });
+        this.onEmotion?.(res?.emotion);
+      }
+    };
+    const shown = `${line}\n\n${draft.text}`;
+    if (panelOnly || !this.open) {
+      this.panel.say({ kind: 'info', face: 'happy', badge: 'DRAFT', quote: asked, line, reply: draft.text, hold: null, actions, onAction });
+      this.host.historyAdd([{ role: 'user', text: asked, via: 'voice' }, { role: 'assistant', text: shown, emotion: 'happy', via: 'voice' }]);
+    } else {
+      this.history.push({ role: 'user', content: asked });
+      this.remember({ role: 'assistant', content: shown }, { emotion: 'happy' });
+      this.panel.stream(line, { done: true });
+      this.panel.setReply(draft.text);
+      this.panel.setMood(MOOD.idle);
+      this.panel.setChatBusy(false);
+      this.panel.setActions(actions, onAction);
+    }
+    this.onEmotion?.('happy');
   }
 
   close() {
@@ -368,7 +381,8 @@ export class Chat {
     }
   }
 
-  async sendNow(text, { look = false, skipErrand = false } = {}) {
+  async sendNow(text, { look = false, skipErrand = false, voice = false, task = '' } = {}) {
+    const homework = look && task === 'homework';
     if (this.turn || !this.open) return;
     if (!look) this.motion.heard(text); // what you say about her last move, or about her moving
     this.panel.setActions([]); // a close button she offered before goes with a new message
@@ -378,7 +392,7 @@ export class Chat {
       this.panel.chatTurn({ quote: text, face: 'eyes' });
       this.panel.setMood(MOOD.thinking);
       this.panel.setChatBusy(true);
-      if (await this.errand(text)) return;
+      if (await this.errand(text, { voice })) return;
     }
     // another AI named: she has feelings about that (her persona says how)
     if (OTHER_AI.test(text)) this.onEmotion?.('jealous');
@@ -408,7 +422,7 @@ export class Chat {
     if (asking) this.panel.setMood(MOOD.searching);
     // looking at your screen, what's playing and the like would only distract her from the picture
     const [context, found] = await Promise.all([
-      look ? '' : this.host.lifeContext().catch(() => ''),
+      look ? '' : this.host.lifeContext(text).catch(() => ''),
       asking ? Promise.race([this.host.webLookup(text).catch(() => null), new Promise((r) => setTimeout(() => r(null), 5500))]) : null,
     ]);
     if (asking) this.panel.setMood(MOOD.thinking);
@@ -448,7 +462,18 @@ export class Chat {
       const app = shot.app && shot.title && !shot.title.includes(shot.app) ? `${shot.app}: "${shot.title}"` : shot.title || shot.app;
       const where = shot.window ? `the window in front of the user${app ? ` (${app})` : ''}` : "the user's whole screen";
       const read = shot.text ? `The text on it, read exactly by OCR:\n"""\n${shot.text}\n"""` : 'No text could be read on it.';
-      messages.splice(0, messages.length, { role: 'system', content: this.lookPersona() }, {
+      // homework: the sums on it worked out exactly first (rules.js), for her to use
+      const sums = homework ? sumsIn(shot.text) : [];
+      const exact = sums.length ? `\nA calculator worked out the sums on it exactly (use these results, they are right):\n${sums.map((s) => `- ${s.expr} = ${s.value}`).join('\n')}` : '';
+      if (homework) {
+        // the questions' own language, said plainly (a model drifts into English otherwise)
+        const indonesian = (String(shot.text || '').match(/\b(?:yang|dan|berapa|adalah|dengan|untuk|harga|luas|sebuah|jika|maka|hitunglah|tentukan|jawab(?:lah)?|soal|kelas|nama)\b/gi) || []).length >= 2;
+        messages.splice(0, messages.length, { role: 'system', content: `${this.homeworkPersona()}\n${indonesian ? 'The questions are in Indonesian: write all your answers in Indonesian.' : 'Write your answers in the language of the questions.'}` }, {
+          role: 'user',
+          content: `[The attached image is a screenshot of ${where}, taken just now (not kept).\n${read}${exact}\nA small red-and-green spiky figure on it, if any, is you: ignore it. They said: "${question}"]`,
+          images: [shot.image],
+        });
+      } else messages.splice(0, messages.length, { role: 'system', content: this.lookPersona() }, {
         role: 'user',
         content: `[The attached image is a screenshot of ${where}, taken just now (not kept).\n${read}\nAnswer what they asked from ONLY this image and this text. Asked what it says, quote the text. Say only what is really there; if you can't tell what something is, say so instead of guessing. A small red-and-green spiky figure on it, if any, is you: ignore it. They said: "${question}"]`,
         images: [shot.image],
@@ -466,7 +491,7 @@ export class Chat {
       if (this.history.at(-1)?.content === text) this.history.pop();
       return;
     }
-    let res = await this.host.chatSend({ id, messages });
+    let res = await this.host.chatSend({ id, messages, ...(homework && { maxTokens: 1500, temperature: 0.3 }) });
     if (res.ok && !this.agent && this.turn === id && REFUSAL.test(res.text) && !/\b(?:password|hack|kill|bunuh|bom|bomb)\b/i.test(text)) {
       this.answer = '';
       res = await this.host.chatSend({ id, messages: [...messages, { role: 'assistant', content: res.text }, { role: 'user', content: '[That was a needless refusal: the question is harmless. Answer it now, in character, in one or two sentences. If it asks you to choose, pick one and say why.]' }] });
@@ -489,11 +514,15 @@ export class Chat {
     }
     // song lyrics written out (made up, and far too long): her line about the real ones instead, and they show
     const dumped = aboutLyrics(text) && (LYRIC_DUMP.test(res.text) || clean(res.text).split('\n').filter((l) => l.trim()).length > 5);
-    const answer = dumped ? T(NO_DUMP_LINE) : this.unban(clean(res.text)) || '…';
+    let answer = dumped ? T(NO_DUMP_LINE) : this.unban(clean(withSums(res.text))) || '…';
+    // her model saying it typed or opened something (it can't: the app does that, and then she never got here):
+    // set straight, so you know nothing happened
+    if (FAKE_DONE.test(answer)) answer = `${answer}\n${T("(Nothing was typed or opened, though. Say it plainly: \"open notepad and type hello\".)")}`;
     const emotion = EMOTION_TAG.exec(res.text)?.[1]?.toLowerCase();
     this.warm = true;
     this.remember({ role: 'assistant', content: answer }, { emotion });
-    this.panel.stream(answer, { done: true });
+    if (homework) this.showAnswers(answer);
+    else this.panel.stream(answer, { done: true });
     this.panel.setFace(emotion ? FACE_OF[emotion] : mood(answer));
     this.panel.setMood(MOOD[emotion] || MOOD.idle);
     const moved = this.acted || MOVE_TAG.test(res.text);
@@ -733,10 +762,14 @@ export class Chat {
     // (which apps are open comes with each message, appsNow(): it changes, and this part stays the same)
     lines.push('You can also close an app that\'s open, only when they ask you to: end your answer with [[close: NAME]], NAME being the exact name from the list of apps open right now that comes with their message (the part before the parentheses). They get a button to confirm it.');
     // what the app does itself from plain words (main/errands.js), so she knows and doesn't fake it
-    lines.push('The app around you also does these by itself when the user says them plainly: timers, alarms and reminders ("set a timer for 10 minutes", "pasang alarm jam 7"), a study timer, notes about them ("remember that…"), dares ("dare me"), games with you (rock paper scissors: "main suit"; guess the number: "tebak angka"; a coin; dice), web and YouTube searches, and looking at their screen ("look at my screen" or Ctrl+Alt+L, one screenshot when they ask). If they ask you for one of these and nothing happened, tell them to say it plainly like that; never pretend it is done.');
+    lines.push('You never open apps, type, save or send anything yourself in your reply: only the app does, from their words, and it says so itself. So NEVER write that you typed, opened, saved or sent something, or that it is done: if they asked for it and you are the one answering, it did not happen; tell them to say it plainly, like "open notepad and type hello".');
+    lines.push('The app around you also does these by itself when the user says them plainly: timers, alarms and reminders ("set a timer for 10 minutes", "pasang alarm jam 7"), a study timer, notes about them ("remember that…"), dares ("dare me"), games with you (rock paper scissors: "main suit"; guess the number: "tebak angka"; a coin; dice), typing into an app ("type hello in notepad", "ketik halo di vscode") and pressing Enter or Ctrl+S, several of these at once ("open notepad and type hello", "buka spotify lalu putar musik"), web and YouTube searches, and looking at their screen ("look at my screen" or Ctrl+Alt+L, one screenshot when they ask). If they ask you for one of these and nothing happened, tell them to say it plainly like that; never pretend it is done.');
     lines.push(`When the user asks you to come or go somewhere on their screen in words that didn't move you yet ("temenin aku di deket mouse", "hang out on the left", "get on my pointer"), say you're on it and put one tag [[go: WHERE]] in your reply (never shown), WHERE one of: ${GO_PLACES.join(', ')}. Only when they asked you to move.`);
     lines.push(`You have a body on their screen and you move it yourself: when a gesture really fits what you say, put one tag [[move: NAME]] in your reply (never shown), NAME one of: ${MOVE_NAMES}. It has to match: a greeting: wave; agreeing: nod; not knowing: shrug; pondering: think; showing off: bow; music or joy: dance; something funny: laugh; flattered: shy. ${this.motion.hint()}`);
     lines.push('Song lyrics: the app shows the words of the song playing over your head by itself, line by line as they are sung. NEVER write song lyrics in your reply, not even a few lines (you would get them wrong): when they ask to see, show, display or hide the lyrics in any words, say so in a few words and put one tag [[lyrics: show]] or [[lyrics: hide]] in your reply (never shown). To say what is being sung, use only the lyrics around this moment you are given, one line at most.');
+    lines.push('The app also does these from their words, never you in your reply: drafts a text for them to see and then type ("write an email to my boss saying I am sick", "tuliskan surat izin di notepad"; "make it shorter" changes it), the weather ("cuaca hari ini", "will it rain tomorrow?"), a brief of their day ("brief me", "rangkuman hari ini"), and commands they teach you ("when I say work mode, open vscode and play music"). If they asked in other words and nothing happened, tell them to say it like that.');
+    lines.push('Math: never work out a sum in your head. Write each calculation with its result as [[calc: EXPRESSION]], like "12 × 7 = [[calc: 12*7]]" (numbers and + - * / ^ ( ) only): the app puts the exact result there. Homework on their screen: they say "kerjakan soal di layarku" or "solve the questions on my screen".');
+    lines.push('Writing code into their editor: they say "write simple html here" or "buatkan kode python di sini", and the app writes it into the file they have open. Never write code in your reply.');
     lines.push('You cannot see their screen now: no screenshot comes with this message. Asked what is on their screen, in a picture, a note or a window, never guess or make it up: tell them to say "look at my screen" or press Ctrl+Alt+L.');
     lines.push('The app also moves you when asked ("ke kanan", "ke cursor saya", "berhenti bergelantungan di cursor", "jalan-jalan") and shows where files and folders are ("di mana folder Downloads?"). Anything else on their PC (changing settings, editing files) you can\'t do: if they ask, say so in character. But questions, opinions and choices are never things you can\'t do: answer them.');
     lines.push('Code: never write code in your replies, your speech bubble is tiny. When they want code, a script, a program, a web page or a game written, the app does it from their words ("buatkan kode python untuk…", "bikin game snake pakai html", "write a script that…"; "pakai claude code" or "sendiri" picks who): Claude Code in a terminal if it\'s installed, else you write it into a file in their Capri Code folder and open it in an editor. If they asked in other words and nothing happened, tell them to say it like that.');
@@ -774,7 +807,7 @@ export class Chat {
   onDelta(id, piece) {
     if (id !== this.turn) return;
     this.answer += piece;
-    this.panel.stream(aboutLyrics(this.lyricQuestion) && LYRIC_DUMP.test(this.answer) ? T(NO_DUMP_LINE) : this.unban(clean(this.answer)));
+    this.panel.stream(aboutLyrics(this.lyricQuestion) && LYRIC_DUMP.test(this.answer) ? T(NO_DUMP_LINE) : this.unban(clean(withSums(this.answer))));
     this.voice.play('blip'); // her blips as the words come in
     this.moveFrom(this.answer); // her body moves as soon as her AI says how, mid-sentence
   }
@@ -811,6 +844,42 @@ export class Chat {
     if (this.cfg.debugLog) console.log('[move]', move, mood, ok ? 'played' : 'held back'); // what her AI picks, and what she lets through
     if (!ok || !this.onAct?.(move, this.motion.amp(move))) return;
     this.motion.played(move, mood);
+  }
+
+// Her homework answers: her line on top, the answers under it as written (numbered, a paragraph each), and
+  // buttons to type them where the questions are (the window she looked at) or copy them.
+  showAnswers(answer) {
+    const [first, ...rest] = answer.split(/\n\s*\n/);
+    const body = rest.length && first.length < 160 ? rest.join('\n\n').trim() : answer;
+    this.panel.stream(body === answer ? T('Here are the answers:') : first.trim(), { done: true });
+    this.panel.setReply(body);
+    const actions = [{ id: 'type', label: T('Type it'), primary: true }, { id: 'copy', label: T('Copy') }];
+    const onAction = async (id) => {
+      if (id === 'copy') {
+        await this.host.copyText(body).catch(() => {});
+        this.panel.setActions([{ id: 'type', label: T('Type it'), primary: true }, { id: 'copied', label: T('Copied!') }], onAction);
+        return;
+      }
+      if (id !== 'type') return;
+      this.close(); // the window with the questions comes back in front, and she types there
+      const res = await this.host.typeDraft({ text: body, target: '' }).catch(() => null);
+      this.panel.say({ kind: 'info', face: FACE_OF[res?.emotion] || 'happy', badge: 'CAPRI', line: clean(res?.reply || T("Hm, that didn't work.")), hold: 6000 });
+    };
+    this.panel.setActions(actions, onAction);
+  }
+
+  // Her, helping with the homework on your screen: a tutor who gets it right, every question, sums by her calculator.
+  homeworkPersona() {
+    const cfg = this.cfg || {};
+    return [
+      (cfg.capriPersona || '').trim() || DEFAULT_PERSONA,
+      'Right now you are helping the user with homework on their screen: a screenshot of it and its text read by OCR come with their message. Be a good tutor and get it right.',
+      'Write one short line in your own voice first. Then a blank line. Then every question you can see, in order, a paragraph each: its number as on the sheet, then the working, each step on its own line (for a word problem, what you work out and why), then the answer on a line of its own ("Jawaban: …" / "Answer: …"). Write each number once. Multiple choice: the letter and the option.',
+      'For every calculation, write it with its result as [[calc: EXPRESSION]], like "25 × 4 = [[calc: 25*4]]" (numbers and + - * / ^ ( ) only): the app puts the exact result there. Never work out arithmetic in your head. Inside [[calc: …]], numbers have no thousands separators and a dot for decimals (Rp 24.500 is 24500, 2,5 is 2.5).',
+      "If a question can't be read on the screenshot, say which one. Never make up a question that isn't there.",
+      'Answer in the language of the questions. Plain text: no markdown, no bold, no tables.',
+      cfg.emotionTags === false ? 'Do not write emotion tags.' : 'Start your reply with one emotion tag: [happy], [jealous], [bored], [glitch] or [annoyed].',
+    ].join('\n');
   }
 
   // Her, briefly, for looking at your screen: who she is and how she talks, nothing to answer from but the picture.
@@ -883,6 +952,7 @@ export class Chat {
 // The model's answer as she'd say it: no reasoning block, no markdown marks.
 function clean(text) {
   return String(text)
+    .replace(/(\d)\s*\*\s*(?=[\d(])/g, '$1 × ') // 3*4 in a sum, not markdown
     .replace(/<think>[\s\S]*?(<\/think>|$)/g, '')
     .replace(/\[\[[^\]]*(\]\]|$)/g, '') // her tags (read from the raw answer, never shown)
     .replace(ANY_TAG, '') // her emotion, shown as her face
