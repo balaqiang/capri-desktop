@@ -14,6 +14,7 @@ ketik halo"). Kalau diucapkan dengan kata lain, modelnya mencari perintah mana y
 | Bergerak | "ke samping kanan", "ke tengah", "ke cursor saya", "kamu di mana?", "kemari" | "move left", "go to the middle", "come to my cursor", "Capri, where are you?" |
 | Cursor | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" | "sit on my cursor", "get off my cursor" (atau gerakkan cepat) |
 | Mood | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" | "dance", "wave", "take a bow", "sleep", "hide" |
+| Mode | "mode game", "mode fokus", "jangan ganggu aku dulu" / "mode senyap", "mode normal" | "game mode", "focus mode", "do not disturb", "normal mode" |
 | Gerakan | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" | "move less", "you can move again" |
 | Dia | "tantang aku", "improve dirimu", "kamu udah belajar apa?" | "dare me", "how's our sync?", "who are you?" |
 | Catatan | "ingat bahwa kucingku namanya Neko", "lupakan soal kucingku" | "remember that…", "forget about…" |
