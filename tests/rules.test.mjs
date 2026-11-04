@@ -63,3 +63,11 @@ test('withSums: a result the model wrote again after the tag, once', async () =>
   assert.equal(withSums('= [[calc: 12*7]] 84 cm²'), '= 84 cm²');
   assert.equal(withSums('[[calc: 1+1]]. Done'), '2. Done');
 });
+
+test('fixAnswers: a paragraph a question, and a sum on the sheet answered by the calculator', async () => {
+  const { fixAnswers, sumsIn } = await import('../src/renderer/js/rules.js');
+  const sheet = '1. 125 x 8 = ...\n2. (48 + 72) : 6 = ...\n3. Ibu membeli 3 kg apel.';
+  const got = fixAnswers('Ayo! 1. 125 x 8 = 1000\nJawaban: 1000 2. (48 + 72) : 6 = 20\nJawaban: 16 3. Ibu membeli 3 kg apel.\nJawaban: 73.500', sumsIn(sheet));
+  assert.equal(got, 'Ayo!\n\n1. 125 x 8 = 1000\nJawaban: 1000\n\n2. (48 + 72) : 6 = 20\nJawaban: 20\n\n3. Ibu membeli 3 kg apel.\nJawaban: 73.500');
+  assert.equal(fixAnswers('1. 2+2 = 4\nAnswer: 4\n\n2. Version 2.0 is out'), '1. 2+2 = 4\nAnswer: 4\n\n2. Version 2.0 is out');
+});
