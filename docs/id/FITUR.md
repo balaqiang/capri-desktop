@@ -203,6 +203,11 @@ Apa pun yang Windows tampilkan sedang diputar (Spotify, browser, pemutar apa pun
   terbuka seiring sync.
 - **Dia naik cursor-mu** ("naik ke cursor"): klik menembus dirinya; gerakkan terlalu cepat dan dia jatuh. Dia minggir
   saat ada game atau video layar penuh, tidur sampai tinggal topengnya setelah lama sepi, dan menatap satelit.
+- **Mode game, fokus, dan senyap**: "mode game", "mode fokus", "jangan ganggu aku dulu" (atau "mode senyap"): dia
+  rontok sampai tinggal topeng hijaunya dan tetap begitu, tanpa suara, tanpa komentar atau dare, dan tidak ada yang
+  membangunkannya dengan sendirinya. Klik topengnya, buka chat, hotkey, alarm, perintah apa pun darimu, atau "mode
+  normal" memanggilnya kembali. Selama sesi fokus timer belajar, dia melakukannya sendiri dan kembali saat istirahat
+  (Pengaturan › Timers). Game layar penuh membuatnya hilang total.
 - **Dia selalu terjangkau**: selalu di atas, bisa diklik, kembali sendiri kalau ada yang mendorongnya ke belakang jendela.
 
 ## Elus, pegang, lempar
