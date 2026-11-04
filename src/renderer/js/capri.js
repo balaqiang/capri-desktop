@@ -8,6 +8,8 @@
 import { SpriteRenderer, SPRITE } from './sprite.js';
 import { ACTS, NEUTRAL, Player } from './acting.js';
 import { COLORS } from './fx.js';
+import { Hair } from './hair.js';
+import { reach, look, mirrored, ARM_LIMITS } from './ik.js';
 import { sleep, rand, pick, clamp, lerp, ease, tween, halt, reducedMotion, today } from './util.js';
 
 const ON_TWOS = 1000 / 12;
@@ -75,7 +77,12 @@ export class Capri {
       smear: [0, 0], echo: [0, 0],
       glitch: 0, glitchSeed: 0, split: 0, collapse: 0, dissolve: 0, sparkle: 1, grade: 1,
       sil: INK, silAmount: 0, misreg: [-2.6, 2.2], alpha: 1,
+      strand: new Float32Array(10), // her mane's springs (hair.js), root to tips
     };
+    this.hair = new Hair();
+    this.ik = { w: 0, side: 'L', target: null, at: 0, touched: false }; // an arm reaching for something (ik.js)
+    this.reachFor = null; // what she holds her arm toward ({ target, side, until, aimOnly }), her typing show's window
+    this.cursorReach = { since: 0, until: 0, rest: 0 };
     this.bob = 0;
     this.tilt = 0;
     this.sx = 1;
@@ -379,7 +386,7 @@ export class Capri {
   // ---------- frame loop ----------
 
   interval() {
-    if (this.busy || this.walking || this.stance === 'fall' || this.act?.player.act.fps === 24 || this.jelly.live) return ON_ONES;
+    if (this.busy || this.walking || this.stance === 'fall' || this.act?.player.act.fps === 24 || this.jelly.live || this.hair.live || this.ik.w > 0.01) return ON_ONES;
     return this.mode === 'sleep' ? ASLEEP : ON_TWOS;
   }
 
@@ -460,6 +467,8 @@ export class Capri {
     }
     if (this.walking) this.walkFrame(now);
     this.jellyStep(now);
+    this.ikStep(now);
+    this.hairStep(now);
     if (this.debug) Object.assign(p, this.debug); // --dev pose overrides
     if (cue) this.onCue(cue);
   }
@@ -886,6 +895,12 @@ export class Capri {
       x: this.pos.x + (sx - SPRITE.feet.x) * s * this.facing,
       y: this.pos.y - (SPRITE.feet.y - sy) * s + this.bob,
     };
+  }
+
+  // A point on screen in her drawing's pixels (toScreen the other way round).
+  toSprite(pt) {
+    const s = this.scale;
+    return { x: SPRITE.feet.x + (pt.x - this.pos.x) / (s * this.facing), y: SPRITE.feet.y - (this.pos.y + this.bob - pt.y) / s };
   }
 
   // Which arm points to screen side `dir`: 'L' or 'R' (the sprite may be mirrored).
@@ -1525,6 +1540,9 @@ export class Capri {
     }
     this.fx.sparks(aim.x, aim.y, { count: 16, power: 0.9 });
     this.voice.play('bolt');
+    // her arm held out toward it while the words go in (ik.js)
+    const hold = { target: () => aim, side: this.armToward(dir), until: performance.now() + 60000, aimOnly: true };
+    this.reachFor = hold;
     const covers = () => {
       const front = [];
       for (const o of this.windows.wins) {
@@ -1545,6 +1563,7 @@ export class Capri {
       ended = true;
       clearInterval(rain);
       taken.leave();
+      if (this.reachFor === hold) this.reachFor = null;
       const r = rect();
       if (r && ok) {
         this.fx.burst(r.x + r.w / 2, r.y + 40 * s, { count: 14, power: 0.6, spread: Math.min(r.w / 3, 200) });
@@ -2014,6 +2033,7 @@ export class Capri {
       if (last && now - last.t < 80) {
         const dt = Math.max(8, now - last.t) / 1000;
         this.whoosh(e.clientX, e.clientY, (e.clientX - last.x) / dt, (e.clientY - last.y) / dt);
+        this.brush(e.clientX, e.clientY, (e.clientX - last.x) / dt, (e.clientY - last.y) / dt, dt);
       }
       this.petCheck(e.clientX, e.clientY);
       if (!this.petting?.on) this.notice(e.clientX, e.clientY); // being petted, nothing else catches her eye
@@ -2279,6 +2299,124 @@ export class Capri {
     this.boing({ squash: -2.6, lean: away * 120, mane: 2.2 });
     this.fx.sparks(x, y, { count: 14, power: 0.85 });
     if (y < this.head().y + 20) this.fx.twinkle(x, y, { size: 12 });
+  }
+
+  // Her mane, a step (hair.js): it feels how her head moves on screen (a teleport isn't a motion: it starts over),
+  // and how she's turned.
+  hairStep(now) {
+    const hs = this.hairState || (this.hairState = { at: now, pos: null, vel: [0, 0] });
+    const dt = Math.min(0.1, (now - hs.at) / 1000);
+    hs.at = now;
+    if (!(dt > 0)) return;
+    const h = this.head();
+    const s = this.scale || 1;
+    if (!hs.pos || this.hidden || Math.hypot(h.x - hs.pos.x, h.y - hs.pos.y) > 420 * Math.max(1, dt * 12)) {
+      hs.pos = h;
+      hs.vel = [0, 0];
+      this.hair.reset();
+    }
+    const vx = (h.x - hs.pos.x) / dt;
+    const vy = (h.y - hs.pos.y) / dt;
+    const ax = (vx - hs.vel[0]) / dt;
+    const ay = (vy - hs.vel[1]) / dt;
+    hs.pos = h;
+    hs.vel = [vx, vy];
+    this.hair.calm = reducedMotion.matches ? 0.35 : 1;
+    this.hair.step(dt, { ax: (ax * this.facing) / s, ay: ay / s, tilt: ((this.tilt || 0) * Math.PI / 180) * this.facing });
+    const d = this.hair.offsets;
+    for (let i = 0; i < d.length; i++) {
+      this.p.strand[i * 2] = d[i][0];
+      this.p.strand[i * 2 + 1] = d[i][1];
+    }
+  }
+
+  // Your pointer brushing through her mane (petting her, or just passing): it ruffles.
+  brush(x, y, vx, vy, dt) {
+    if (this.hidden || this.stowed || this.dormant || this.dragging) return;
+    const sp = this.toSprite({ x, y });
+    if (sp.y > 178 || sp.y < -12) return;
+    const near = 1 - clamp(Math.hypot(sp.x - SPRITE.head.x, (sp.y - 92) * 1.2) / 135, 0, 1);
+    if (near <= 0) return;
+    const s = this.scale || 1;
+    this.hair.push((vx * this.facing) / s, vy / s, near * Math.min(1, dt * 5));
+  }
+
+  // What her arm reaches for now: what she holds it toward (her typing show), or your pointer when it rests near
+  // her hand. -> { target (screen), side, aimOnly, touch } | null
+  ikWant(now) {
+    const held = this.reachFor;
+    if (held && now > held.until) this.reachFor = null;
+    else if (held) {
+      const target = typeof held.target === 'function' ? held.target() : held.target;
+      if (target) return { target, side: held.side || this.armToward(target.x < this.pos.x ? -1 : 1), aimOnly: held.aimOnly };
+    }
+    const c = this.cursorReach;
+    const m = this.mouse;
+    const idle = m && !this.act && !this.walking && this.stance === 'stand' && this.mode !== 'sleep' && !this.busy && !this.dragging
+      && !this.petting?.on && !this.pointing && !this.riding && !this.flight && !this.hidden && !this.stowed && !this.dormant && !reducedMotion.matches;
+    if (!idle || now < c.rest) {
+      c.since = 0;
+      return null;
+    }
+    // your pointer where her hand can get to (not across her body, not right on her)
+    const side = this.armToward(m.x < this.pos.x ? -1 : 1);
+    const sp = this.toSprite(m);
+    if (!reach(SPRITE.shoulder, SPRITE.hand, side === 'L' ? sp : mirrored(sp, SPRITE.mirror)).touches) {
+      c.since = 0;
+      return null;
+    }
+    // left there a moment: she reaches out and touches it, a few seconds, then leaves it be a while
+    if (!c.since) {
+      c.since = now;
+      c.until = 0;
+    }
+    if (now - c.since < 700) return null;
+    if (!c.until) c.until = now + 3500;
+    if (now > c.until) {
+      c.rest = now + 20000;
+      c.since = 0;
+      return null;
+    }
+    return { target: { x: m.x, y: m.y }, side, touch: true };
+  }
+
+  // Her arm on what she reaches for (ik.js): turned and stretched so her fingertip lands on it, eased in and out
+  // over what she's drawn doing; her head looks at it.
+  ikStep(now) {
+    const ik = this.ik;
+    const dt = Math.min(0.1, (now - (ik.at || now)) / 1000);
+    ik.at = now;
+    const want = this.ikWant(now);
+    const goal = want ? 1 : 0;
+    ik.w += (goal - ik.w) * (1 - Math.exp(-dt * (goal > ik.w ? 8 : 5)));
+    if (want) {
+      if (want.side !== ik.side && ik.w > 0.05) ik.w = 0.05; // the other arm: from the start
+      ik.side = want.side;
+      ik.target = want.target;
+      ik.aimOnly = Boolean(want.aimOnly);
+      ik.touch = Boolean(want.touch);
+    }
+    if (ik.w < 0.01 || !ik.target) {
+      if (!want) ik.touched = false;
+      return;
+    }
+    const sp = this.toSprite(ik.target);
+    const { shoulder, hand, mirror } = SPRITE;
+    const r = reach(shoulder, hand, ik.side === 'L' ? sp : mirrored(sp, mirror), ik.aimOnly ? { ...ARM_LIMITS, max: 1.3 } : ARM_LIMITS);
+    const p = this.p;
+    if (ik.side === 'L') {
+      p.armL = lerp(p.armL, r.angle, ik.w);
+      p.longL = lerp(p.longL, r.long, ik.w);
+    } else {
+      p.armR = lerp(p.armR, r.angle, ik.w);
+      p.longR = lerp(p.longR, r.long, ik.w);
+    }
+    p.head += look({ x: 118, y: 152 }, sp) * ik.w;
+    // her fingertip on your pointer: a spark there, once
+    if (ik.touch && r.touches && ik.w > 0.9 && !ik.touched) {
+      ik.touched = true;
+      this.fx.twinkle(ik.target.x, ik.target.y, { size: 10 });
+    }
   }
 
   // Your pointer rushing right past her face: her mane bristles and she sways out of its way, a few sparks
