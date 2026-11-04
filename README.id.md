@@ -60,7 +60,13 @@ Di atas capri-desktop 0.4.4 karya mochiiwuff (rig-nya, animasinya, narasi Claude
   AI-nya saat bicara, dan sistem belajar kapan dan bagaimana dia bergerak.
 - **Aplikasi Windows**: installer dan exe portable, jalan otomatis saat Windows menyala, selalu di atas dan bisa
   diklik, launcher `.bat`, dan jendela pengaturan lengkap bergaya menu Cyberpunk 2077, dengan halaman **Access**
-  untuk semua yang boleh dia lihat, dengar, dan lakukan di PC-mu.
+  untuk semua yang boleh dia lihat, dengar, dan lakukan di PC-mu, plus catatan apa saja yang sudah dia lakukan. Versi
+  yang di-install **update sendiri** dari GitHub Releases (dia tanya dulu).
+- **0.6.0**: dia **menulis untukmu** (email, surat, pesan: dibuat draft, ditunjukkan, lalu diketik kalau kamu setuju),
+  mengerti perintah **dengan kata-katamu sendiri** (modelnya membaca yang terlewat oleh aturannya), belajar **perintah
+  buatanmu** ("kalau aku bilang mode kerja…"), **cuaca** dan **rangkuman pagi**, **ingat yang kamu ceritakan berminggu-minggu
+  lalu** (catatan dan obrolan lama, dipilih sesuai yang sedang kamu bahas), dan tidak pernah mengetik di kotak password.
+  Dites (`npm test`, 34 tes) dan dicek di setiap push (lint, bentrok nama, PowerShell).
 
 ## Siapa dia
 
@@ -149,14 +155,53 @@ Diketik atau diucapkan, dalam bahasa Inggris atau Indonesia, tanpa perlu AI: lih
   antarmuka aksesibilitas Windows. Juga **liriknya**: "tampilkan lirik", "matikan lirik", "liriknya apa?" (lihat
   [Dia ikut mendengarkan musikmu](#dia-ikut-mendengarkan-musikmu)).
 - **Tutup aplikasi** ("close Discord"): selalu lewat tombol konfirmasi, seperti tombol close aplikasinya sendiri.
+- **Mengetik untukmu** di aplikasi lain: "ketik halo di notepad", "ketik halo di antigravity", "write print('hi') in
+  vscode", "tulis selamat pagi ke chat" (atau tanpa nama aplikasi: yang tadi kamu pakai). Ketikan sungguhan, karakter apa
+  saja, lalu tombol kalau kamu minta: "kirim" / "press enter", "simpan" / "save it", "pilih semua", "batalkan". Selama
+  mengetik dia masuk ke jendela itu, seperti di anime-nya: kilat dari tangannya, bingkai jendela berkobar dengan matanya,
+  data berjatuhan ke dalamnya. Tidak pernah ke jendela yang salah: kalau jendelanya tidak mau ke depan, atau kamu pindah
+  jendela, dia berhenti. Kalau diucapkan lewat suara, yang salah didengar oleh pengenal suara diperbaiki dulu ("get
+  hub" jadi "GitHub"), dan dia memberi tahu apa yang diketik (Pengaturan › Voice › Fix what I dictate).
+- **Menulis untukmu**: "tuliskan surat izin di notepad", "buatkan pesan ulang tahun untuk ibuku di whatsapp", "write an
+  email to my boss saying I'm sick", "draft a tweet about cats". Modelnya membuat draft (dalam bahasa permintaanmu,
+  ditandatangani dengan namamu kalau itu surat), kamu lihat semuanya, lalu **Ketik** (di tempat yang kamu minta, atau
+  jendela yang tadi kamu pakai), **Salin** atau **Ulangi**; "lebih singkat", "lebih resmi", "in English" mengubahnya. Di
+  aplikasi chat atau browser, baris baru pakai Shift+Enter, jadi pesan panjang tidak terkirim per baris.
+- **Kode langsung di tempatmu**: "buatkan kode python untuk menghitung BMI di sini", "tulis kode html sederhana di
+  antigravity", "write simple html here". Modelnya menulis kodenya (dalam bahasa file yang terbuka: `hello.html` jadi
+  HTML) lalu dia menempelkannya ke editor sekaligus, jadi editor tidak mengatur ulang indentasi atau menutup tag dua kali.
+  Ctrl+Z membatalkannya; clipboard-mu dikembalikan seperti semula.
+- **PR di layarmu**: "saya punya pekerjaan rumah, tolong jawabkan pertanyaan yang ada di layar saya", "kerjakan soal ini",
+  "solve the math problems on my screen". Dia melihat (satu screenshot dan teksnya, tidak disimpan), menjawab setiap soal
+  dengan caranya, dalam bahasa soalnya, dan **Ketik** / **Salin** menaruh jawabannya di tempat soalnya. Hitungan dikerjakan
+  kalkulator, bukan ditebak modelnya: hitungan di lembar soal dulu, lalu setiap hitungan di jawabannya ("25 × 4 =
+  [[calc: 25*4]]" jadi hasil yang pasti). Di chat juga.
+- **Mengetik dengan aman**: tombol yang kamu tekan (Esc, atau huruf apa saja) langsung menghentikannya, panelnya punya
+  tombol **Stop**, dan dia tidak pernah mengetik di kotak password (dia bilang begitu).
+- **Beberapa perintah sekaligus**: "buka notepad lalu ketik halo tiktok", "buka spotify terus putar musik", "open notepad
+  and type hello, then save it", "ke kiri lalu joget". Satu per satu: yang dibuka satu perintah jadi tempat perintah
+  berikutnya mengetik. Setelah selesai dia bilang dan bertanya mau apa lagi ("Task selesai! Mau aku tulis apa lagi?").
 - **Ngoding untukmu**: "buatkan kode python untuk menghitung BMI", "bikin game snake pakai html", "write a script that…".
   Kalau [Claude Code](https://code.claude.com/docs/en/quickstart) terpasang, dia membukanya di terminal di folder kodemu
   dengan tugasmu sudah terisi: kamu melihat pekerjaannya dan menyetujui perubahannya di sana, sambil dia mengomentarinya.
   Tanpa itu (atau "…sendiri", "…yourself"), dia menulisnya sendiri dengan modelnya: satu file di `Documents\Capri Code`,
   dibuka di VS Code atau Notepad, tidak pernah dijalankan. "pakai claude code" memilih Claude Code. Pengaturan › AI brain
   › Coding: siapa yang menulis, dan di mana.
+- **Perintah buatanmu**: "kalau aku bilang mode santai, putar musik lalu ke kiri", "when I say work mode, open vscode and
+  play music". Setelah itu "mode santai" menjalankan semuanya. "lupakan perintah mode santai" melupakannya; Pengaturan ›
+  Behavior › Your commands menampilkan, menambah, dan menghapusnya.
+- **Dengan kata-katamu sendiri**: "puterin yang santai dong", "kecilin suaranya dikit", "could you crank it up a bit":
+  kalau aturannya tidak menangkap perintahnya, modelnya bilang itu perintah yang mana (satu panggilan singkat), dia
+  menjalankannya dan bilang bagaimana dia mengartikannya. Selalu dari kata-katamu sendiri (tidak membuka aplikasi kalau
+  kamu tidak bilang buka, tidak mencari kalau kamu tidak bilang cari), dan tidak pernah menutup aplikasi atau apa pun
+  yang butuh tombol. Pengaturan › AI brain › Commands in my own words.
+- **Cuaca dan harimu**: "cuaca hari ini", "cuaca di Bandung besok", "besok hujan nggak?" (Open-Meteo, gratis, hanya nama
+  kota yang dikirim); "rangkuman hari ini", "brief me", dan sekali sehari pertama kali kamu di depan PC pagi hari:
+  tanggal, cuaca di kotamu, alarm hari ini. Pengaturan › Behavior › Your day.
 - **Timer, alarm, pengingat, timer belajar** (Pomodoro), pencarian web dan YouTube, catatan, dare ("tantang aku"),
   game: suit ("main suit"), tebak angka ("tebak angka"), lempar koin, dadu.
+- **Apa yang sudah dia lakukan**: Pengaturan › Access › What she did mencatat setiap aplikasi, halaman, pencarian, dan
+  tombol, dan di mana dia mengetik untukmu (berapa banyak, bukan isinya), hanya di PC ini.
 
 ## Dia melihat layarmu
 
@@ -283,7 +328,14 @@ Ucapkan atau ketik; tidak perlu AI untuk ini.
 | Lirik | "perlihatkan lirik lagu ini", "berhenti tampilkan lirik", "liriknya apa?", "dengarkan lagu ini" | "show the song lyrics", "stop showing lyrics", "what's the lyric?", "listen to this song" |
 | Lihat | "lihat layarku", "gambar apa ini?", "baca tulisan di layar" | "what's on my screen?", "read what's in my notes" |
 | Waktu | "pasang timer 10 menit", "pasang alarm jam 7" | "set a timer for 10 minutes", "wake me at 7am" |
+| Ketik | "ketik halo di antigravity", "tulis halo ke chat", "kirim", "simpan" | "type hello in notepad", "write hello in vscode", "press enter", "save it" |
+| Sekaligus | "buka notepad lalu ketik halo", "buka spotify terus putar musik" | "open notepad and type hello tiktok", "open spotify and play music" |
 | Kode | "buatkan kode python untuk…", "bikin landing page sendiri", "suruh claude code bikin…" | "write a script that sorts my files", "make a snake game in html with claude code" |
+| Kode di sini | "buatkan kode python di sini", "tulis kode html sederhana di antigravity" | "write simple html here", "add a login form in vscode" |
+| PR | "tolong jawabkan pertanyaan di layar saya", "kerjakan soal ini", "kerjakan PR saya" | "solve the math problems on my screen", "help me with this homework" |
+| Menulis | "tuliskan surat izin di notepad", "buatkan pesan ulang tahun untuk ibuku", "lebih singkat" | "write an email to my boss saying I'm sick", "draft a tweet about cats", "make it shorter" |
+| Buatanmu | "kalau aku bilang mode santai, putar musik lalu ke kiri", "lupakan perintah mode santai" | "when I say work mode, open vscode and play music", "forget work mode" |
+| Cuaca | "cuaca hari ini", "besok hujan nggak?", "cuaca di Bandung besok", "rangkuman hari ini" | "what's the weather?", "will it rain tomorrow?", "brief me" |
 | Game | "main suit", "tebak angka", "lempar koin" | "rock paper scissors", "guess the number" |
 | Dia | "tantang aku", "improve dirimu", "kamu udah belajar apa?" | "dare me", "how's our sync?", "who are you?" |
 | Bergerak | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" | "move less", "you can move again" |
@@ -344,8 +396,8 @@ pindah), pilihan ◁ ▷, saklar ON / OFF, dan penjelasan pengaturan yang ditunj
   CPU, dan baterai (untuk komentarnya); apakah ada AI lain di depan; lagu yang diputar; AI coding-mu.
 - **Yang bisa dia dengar**: mikrofonmu (mati, push to talk, selalu).
 - **Yang bisa dia lakukan di PC-mu**: membuka aplikasi, membuka folder dan mencari file, menutup aplikasi, membuka
-  situs, menekan tombol media, memutar lagu di Spotify, menulis kode, merasuki jendela. Kalau kamu meminta sesuatu yang
-  dimatikan, dia akan bilang.
+  situs, menekan tombol media, memutar lagu di Spotify, menulis kode, mengetik untukmu di aplikasi lain, merasuki
+  jendela. Kalau kamu meminta sesuatu yang dimatikan, dia akan bilang.
 - **Yang dikirim ke internet**: lirik lagu (LRCLIB), catatannya dengan model cloud.
 - **Yang dia simpan di PC ini**: ingatannya tentangmu, obrolanmu, penilaiannya tentang lagu ("Lupakan"), dan cache
   lirik ("Hapus").
@@ -365,12 +417,15 @@ Semuanya bisa diganti di pengaturan › Advanced.
 - **Secara default, hampir tidak ada**: otaknya bisa Ollama di PC-mu, telinganya Whisper di PC-mu, suaranya Windows atau
   Piper. Satu-satunya yang keluar dengan sendirinya: judul, artis, album, dan durasi lagu yang sedang kamu putar, ke
   [LRCLIB](https://lrclib.net) untuk mencari liriknya (Pengaturan › Behavior › Song lyrics untuk mematikannya), dan
-  pertanyaan tentang dunia, ke Wikipedia dan Bing untuk dicari (Pengaturan › Access › Look things up online).
+  pertanyaan tentang dunia, ke Wikipedia dan Bing untuk dicari, dan nama kota ke Open-Meteo untuk cuaca (Pengaturan ›
+  Access › Look things up online). Update-nya datang dari GitHub Releases (Pengaturan › Advanced › Updates: Off
+  menghentikan pengecekannya juga).
 - **Hanya yang kamu nyalakan yang online**, ke layanan yang kamu pilih, dengan key-mu: pesan chat ke otak cloud,
   kalimat-kalimatnya (bukan suaramu) ke suara cloud, ucapanmu ke Groq atau OpenAI kalau kamu memilihnya untuk
   telinganya, dan screenshot jendela di depan hanya saat kamu memintanya melihat dan mengizinkannya untuk model cloud.
 - **Disimpan di PC-mu**: riwayat, catatannya, pelajarannya, apa yang dia pelajari soal bergerak, penilaiannya tentang
-  lagu, lirik yang sudah diambil, dan key-mu (dienkripsi dengan akun Windows-mu). Catatan dan pelajarannya hanya dikirim ke model cloud kalau kamu menyalakan "Also with a
+  lagu, lirik yang sudah diambil, catatan apa yang sudah dia lakukan, dan key-mu (dienkripsi dengan akun Windows-mu).
+  Yang dia ingat dari obrolan lama dicari di PC ini (dengan model embedding di Ollama kalau kamu punya). Catatan dan pelajarannya hanya dikirim ke model cloud kalau kamu menyalakan "Also with a
   cloud model".
 - **Hook Claude Code** hanya mengirim yang perlu ditampilkan (nama tool, path file, perintah, pesan terakhir Claude)
   ke `127.0.0.1`, tidak pernah isi file-mu.
@@ -408,6 +463,7 @@ src/main/                 Electron: jendela transparan tembus-klik, tray, pengat
   windows.ps1             posisi jendela lain, supaya dia bisa duduk di atasnya
   spotify.ps1, ocr.ps1    menekan Play di Spotify; membaca teks di gambar (OCR Windows)
   media.ps1, web.js       lagu yang diputar (repeat, shuffle, seek); pertanyaan yang dicari di web
+  type.ps1                mengetik untukmu di aplikasi lain, menekan tombol (Enter, Ctrl+S)
 src/renderer/js/
   sprite.js, acting.js    rig-nya (shader WebGL) dan gerakannya, gambar demi gambar
   capri.js                karakternya: sikap, berjalan, teleport, dipegang, dilempar, dielus, gestur
