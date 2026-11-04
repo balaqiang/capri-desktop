@@ -46,6 +46,7 @@ uniform vec2 uMisreg;
 uniform vec3 uRim;
 uniform float uAlpha;
 uniform float uPx; // sprite pixels per screen pixel
+uniform vec2 uStrand[5]; // her mane's spring chain (hair.js), root to tips, in sprite px
 
 // landmarks, in sprite pixels (capri-full.png is 240x420, see tools/build-sprite.py)
 const vec2 NECK = vec2(118.0, 152.0);   // the head tilts around this
@@ -196,6 +197,15 @@ float armAlpha(vec2 q) {
   return max(armL(qL) * tex(qL).a, armL(qR) * tex(qR).a);
 }
 
+// Her mane where its springs have pulled it (hair.js), height by height: the root at her neck holds, the tips swing
+// furthest. Not as one block: each shard a little its own way; her mask held still.
+vec2 strand(vec2 q) {
+  float t = clamp((170.0 - q.y) / 165.0, 0.0, 1.0) * 4.0;
+  vec2 d = uStrand[1] * max(0.0, 1.0 - abs(t - 1.0)) + uStrand[2] * max(0.0, 1.0 - abs(t - 2.0))
+         + uStrand[3] * max(0.0, 1.0 - abs(t - 3.0)) + uStrand[4] * max(0.0, 1.0 - abs(t - 4.0));
+  return d * (0.8 + 0.2 * sin(q.x * 0.09 + q.y * 0.035)) * smoothstep(14.0, 30.0, distance(q, FACE));
+}
+
 // The head and mane acting, on the body only: an arm raised up into the mane stays straight.
 vec2 bend(vec2 q) {
   // head tilt: everything above the collar bends around the neck, the body stays put
@@ -209,7 +219,8 @@ vec2 bend(vec2 q) {
     q = MANE + d / (1.0 + uMane * w * 0.32 * spikes);
   }
 
-  // mane sway, strongest at the tips
+  // her mane's springs (where it's been flung), then its sway, strongest at the tips
+  q -= strand(q);
   float hw = smoothstep(175.0, 5.0, q.y);
   q.x -= uHair * hw * (0.65 + 0.35 * sin(q.y * 0.055));
   q.y -= uHair * 0.22 * hw * sin(q.x * 0.045);
@@ -316,7 +327,7 @@ const UNIFORMS = [
   'uView', 'uPad', 'uTex', 'uSize', 'uSeed', 'uBoil', 'uHair', 'uHead', 'uMane', 'uArmL', 'uArmR', 'uLongL', 'uLongR',
   'uSit', 'uKickL', 'uKickR',
   'uSmear', 'uEcho', 'uGlitch', 'uGlitchSeed',
-  'uSplit', 'uCollapse', 'uDissolve', 'uSparkle', 'uGrade', 'uSil', 'uMisreg', 'uRim', 'uAlpha', 'uPx',
+  'uSplit', 'uCollapse', 'uDissolve', 'uSparkle', 'uGrade', 'uSil', 'uMisreg', 'uRim', 'uAlpha', 'uPx', 'uStrand',
 ];
 
 export const SPRITE = {
@@ -442,6 +453,7 @@ export class SpriteRenderer {
     gl.uniform2f(u.uMisreg, s.misreg[0], s.misreg[1]);
     gl.uniform3f(u.uRim, 0.48, 0.24, 1.0);
     gl.uniform1f(u.uAlpha, s.alpha);
+    if (s.strand) gl.uniform2fv(u.uStrand, s.strand);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 }
