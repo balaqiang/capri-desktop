@@ -26,6 +26,10 @@ const apps = require('./apps');
 const launch = require('./launch');
 const lyrics = require('./lyrics');
 const web = require('./web');
+const { writeAtomic, readJson } = require('./store');
+const updater = require('./updater');
+const actionsLog = require('./actions-log');
+const recall = require('./recall');
 const { ASSISTANTS, assistant } = require('./assistants');
 const activeAssistant = () => assistant(config.load().assistant); // Claude Code or Codex
 const activeHooks = () => activeAssistant().hooks;
@@ -49,6 +53,7 @@ let demoTimer = null;
 let windowWatch = null;
 // the watcher only speaks when something changes: the overlay asks for this when it (re)loads
 let lastWindows = null;
+let lastAppWindow = 0; // the app window you were last in (windowWatch), for typing in it
 let lastDesktopRearm = 0; // when her pointer hook was last set up again for the desktop coming in front
 let chatModels = null; // the provider's models, as last seen (null: not reached)
 let chatError = null;  // why not, when the provider said
@@ -124,15 +129,11 @@ function watchVoices() {
 // Her memory of your chats, across restarts: { history: [{ role, content }], claude: Claude Code's session }
 const memoryFile = () => path.join(app.getPath('userData'), 'memory.json');
 function readMemory() {
-  try {
-    return JSON.parse(fs.readFileSync(memoryFile(), 'utf8'));
-  } catch {
-    return {};
-  }
+  return readJson(memoryFile()) || {};
 }
 function saveMemory(patch) {
   try {
-    fs.writeFileSync(memoryFile(), JSON.stringify({ ...readMemory(), ...patch }));
+    writeAtomic(memoryFile(), JSON.stringify({ ...readMemory(), ...patch }));
   } catch (err) {
     console.error('[capri] could not save her memory:', err.message);
   }
@@ -513,6 +514,8 @@ async function settingsState() {
     shortcut: fs.existsSync(path.join(app.getPath('desktop'), 'Capri.lnk')),
     canShare: !llm.isLocal(config.load().provider, config.load()) ? Boolean(config.load().cloudMemory) : true,
     startup: app.getLoginItemSettings(loginItemOptions()).openAtLogin,
+    update: updater.state(),
+    actions: actionsLog.list(60),
     defaults: config.DEFAULTS,
   };
 }
@@ -1172,7 +1175,7 @@ function registerIpc() {
     return { ok: true, provider, model: pickModel(), agent: provider === 'claude', local: llm.isLocal(provider, cfg), warmup: provider === 'ollama' };
   });
   // her answer, streamed to the overlay piece by piece as `chat:delta`
-  ipcMain.handle('chat:send', async (_e, { id, messages }) => {
+  ipcMain.handle('chat:send', async (_e, { id, messages, maxTokens, temperature }) => {
     // one answer at a time: a new message stops one still being written (you've moved on, and two at once
     // would only make both slow)
     for (const [other, stop] of chats) if (other !== id) stop.abort();
@@ -1184,7 +1187,9 @@ function registerIpc() {
         streamed = true;
         overlay?.webContents.send('chat:delta', { id, text });
       };
-      const cfg = config.load();
+      // a longer answer when it needs one (her homework answers), steadier too
+      const saved = config.load();
+      const cfg = { ...saved, ...(maxTokens && { maxTokens: Math.min(2000, Math.max(Number(saved.maxTokens) || 300, Number(maxTokens) || 0)) }), ...(Number.isFinite(temperature) && { temperature }) };
       try {
         const text = await chatWithFallback(cfg, messages, send, abort.signal, () => streamed);
         if (cfg.provider === 'claude') saveMemory({ claude: llm.claudeMemory() });
@@ -1263,7 +1268,11 @@ function registerIpc() {
   ipcMain.handle('apps:list', async () => (await apps.list().catch(() => [])).map(appInfo));
   ipcMain.handle('apps:find', async (_e, wanted) => appInfo(await apps.find(wanted).catch(() => null)));
   // (each only when settings › Access allows it)
-  ipcMain.handle('apps:close', (_e, { name, force }) => (config.allowed('close') ? apps.close(name, { force }).catch((err) => ({ error: err.message })) : { error: 'Not allowed: Settings › Access.' }));
+  ipcMain.handle('apps:close', async (_e, { name, force }) => {
+    const res = config.allowed('close') ? await apps.close(name, { force }).catch((err) => ({ error: err.message })) : { error: 'Not allowed: Settings › Access.' };
+    actionsLog.record({ kind: 'close', text: name }, { handled: true, denied: Boolean(res?.error), why: res?.error });
+    return res;
+  });
   // opening things you ask her to (launch.js): an app or a game, your music, a website
   ipcMain.handle('apps:findLaunch', (_e, text) => (config.allowed('apps') ? launch.find(String(text || '')).catch(() => null) : null));
   ipcMain.handle('apps:launch', (_e, item) => (config.allowed('apps') ? launch.launch(item).then(() => ({ ok: true }), (err) => ({ ok: false, error: err.message })) : { ok: false, error: 'denied' }));
@@ -1317,10 +1326,21 @@ function registerIpc() {
   // ---- from Capri Desktop 2.4: her words, errands, her eyes and ears, her life --------------------------
   ipcMain.handle('lang:table', () => lang.table());
   // her own growth first ("improve yourself", "from now on…"), then her errands
-  ipcMain.handle('errand:run', async (_e, text) => {
+  ipcMain.handle('task:cancel', () => life.cancel());
+  // a draft of hers (her Type it and Copy buttons)
+  ipcMain.handle('draft:type', (_e, d) => life.typeDraft({ text: String(d?.text || '').slice(0, 4000), target: String(d?.target || '').slice(0, 60) }));
+  ipcMain.handle('draft:copy', (_e, text) => { clipboard.writeText(String(text || '').slice(0, 20000)); return true; });
+  // her panel's answer about a new version: 'download', 'install', 'later'
+  ipcMain.handle('update:act', async (_e, name) => {
+    if (name === 'download') return updater.download();
+    if (name === 'install') return updater.install();
+    if (name === 'later') updater.later();
+    return updater.state();
+  });
+  ipcMain.handle('errand:run', async (_e, text, opts) => {
     const said = String(text || '').slice(0, 500);
     try {
-      return (await growth.command(said)) || (await life.run(said));
+      return (await growth.command(said)) || (await life.run(said, { voice: Boolean(opts?.voice) }));
     } catch (err) {
       return { handled: false, error: err.message };
     }
@@ -1333,7 +1353,16 @@ function registerIpc() {
     history.add(clean);
   });
   ipcMain.on('persona:set', (_e, text) => { personaText = String(text || ''); });
-  ipcMain.handle('life:context', () => brainContext());
+  // her context for your message: her notes it's about, and what you said about it before (recall.js)
+  ipcMain.handle('life:context', async (_e, about) => {
+    const cfg = config.load();
+    const cloud = !llm.isLocal(cfg.provider, cfg);
+    const q = String(about || '').slice(0, 500);
+    const share = q && cfg.memoryOn && (!cloud || cfg.cloudMemory);
+    const facts = share ? await recall.memoriesFor(q, life.memories()).catch(() => null) : null;
+    const past = share && cfg.historyOn !== false && cfg.recallChats !== false ? await recall.pastChats(q, history.recent(3000)).catch(() => []) : [];
+    return [life.brainContext({ cloud, facts, past }), growth.context({ cloud })].filter(Boolean).join('\n\n');
+  });
   ipcMain.handle('life:song', () => life.songNow()); // her window (re)loaded: the song she was following
   // her history, for her settings
   ipcMain.handle('history:days', () => history.days());
@@ -1490,6 +1519,11 @@ function registerIpc() {
         }
       }
       case 'cancelEars': earsDownload?.abort(); break;
+      case 'checkUpdate': await updater.check(); break;
+      case 'clearActions': actionsLog.clear(); break;
+      case 'brief': await life.briefNow(); break;
+      case 'downloadUpdate': await updater.download(); break;
+      case 'installUpdate': updater.install(); break;
       default: return null;
     }
     return settingsState();
@@ -1672,6 +1706,8 @@ function main() {
           lastDesktopRearm = Date.now();
           rearmOverlay();
         }
+        // the app window you were last in (not hers, not the desktop or the taskbar): where "type hello" goes
+        if (data.fg && !own.includes(data.fg) && (data.wins || []).some((w) => w.id === data.fg)) lastAppWindow = data.fg;
         lastWindows = data;
         overlay?.webContents.send('windows:update', data);
       },
@@ -1727,12 +1763,22 @@ function main() {
         }
       },
       model: (messages) => askOnce(messages),
-      raw: (messages) => quickJob(() => askRaw(messages, { timeout: 25000 })), // plain questions, no persona (what a song sounds like)
+      front: () => lastAppWindow, // where "type hello" goes when no app is named
+      raw: (messages, { timeout = 25000 } = {}) => quickJob(() => askRaw(messages, { timeout })), // plain questions, no persona (what a song sounds like; code, a draft: longer)
       coder: { claude: codeWithClaude, self: codeHerself }, // code you ask for (errands)
       look: () => lookAllowed().ok,
       shot: snapshot,
     });
     llm.restoreClaude(readMemory().claude);
+    actionsLog.start({ on: () => config.load().actionLog !== false });
+    // new versions from her GitHub Releases (the installed version only): her panel asks, her settings show it
+    updater.start({
+      cfg: () => config.load(),
+      emit: (evt) => {
+        overlay?.webContents.send('life:event', evt);
+        if (settingsWin && !settingsWin.isDestroyed()) settingsWin.webContents.send('settings:refresh');
+      },
+    });
     refreshModels(); // for her menu's model list
     setTimeout(() => launch.launchables().catch(() => {}), 20000); // what she can open, before you ask
     screen.on('display-metrics-changed', fitOverlay);
