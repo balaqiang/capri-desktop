@@ -332,6 +332,17 @@ export class Panel {
     this.quote.hidden = !quote;
     this.line.textContent = '';
     this.line.classList.add('is-streaming');
+    this.setReply('');
+    this.place();
+  }
+
+  // A long text under her line, kept as written (a draft of hers, in her chat too).
+  setReply(text) {
+    this.reply.textContent = text || '';
+    this.reply.hidden = !text;
+    this.reply.scrollTop = 0;
+    this.el.classList.toggle('has-reply', Boolean(text));
+    if (this.current) this.current.reply = text || '';
     this.place();
   }
 
