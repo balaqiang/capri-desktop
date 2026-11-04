@@ -59,6 +59,7 @@ let askModel = null; // (messages) => Promise<string>: her model, with her perso
 let askPlain = null; // (messages) => Promise<string>: her model as is, for plain questions (main.js)
 let frontWindow = null; // () => the window you were in before talking to her (main.js), for typing in it
 const startedAt = Date.now(); // her morning brief waits until she has settled in
+let held = null; // her renderer holds her down to her mask ('game', 'focus', 'quiet'): no remarks, dares or brief
 let pluginEngine = null; // your plugins (plugins.js): what sets them off is seen here
 let pluginTimer = null;
 let cancelled = false; // her Stop button: the task going on ends (the typing at once, a chain before its next step)
@@ -265,6 +266,8 @@ function observe() {
   state.cpuBusy = cpu >= 90 ? state.cpuBusy + step / 1000 : 0;
 
   const c = cfg();
+  // game, focus or quiet mode: not a word of her own until you call her
+  if (held) return;
   // the first time you're at your PC in the morning: her brief of your day, once a day
   const today = new Date().toDateString();
   if (c.dailyBrief !== false && !state.briefing && c.briefDay !== today && idle < 30 && now - startedAt > 20000 && now > state.quietUntil) {
@@ -1246,6 +1249,15 @@ async function actNow(e, opts = {}) {
     }
     case 'draft':
       return draft(e.task, e.target);
+    case 'hold': {
+      const lines = {
+        game: 'Game mode. I\'ll keep to my mask. Click it, or say "normal mode", when you\'re done. GLHF!',
+        focus: 'Focus mode. Not a peep from me. Click my mask, or say "normal mode", when you need me.',
+        quiet: 'Quiet mode. Just my mask, not a word. Click it when you want me back.',
+        off: "I'm back! Did you miss me?",
+      };
+      return { handled: true, reply: T(lines[e.mode] || lines.off), emotion: e.mode === 'off' ? 'happy' : null, move: `hold-${e.mode}` };
+    }
     case 'teach':
       return teach(e.name, e.run);
     case 'weather': {
@@ -1403,9 +1415,11 @@ function stop() {
 }
 
 const quiet = (ms) => { state.quietUntil = Date.now() + ms; };
+// her renderer, held down to her mask (capri.holdIn) or back: null when she's back
+const setHold = (reason) => { held = ['game', 'focus', 'quiet'].includes(reason) ? reason : null; };
 
 module.exports = {
-  findPath, browserPath, start, stop, startSenses, run, cancel, typeDraft, briefNow, pluginRun, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
+  findPath, browserPath, start, stop, startSenses, run, cancel, typeDraft, briefNow, pluginRun, setHold, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
   addAlarm, removeAlarm, clearAlarms, startStudy, stopStudy, pauseStudy, studyStatus, hackLine, giveDare, quiet, playSong, lyricsChanged, songNow,
   get track() { return state.track; }, get front() { return state.front; }, get fullscreen() { return Boolean(state.fullscreen); },
 };
