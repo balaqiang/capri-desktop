@@ -276,6 +276,7 @@ function pageOwner() {
       row('How she is with you', 'In your own words: her chat follows it (she stays Capri).', text('persona', { placeholder: 'More teasing, and tell me about Night City…' }))),
     card('What she remembers',
       row('Memory', 'She keeps what you tell her to remember ("remember that…", "ingat bahwa…") and uses it in chat.', toggle('memoryOn')),
+      row('Recall past chats', 'When you talk about something you told her before (weeks ago too), she remembers it: the lines it is about, found in your chats kept on this PC. With an embedding model in Ollama (nomic-embed-text), by meaning too.', toggle('recallChats')),
       row('Also with a cloud model', 'Off: her notes about you, the story so far and her self-improvement only use a model on this PC. On: they also go to your cloud AI (needed for an online brain that remembers you).', toggle('cloudMemory')),
       stack('Her notes about you', 'Passwords and card numbers are never kept.', listEditor('memories', { placeholder: 'Something to remember…', max: 60, empty: 'She remembers nothing about you. Yet.' })),
       row('Forget everything', null, button('Forget all notes', async () => { if (confirm(T('Forget everything she knows about you?'))) { await act('clearMemory'); render(); } }, 'danger'))),
@@ -422,8 +423,10 @@ function pageVoice() {
   return [
     card('Hearing',
       row('How she listens', 'Push to talk: click the mic by her, or the hotkey. Always: hands-free, she hears everything that starts with her name.', seg('listen', [['off', 'Off'], ['push', 'Push to talk'], ['always', 'Always listening']])),
+      row('Fix what I dictate', 'When you say "type…" out loud, her model fixes what speech recognition misheard ("get hub" becomes "GitHub", "every one" becomes "everyone") before she types it, and tells you what she typed. What you type by hand is never changed.', toggle('fixDictation')),
       row('Only when I say her name', 'In always-listening mode: "Capri, open Spotify". A click on her mic counts as her name.', toggle('wakeWord')),
       row('Her names', 'What counts as her name (comma separated). Whisper sometimes hears "Kapri".', text('wakeWords', { placeholder: 'capri, kapri', max: 120 })),
+      row('Words to hear right', 'Names, apps and words of yours, comma separated, spelled the way they are written: Whisper hears them better ("Antigravity", not "anti gravity"). App names like Notepad and VS Code are in already.', text('sttWords', { placeholder: 'Figma, Obsidian, Budi', max: 400 })),
       row('Follow-up window', 'After she answers, how long you can go on without her name.', ...range('followUpSeconds', 0, 30, 1, (v) => `${v} s`)),
       row('Mic button by her', null, toggle('micButton')),
       row('Close her ears while she talks', 'So she does not hear her own voice.', toggle('muteWhileSpeaking'))),
@@ -624,7 +627,8 @@ function pageBrain() {
       provider === 'custom' && row('Server address', 'Any OpenAI-compatible server: http://127.0.0.1:1234/v1', text('customUrl', { placeholder: 'http://127.0.0.1:1234/v1' })),
       row('Creativity', 'Temperature: low is steady, high is wild.', ...range('temperature', 0, 1.5, 0.05, (v) => v.toFixed(2))),
       row('Max answer length', 'In tokens.', ...range('maxTokens', 60, 1500, 20, (v) => `${v}`)),
-      row('Conversation memory', 'How many recent messages she keeps in mind.', ...range('contextMessages', 4, 60, 2, (v) => `${v}`))),
+      row('Conversation memory', 'How many recent messages she keeps in mind.', ...range('contextMessages', 4, 60, 2, (v) => `${v}`)),
+      row('Commands in my own words', '"Could you crank it up", "puterin yang santai": when her rules miss a command, her model says which one it is (one short call) and she tells you how she took it. Never closing an app or anything behind a button.', toggle('intentRouter'))),
     localBrainCard(),
     card('Coding',
       row('Who writes the code', '"buatkan kode…", "code a script that…": Claude Code in a terminal (you approve its edits there), or Capri herself with her model, one file opened in your editor (never run).',
@@ -638,6 +642,32 @@ function pageBrain() {
       row('Talk to her', null, button('Open her chat', () => act('chat'))),
       row('Forget our conversations', 'Her notes about you stay (Owner page).', button('Forget', async () => { await act('forgetChats'); toast(T('Forgotten.')); }, 'danger'))),
   ];
+}
+
+// Commands of yours: a name, and what she does for it, in your words (also taught by saying "when I say work
+// mode, open vscode and play music"). Each runs like you'd said it, with the same Access switches.
+function skillsCard() {
+  const skills = cfg().skills || [];
+  const name = el('input', { type: 'text', placeholder: T('work mode'), maxlength: '40' });
+  const run = el('input', { type: 'text', placeholder: T('open vscode and play music'), maxlength: '300' });
+  const add = async () => {
+    const n = name.value.trim(), r = run.value.trim();
+    if (!n || !r) return;
+    const others = skills.filter((s) => s.name.toLowerCase() !== n.toLowerCase());
+    if (others.length >= 30) { toast(T('She can keep 30 of those.'), true); return; }
+    await save({ skills: [...others, { name: n, run: r }] });
+    render();
+    toast(F('"{0}" learned.', n));
+  };
+  run.addEventListener('keydown', (e) => { if (e.key === 'Enter') add(); });
+  const list = skills.map((s, i) => row(s.name, s.run, button('Forget', async () => {
+    await save({ skills: skills.filter((_, j) => j !== i) });
+    render();
+  }, 'danger')));
+  return card('Your commands',
+    note('Say the name and she does all of it, one after the other: "work mode", "mode santai". Or teach her out loud: "when I say work mode, open vscode and play music".'),
+    ...list,
+    row('New command', 'Its name, and what to do in your words (several things with "and", "lalu", "terus").', el('span', { class: 'skill-new' }, name, run), button('Add', add, 'primary')));
 }
 
 function pageBehavior() {
@@ -658,6 +688,10 @@ function pageBehavior() {
       button('Test', () => act('testGlitch', i)));
   }));
   return [
+    card('Your day',
+      row('Your city', 'For the weather ("cuaca hari ini", "will it rain tomorrow?") and her brief of your day. From Open-Meteo: only the city goes out.', text('weatherCity', { placeholder: 'Bandung', max: 60 })),
+      row('Morning brief', 'The first time you are at your PC in the morning: the date, the weather, your alarms for today. Or say "brief me", "rangkuman hari ini".', toggle('dailyBrief'), button('Brief me now', () => act('brief')))),
+    skillsCard(),
     card('Living on your desktop',
       row('Wander around when idle', null, toggle('wander')),
       row('Possess my windows', null, toggle('possess')),
@@ -879,6 +913,7 @@ function pageAdvanced() {
           else toast(r?.shortcuts?.error || T('Windows would not let me.'), true);
           render();
         }, state.shortcut ? '' : 'primary')),
+      updatesRow(),
       row('Debug log', 'More details in the console (developers).', toggle('debugLog')),
       row('Bridge port', 'Where her Claude Code hooks reach her.', el('span', { class: 'mono', text: String(state.port) }))),
     card('Your data',
@@ -886,6 +921,25 @@ function pageAdvanced() {
       row('Settings file', 'Export or import everything except your API keys.', button('Export…', async () => { const r = await act('export'); if (r?.ok) toast(T('Exported.')); }), button('Import…', async () => { const r = await act('import'); if (r?.ok) { state = await api.get(); render(); toast(T('Imported.')); } else if (r && !r.ok) toast(r.error, true); })),
       row('Reset', 'Back to how she came. Your API keys stay.', button('Reset all settings', async () => { if (confirm(T('Reset all of her settings?'))) { await act('reset'); state = await api.get(); render(); } }, 'danger'))),
   ];
+}
+
+// New versions from her GitHub Releases: how she gets them, and where it stands.
+function updatesRow() {
+  const u = state.update || {};
+  if (!u.supported) return row('Updates', 'This copy can\'t update itself (the portable one, or run from her source). New versions: her GitHub Releases page.', el('span', { class: 'mono', text: `v${state.version}` }));
+  const where = {
+    checking: T('Looking…'),
+    latest: F('v{0}: the latest.', state.version),
+    available: F('v{0} is out.', u.version),
+    downloading: F('Downloading v{0}… {1}%', u.version, u.percent || 0),
+    ready: F('v{0} is downloaded: it installs when she restarts.', u.version),
+    error: F('Could not check: {0}', u.error || ''),
+  }[u.phase] || F('v{0}', state.version);
+  const next = u.phase === 'available' ? button('Download', () => act('downloadUpdate').then(render), 'primary')
+    : u.phase === 'ready' ? button('Restart and update', () => act('installUpdate'), 'primary')
+      : button('Check now', () => act('checkUpdate').then(render));
+  return row('Updates', `${T('Ask me: she tells you when there is a new version. Automatic: downloaded on its own, installed when you close her. Checked against the release before it installs.')} ${where}`,
+    seg('autoUpdate', [['notify', 'Ask me'], ['auto', 'Automatic'], ['off', 'Off']]), next);
 }
 
 // Everything she can see, hear and do on your PC, in one place (the same switches as on the other pages, and
@@ -922,16 +976,34 @@ function pageAccess() {
       row('Media keys', 'Pause, next, previous, volume: the keys on your keyboard, pressed for you.', toggle('access.media')),
       row('Spotify', 'Search Spotify and press Play on the song you ask for.', toggle('access.spotify')),
       row('Write code', 'Write code into her Code folder (never run), or open Claude Code with your task.', toggle('access.code')),
+      row('Type for me', 'Type what you say into another app ("type hello in notepad", "buka notepad lalu ketik halo"), and press Enter or Ctrl+S when you ask. Only into the app you name or the one you were in.', toggle('access.type')),
       row('Possess my windows', 'Now and then she dives into the window she sits on: it only looks taken over, nothing in it is touched.', toggle('possess'))),
     card('What goes online',
       row('Song lyrics', 'The words of the song over her head as they\'re sung, from LRCLIB (lrclib.net, free, no account). Only the title, artist, album and length go out to look them up.', toggle('lyrics')),
       row('Her notes with a cloud model', 'Off: her notes about you, the story so far and her self-improvement only use a model on this PC. On: they also go to your cloud AI (needed for an online brain that remembers you).', toggle('cloudMemory'))),
     card('What she keeps on this PC',
       row('Memory', 'She keeps what you tell her to remember ("remember that…", "ingat bahwa…") and uses it in chat.', toggle('memoryOn')),
+      row('Recall past chats', 'When you talk about something you told her before (weeks ago too), she remembers it: the lines it is about, found in your chats kept on this PC. With an embedding model in Ollama (nomic-embed-text), by meaning too.', toggle('recallChats')),
       row('Keep my chats', 'Every chat turn, typed or spoken, kept on this PC (a file a day). Off: nothing new is kept, and she can\'t learn from your chats.', toggle('historyOn')),
       row('Song verdicts', 'What she thinks of each song she has heard (loves it, likes it, bored by it), so she feels the same next time.', button('Forget them', async () => { await save({ tastes: {} }); toast(T('She will make up her mind again.')); }, 'danger')),
       row('Lyrics cache', 'The words of songs you\'ve played, kept so they show at once next time without asking LRCLIB again.', kept, button('Clear', clear, 'danger'))),
+    actionsCard(),
   ];
+}
+
+// What she did on your PC, newest first: the app, the page, the key, how much she typed and where (never what).
+const ACTION_NAMES = { app: 'Opened', open: 'Opened', find: 'Found', browser: 'Opened in a browser', web: 'Searched', video: 'Played a video', song: 'Played', spotifySearch: 'Searched Spotify', media: 'Media', type: 'Typed', key: 'Pressed', close: 'Closed', code: 'Code' };
+function actionsCard() {
+  const list = state.actions || [];
+  const when = (at) => new Date(at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const rows = list.map((a) => el('li', { class: `actions__item${a.ok ? '' : ' is-failed'}` },
+    el('span', { class: 'mono actions__when', text: when(a.at) }),
+    el('span', { class: 'actions__what', text: `${T(ACTION_NAMES[a.kind] || a.kind)} ${a.what}` }),
+    el('span', { class: 'actions__how', text: [a.via === 'voice' ? T('said') : '', a.routed ? F('taken as "{0}"', a.routed) : '', a.ok ? '' : (a.why || T('did not work'))].filter(Boolean).join(' · ') })));
+  return card('What she did',
+    row('Keep a log', 'Every app, page, search and key, and where she typed for you (how much, never the words), on this PC only. The last 300.', toggle('actionLog'),
+      button('Clear', async () => { await act('clearActions'); render(); toast(T('Log cleared.')); }, 'danger')),
+    list.length ? el('ol', { class: 'actions' }, ...rows) : note('Nothing yet. Ask her to open something.'));
 }
 
 function pageAbout() {
