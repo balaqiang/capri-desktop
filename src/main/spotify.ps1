@@ -36,8 +36,8 @@ function Choose($names) {
   return GuessVerb $names
 }
 
-function Score($title, $query) {
-  $words = @([regex]::Split($query.ToLowerInvariant(), "[^\p{L}\p{N}']+") | Where-Object { $_.Length -ge 2 -and $_ -ne 'the' })
+function Score($title, $wanted) {
+  $words = @([regex]::Split($wanted.ToLowerInvariant(), "[^\p{L}\p{N}']+") | Where-Object { $_.Length -ge 2 -and $_ -ne 'the' })
   if ($words.Count -eq 0) { return 0 }
   $low = ([string]$title).ToLowerInvariant(); $hits = 0
   foreach ($w in $words) { if ($low.Contains($w)) { $hits++ } }
