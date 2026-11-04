@@ -1,6 +1,6 @@
 {
   "name": "capri-desktop",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Capri, the Project Capricorn construct, living on your desktop: narrates Claude Code, hears you through the mic, runs errands, dares you and glitches your screen (merged with Capri Desktop 2.4).",
   "author": "balaqiang",
   "contributors": [
