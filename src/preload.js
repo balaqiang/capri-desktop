@@ -74,6 +74,8 @@ contextBridge.exposeInMainWorld('host', {
   dare: () => ipcRenderer.invoke('life:dare'),
   syncLine: () => ipcRenderer.invoke('life:syncLine'),
   snapshot: () => ipcRenderer.invoke('look:snapshot'),
+  wakeAudio: (samples) => ipcRenderer.send('wake:audio', samples),
+  onWakeHeard: on('wake:heard'),
   transcribe: (wav, language) => ipcRenderer.invoke('voice:transcribe', { wav, language }),
   voiceStatus: () => ipcRenderer.invoke('voice:status'),
   openSettings: (tab) => ipcRenderer.send('settings:open', tab),
