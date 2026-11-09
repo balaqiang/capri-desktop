@@ -84,6 +84,12 @@ Indonesia-Inggris secara bawaan.
 - **Klip rekaman**: taruh klipmu di folder suaranya, dinamai sesuai momennya (`pat.wav`, `wake.mp3`, `alarm.wav`,
   `jealous.ogg`…). README di folder itu mendaftar semuanya.
 
+### Telinga dan suara yang lebih cepat
+
+- **Namanya, seketika**: model suara kecil di PC ini (sekitar 2% satu core CPU) menangkap "Capri" saat kamu mengucapkannya, jadi dia
+  bereaksi sebelum sisanya ditulis. Kadang terlewat, jadi kata-katamu tetap dicek seperti biasa.
+- **Mulai bicara lebih cepat**: suaranya mulai dari kalimat pertama jawabannya, tanpa menunggu semuanya (Voice › Start right away).
+
 ## Perintah di PC-mu
 
 Diketik atau diucapkan, dalam bahasa Indonesia atau Inggris, tanpa perlu AI.
@@ -100,6 +106,13 @@ Diketik atau diucapkan, dalam bahasa Indonesia atau Inggris, tanpa perlu AI.
   suit ("main suit"), tebak angka ("tebak angka"), koin, dadu.
 - **Apa yang sudah dia lakukan**: Pengaturan › Access › What she did mencatat setiap aplikasi, halaman, pencarian, dan
   tombol, dan di mana dia mengetik (berapa banyak, bukan isinya), hanya di PC ini.
+
+### Menekan tombol berdasarkan namanya
+
+"Klik tombol Kirim", "click the Send button", "click Save in notepad": lewat UI Automation Windows, hanya di aplikasi yang
+kamu sebut atau yang sedang kamu pakai, hanya yang aktif dan terlihat. Tombol yang tidak bisa dibatalkan (hapus, bayar, beli,
+konfirmasi…) tidak pernah ditekan dari kalimat. Sebagian halaman web dan game tidak memberi tahu Windows soal tombolnya: dia
+akan bilang begitu, dan menyebut tombol yang terlihat. Matikan di Access › Press buttons.
 
 ## Mengetik dan menulis untukmu
 
@@ -209,6 +222,12 @@ Apa pun yang Windows tampilkan sedang diputar (Spotify, browser, pemutar apa pun
   normal" memanggilnya kembali. Selama sesi fokus timer belajar, dia melakukannya sendiri dan kembali saat istirahat
   (Pengaturan › Timers). Game layar penuh membuatnya hilang total.
 - **Dia selalu terjangkau**: selalu di atas, bisa diklik, kembali sendiri kalau ada yang mendorongnya ke belakang jendela.
+
+### Mood-nya
+
+Dia punya hari baik dan hari buruk: perasaan dan energinya terbentuk dari jam (paling segar larut malam), watak hari itu, caramu
+memperlakukannya, lagu yang dia dengar, tugas yang gagal, dan berjam-jam ditinggal. Memudar lagi dalam satu-dua jam, tetap ada
+setelah restart, mewarnai cara bicaranya, dan tampil di samping namanya di chat. Behavior › Her mood through the day.
 
 ## Elus, pegang, lempar
 
