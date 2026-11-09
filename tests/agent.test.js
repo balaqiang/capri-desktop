@@ -18,8 +18,8 @@ const { createMemory, workingNote } = require('../src/main/engines/memory');
 const { createKnowledge, chunks } = require('../src/main/engines/knowledge');
 const skills = require('../src/main/skills/loader');
 const { safeUrl, RISKY, SECRET_FIELD } = require('../src/main/platform/browser');
-const errands = require('../src/main/errands');
-const { tokens } = require('../src/main/recall');
+const errands = require('../src/main/commands/errands');
+const { tokens } = require('../src/main/engines/recall');
 
 const tempDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'capri-test-'));
 
