@@ -9,6 +9,7 @@ import { SpriteRenderer, SPRITE } from './sprite.js';
 import { ACTS, NEUTRAL, Player } from './acting.js';
 import { COLORS } from './fx.js';
 import { Hair } from './hair.js';
+import { FORMS, SHAPES, hasForm, formForMood, formSeconds } from './forms.js';
 import { reach, look, mirrored, ARM_LIMITS } from './ik.js';
 import { sleep, rand, pick, clamp, lerp, ease, tween, halt, reducedMotion, today } from './util.js';
 
@@ -49,6 +50,10 @@ export class Capri {
     this.windows = { fg: 0, wins: [] };
     this.busy = false;
     this.energy = 0.5; // her mood's energy (main/mood.js), 0 .. 1
+    this.moodLabel = '';
+    this.sync = 0;       // how close you are (main/life.js): which forms she has
+    this.form = null;    // the form she's in now, other than herself
+    this.blueprint = null; // a body drawn in SVG, when there is one (blueprint.js)
     this.hidden = false;
     this.stowed = false;  // folded away in her biochip (Ctrl+Alt+C)
     this.dormant = false; // asleep, down to her mask
@@ -582,6 +587,12 @@ export class Capri {
       else this.teleport(this.spot('random'));
       return;
     }
+    // in a mood for it, she might just stop being a girl for a moment
+    const moodForm = formForMood(this.moodLabel, this.sync);
+    if (moodForm && Math.random() < 0.12) {
+      this.takeForm(moodForm, rand(3, 6));
+      return;
+    }
     const seat = this.pickSeat();
     const r = Math.random();
     const onFloor = Math.abs(this.pos.y - this.floor) < 30;
@@ -853,8 +864,60 @@ export class Capri {
   // itself; a click on her mask, a command of yours, or "normal mode" brings her back.
   // Out of your way before she comes apart (game mode): a teleport to that side of the screen, whatever she was
   // doing. Her hold stays on all the way, a mask she already was comes back whole for the trip.
-  async stepAside(where) {
-    const reason = this.hold;
+  tweenP(to, ms) {
+    return reducedMotion.matches ? Object.assign(this.p, to) && Promise.resolve() : tween(this.p, to, ms, ease.out);
+  }
+
+  // A form of hers for a few seconds (forms.js), and always back to herself. -> 'locked' | 'busy' | true
+  async takeForm(name, seconds = 5) {
+    if (!Object.hasOwn(FORMS, name)) return false;
+    if (!hasForm(name, this.sync)) return 'locked';
+    if (this.form || this.busy || this.dormant || this.hold || this.stowed || this.hidden || this.dragging) return 'busy';
+    const shape = SHAPES[name];
+    const gen = this.moveGen;
+    this.busy = true;
+    this.form = name;
+    this.formAt = this.head();
+    this.formLast = null;
+    this.blueprint?.setForm(name);
+    this.onTeleport?.('start');
+    if (shape.away) {
+      if (!reducedMotion.matches) {
+        for (let i = 0; i < 8; i++) this.shed();
+        this.p.glitchSeed = Math.random() * 100;
+        await tween(this.p, { dissolve: 0.9, glitch: 0.3 }, 380, ease.in);
+      }
+      Object.assign(this.p, { alpha: 0, dissolve: 0, glitch: 0 });
+      this.hidden = true;
+      this.root.hidden = true;
+    } else {
+      await shape.enter?.(this);
+    }
+    const until = performance.now() + formSeconds(seconds) * 1000;
+    const start = performance.now();
+    // (grabbed, dragged or moved by something else: over at once)
+    while (performance.now() < until && gen === this.moveGen && this.form === name) {
+      if (!reducedMotion.matches) shape.tick?.(this, (performance.now() - start) / 1000);
+      await sleep(90);
+    }
+    if (shape.away) {
+      this.hidden = false;
+      this.root.hidden = false;
+      Object.assign(this.p, { alpha: 0, collapse: 0.6, dissolve: 0.5, glitch: 0, split: 0, sparkle: 1 });
+      this.form = null;
+      this.blueprint?.setForm('full');
+      await this.arrive({ x: this.pos.x, y: this.pos.y }, { face: this.facing, beam: false });
+    } else {
+      await shape.leave?.(this);
+      this.form = null;
+      this.blueprint?.setForm('full');
+    }
+    this.nextMove = Math.max(this.nextMove, performance.now() + rand(25000, 60000));
+    await this.settle();
+    return true;
+  }
+
+  async stepAside(where) {    const reason = this.hold;
     if (this.stowed) return;
     if (this.dormant) {
       const back = this.rouse(); // clears her hold as it starts...
