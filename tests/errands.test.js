@@ -4,7 +4,7 @@
 require('./electron-stub');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const errands = require('../src/main/errands');
+const errands = require('../src/main/commands/errands');
 
 // a parsed errand in a few characters: kind, text, target, action, key, move
 const show = (x) => `${x.kind}${x.text ? `:"${x.text}"` : ''}${x.target ? `@${x.target}` : ''}${x.action ? `:${x.action}` : ''}${x.key ? `:${x.key}` : ''}${x.move ? `:${x.move}` : ''}`;
