@@ -25,6 +25,11 @@ const weather = require('./weather');
 const plugins = require('./plugins');
 const { createMood } = require('./mood');
 const songdata = require('./songdata');
+const { createTasks, orStopped } = require('./actions/tasks');
+const planner = require('./actions/planner');
+const { createTools } = require('./actions/tools');
+const router = require('./engines/router');
+const web = require('./web');
 
 const { T, F } = lang;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -62,6 +67,9 @@ let askPlain = null; // (messages) => Promise<string>: her model as is, for plai
 let frontWindow = null; // () => the window you were in before talking to her (main.js), for typing in it
 const startedAt = Date.now(); // her morning brief waits until she has settled in
 let held = null; // her renderer holds her down to her mask ('game', 'focus', 'quiet'): no remarks, dares or brief
+let brainParts = {}; // { memory, knowledge, skills, browser, close }: main.js, once they're up
+let agentTools = null;
+let pendingPlan = null; // a plan you're asked to say go to: { plan, at }
 let pluginEngine = null; // your plugins (plugins.js): what sets them off is seen here
 let pluginTimer = null;
 let cancelled = false; // her Stop button: the task going on ends (the typing at once, a chain before its next step)
@@ -80,6 +88,16 @@ const state = {
 };
 
 const cfg = () => config.load();
+const tasks = createTasks({ emit: (evt) => emit(evt) });
+// what she says before a job that takes a while, so it never happens behind your back
+const shortly = (s, n = 60) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > n ? `${t.slice(0, n - 1)}…` : t; };
+function taskFor(e) {
+  if (e.kind === 'code') return { kind: 'code', title: shortly(e.task), line: e.here ? T("On it. I'll write the code first, then paste it in. Stop me any time.") : F("On it. I'm coding this now: {0}. I'll tell you when it's done.", shortly(e.task, 50)) };
+  if (e.kind === 'myBrowser' && e.action !== 'close') return { kind: 'browser', title: shortly(e.url || e.query || ''), line: e.action === 'read' ? T('Reading it now.') : T('Opening my browser. Yours stays out of it.') };
+  if (e.kind === 'draft') return { kind: 'draft', title: shortly(e.task), line: T('Writing it now. One moment.') };
+  if (e.kind === 'type' && String(e.text || '').length > 60 && !e.code) return { kind: 'type', title: shortly(e.text, 40), line: F('Typing it now, {0} characters. Press any key to stop me.', String(e.text).length) };
+  return null;
+}
 const mood = createMood({ load: () => cfg().moodState, save: (moodState) => config.save({ moodState }), off: () => cfg().moodEngine === false });
 let moodShown = 0;
 const showMood = () => {
@@ -710,21 +728,94 @@ const SESSION_ACTIONS = {
 };
 
 // What each errand needs from you in settings › Access, and what she says when it's off.
-const NEEDS = { weather: 'search', code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media', type: 'type', key: 'type', click: 'click' };
+const NEEDS = { weather: 'search', code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media', type: 'type', key: 'type', click: 'click', myBrowser: 'browser' };
 // buttons that can't be undone are never pressed from a sentence ("Send" is: you said so, and you can see it)
 const RISKY_BUTTON = /\b(?:delete|remove|erase|wipe|uninstall|format|reset|shut ?down|restart|buy|pay|purchase|order|checkout|transfer|withdraw|confirm|hapus|buang|copot|bayar|beli|pesan sekarang|tarik|konfirmasi|setel ulang)\b/i;
-const ACCESS_NAMES = { click: 'Press buttons', search: 'Look things up online', apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code', type: 'Type for me' };
+const ACCESS_NAMES = { browser: 'Her own browser', click: 'Press buttons', search: 'Look things up online', apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code', type: 'Type for me' };
 const allowed = (what) => config.allowed(what);
 const denied = (what) => ({ handled: true, reply: F("I'm not allowed to do that. Settings › Access › {0}.", T(ACCESS_NAMES[what])), emotion: 'annoyed', denied: true });
 
 // Her Stop button (the panel while she types for you): the typing ends at once, a chain before its next step.
 function cancel() {
+  tasks.cancel();
   cancelled = true;
   return launch.stopTyping();
 }
 
+// ---- plans: a goal of several steps (actions/planner.js) -----------------------------------------------------------------
+const PLAN_YES = /^(?:ya|iya|yes|yep|gas|lanjut|jalankan|go|go ahead|run it|do it|oke|ok|okay|sip)[.!]*$/i;
+const PLAN_NO = /^(?:no|nope|tidak|nggak|gak|ga|jangan|batal|batalkan|cancel|stop)[.!]*$/i;
+const PLAN_TTL = 10 * 60000;
+
+function tools() {
+  agentTools ||= createTools({
+    parse: errands.parse,
+    act: (e) => act(e),
+    ask: (messages, opts) => askPlain(messages, opts),
+    lookup: (q) => web.lookup(q),
+    recall: async (q) => {
+      const { memory, knowledge } = brainParts;
+      if (!memory) return '';
+      const [notes, docs] = await Promise.all([memory.search(q, { spaces: ['fact', 'episode', 'working'], limit: 5 }), knowledge.search(q, 4)]);
+      return [...notes.map((n) => n.text), ...docs.map((d) => `[${d.title}] ${d.text}`)].join('\n\n');
+    },
+    skill: async (id, input) => {
+      const s = brainParts.skills?.find(id);
+      if (!s) return '';
+      return String(await askPlain([{ role: 'system', content: s.prompt }, { role: 'user', content: input }], { timeout: 90000 }).catch(() => '')).replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+    },
+    browser: brainParts.browser && allowed('browser') ? { open: (u) => brainParts.browser.goto(u), search: (q) => brainParts.browser.search(q), read: () => brainParts.browser.read(), click: (t) => brainParts.browser.click(t), fill: (f, t) => brainParts.browser.fill(f, t) } : null,
+    close: brainParts.close || null,
+  });
+  return agentTools;
+}
+
+async function runPlan(plan) {
+  const res = await tasks.run({ kind: 'chain', title: shortly(plan.goal), total: plan.steps.length, line: F('On it, {0} steps. {1} first.', plan.steps.length, shortly(plan.steps[0].why, 40)) }, async () => {
+    const out = await planner.run(plan, { tasks, tools: tools(), sayNo: T('You said no, so I stopped there.') });
+    return { ...out, handled: true, denied: !out.ok };
+  });
+  // what the last step wrote, when nothing was done with it: that's the answer
+  const said = [...new Set(res.said.filter(Boolean))];
+  if (res.ok) {
+    const answer = res.last && !plan.steps.some((s) => s.tool === 'type_text') ? res.last : '';
+    return { handled: true, reply: [said.join(' '), answer].filter(Boolean).join('\n\n') || T('All done. What next?'), emotion: 'happy', task: answer ? undefined : 'chain' };
+  }
+  if (res.stopped) return { handled: true, reply: F('Stopped, after {0} of {1} steps.', res.done, res.total), emotion: 'annoyed' };
+  if (res.refused) return { handled: true, reply: said.join(' '), emotion: 'bored' };
+  return { handled: true, reply: `${F('I got stuck on step {0} of {1}: {2}.', res.failedAt + 1, res.total, res.why)} ${said.at(-1) || ''}`.trim(), emotion: 'annoyed', denied: true };
+}
+
+// A goal her rules can't do in one go. Her model proposes the steps; if any of them reaches into your PC you see them first.
+async function planFor(goal) {
+  if (!askPlain) return null;
+  const plan = await tasks.run({ kind: 'plan', title: shortly(goal), line: T('Let me work out the steps.') }, async () => {
+    tasks.step(T('Working out the steps…'));
+    const p = await orStopped(planner.plan(goal, { tools: tools(), ask: (m, o) => askPlain(m, o) }), tasks.signal, null);
+    return { ok: Boolean(p), handled: true, plan: p };
+  });
+  if (!plan.plan?.steps?.length) return null; // not something her tools can do: a chat, then
+  if (plan.plan.risk === 0) return runPlan(plan.plan);
+  pendingPlan = { plan: plan.plan, at: Date.now() };
+  return { handled: true, reply: F("Here's what I'd do:\n{0}\n\nSay go, or cancel.", planner.outline(plan.plan)), emotion: 'happy', plan: { steps: plan.plan.steps.length } };
+}
+
+// Her Run and Cancel buttons (or "gas", "batal").
+async function answerPlan(yes) {
+  const waiting = pendingPlan;
+  pendingPlan = null;
+  if (!waiting || Date.now() - waiting.at > PLAN_TTL) return { handled: true, reply: T("That plan's gone cold. Ask me again?"), emotion: 'bored' };
+  if (!yes) return { handled: true, reply: T('Okay, forget it.'), emotion: 'bored' };
+  return runPlan(waiting.plan);
+}
+
 async function run(said, { voice = false, fromPlugin = false } = {}) {
   const c = cfg();
+  if (pendingPlan && !fromPlugin) {
+    const t = errands.plain(said);
+    if (PLAN_YES.test(t)) return answerPlan(true);
+    if (PLAN_NO.test(t)) return answerPlan(false);
+  }
   // her games first: in the middle of one, "batu" or "50" is a move
   const played = games.handle(said, c);
   if (played) {
@@ -757,6 +848,8 @@ async function run(said, { voice = false, fromPlugin = false } = {}) {
   }
   // several commands at once ("open notepad and type hello", "buka spotify lalu putar musik"): one after the other
   const steps = errands.chain(said);
+  // one step needs what another comes up with: a plan, or nothing (never the words "the summary", typed as they are)
+  if (steps && !fromPlugin && router.usesEarlierResult(steps)) return (await planFor(errands.plain(said))) || { handled: false };
   const one = steps ? null : errands.parse(said);
   // a draft on screen and "make it shorter", "lebih resmi" (and not a command of hers: "change the song" is one)
   if (one?.kind === 'none' && lastDraft && Date.now() - lastDraft.at < 15 * 60000 && errands.plain(said).length < 160 && REVISE.test(errands.plain(said))) {
@@ -772,6 +865,13 @@ async function run(said, { voice = false, fromPlugin = false } = {}) {
     const done = guess.steps ? await runChain(guess.steps, { voice, routed: guess.line }) : await act(guess.e, { voice, routed: guess.line });
     return done?.handled ? { ...done, routed: guess.line, reply: `${F('(Taking that as "{0}".)', guess.line)} ${done.reply || ''}`.trim() } : null;
   };
+  // a goal of several steps her rules can't do in one go (a plugin never plans: it does what you wrote)
+  if (one?.kind === 'none' && !fromPlugin && router.wantsPlan(errands.plain(said))) {
+    const planned = await planFor(errands.plain(said));
+    if (planned) return planned;
+  }
+  // what one of her skills is for ("perbaiki tulisan ini: …") goes to her chat with that skill, never read as a command
+  if (one?.kind === 'none' && !fromPlugin && brainParts.skills?.match(errands.plain(said))) return { handled: false };
   let res = one?.kind === 'none' ? await guessed() : null;
   if (!res) res = steps ? await runChain(steps, { voice }) : await act(one, { voice });
   if (!res?.handled && one && one.kind !== 'none') res = (await guessed(one.kind)) || res;
@@ -970,14 +1070,16 @@ async function codeHere(e, opts = {}) {
   const file = /([\w.-]+\.([a-z][a-z0-9]{0,5}))(?![\w.])/i.exec(title); // ("hello.html●": the dot of an unsaved file after it)
   const named = NAMED_LANG.exec(e.task)?.[1];
   const langName = named ? named.replace(/^golang$/i, 'Go').replace(/^react$/i, 'JavaScript (React)') : CODE_LANGS[file?.[2]?.toLowerCase()] || '';
-  say({ text: T('On it: writing the code…'), emotion: 'happy', hold: 40000, kind: 'work' });
+  tasks.step(langName ? F('Writing the {0}…', langName) : T('Writing the code…'));
   const ask = [
     { role: 'system', content: `${CODE_PROMPT}${langName ? `\nLanguage: ${langName}.` : ''}${file ? `\nThe file open: ${file[1]}.` : ''}` },
     { role: 'user', content: e.task },
   ];
-  const answer = await Promise.race([askPlain(ask, { timeout: 90000 }).catch(() => ''), new Promise((done) => setTimeout(() => done(''), 90000))]);
+  const answer = await orStopped(Promise.race([askPlain(ask, { timeout: 90000 }).catch(() => ''), new Promise((done) => setTimeout(() => done(''), 90000))]), tasks.signal, '');
+  if (tasks.stopped) return { handled: true, reply: T('Stopped.'), emotion: 'annoyed', denied: true };
   const code = codeOf(answer).slice(0, 20000);
   if (!code.trim()) return { handled: true, reply: T("My brain didn't answer. Try again in a moment?"), emotion: 'annoyed' };
+  tasks.step(F('Pasting {0} lines in…', code.split('\n').length));
   return actNow({ kind: 'type', text: code, target: e.target || '', paste: true, code: langName || T('code') }, opts);
 }
 
@@ -989,13 +1091,19 @@ const TASK_DONE = {
 
 // The steps of a chain, in order: what one opened is where the next one types ("open notepad and type hello"); a
 // step that can't be done ends it there. Her lines for them, one after the other (the same one only once).
-async function runChain(steps, opts = {}) {
+function runChain(steps, opts = {}) {
+  const n = steps.length;
+  return tasks.run({ kind: 'chain', title: shortly(steps.map((s) => s.said).join(', ')), total: n, line: F('On it, {0} steps. {1} first.', n, shortly(steps[0].said, 40)) }, () => chainSteps(steps, opts));
+}
+
+async function chainSteps(steps, opts = {}) {
   const lines = [];
   const out = { handled: true, emotion: 'happy' };
   let opened = '';
   cancelled = false;
   let fresh = false; // something just opened: the first typing into it waits for its window
   for (const [i, step] of steps.entries()) {
+    tasks.step(step.said, i + 1);
     if (cancelled) {
       lines.push(T('Stopped.'));
       out.emotion = 'annoyed';
@@ -1052,7 +1160,8 @@ Fix only what speech recognition got wrong: misheard words (product names too, l
 // opts.voice: you said it (her ears), so what she types gets its speech-to-text slips fixed first
 // One errand done, and kept in her action log (settings › Access › What she did) when it touched your PC.
 async function act(e, opts = {}) {
-  const res = await actNow(e, opts);
+  const spec = taskFor(e);
+  const res = spec ? await tasks.run(spec, () => actNow(e, opts)) : await actNow(e, opts);
   if (res?.handled && !['move', 'time', 'math', 'sync', 'none'].includes(e.kind)) mood.nudge(res.denied ? 'failed' : 'done');
   actionsLog.record(e, res, { via: opts.voice ? 'voice' : 'typed', routed: opts.routed });
   return res;
@@ -1080,14 +1189,16 @@ async function actNow(e, opts = {}) {
       if (!coder) return { handled: false };
       const who = e.via || c.coder || 'auto';
       if (who !== 'self') {
+        tasks.step(T('Handing it to Claude Code…'));
         const handed = coder.claude(e.task);
         if (handed) return { handled: true, reply: T("Claude Code's on it, in a terminal. Say yes to its edits there, I'll keep an eye on it."), emotion: 'happy', zap: true };
       }
       const missing = who === 'claude' ? T("Claude Code isn't installed here, so I wrote it myself.") + ' ' : '';
       try {
-        const made = await coder.self(e.task);
+        const made = await coder.self(e.task, { signal: tasks.signal, onStep: (label) => tasks.step(T(label)) });
         return { handled: true, reply: missing + F('Done: {0}, {1} lines, open in {2}. It\'s in your Capri Code folder.', made.name, made.lines, made.editor), emotion: 'happy', zap: true };
       } catch (err) {
+        if (tasks.stopped) return { handled: true, reply: T('Stopped.'), emotion: 'annoyed', denied: true };
         if (err.code === 'nomodel') return { handled: true, reply: T('I need a brain for that: set one up in my settings, AI brain.'), emotion: 'annoyed' };
         return { handled: true, reply: T('My code came out garbled. Ask me again?'), emotion: 'glitch' };
       }
@@ -1343,6 +1454,22 @@ async function actNow(e, opts = {}) {
           : T("Hm, that didn't work.");
       return { handled: true, reply: why, emotion: 'annoyed', denied: true };
     }
+    case 'myBrowser': { // her own browser, not yours
+      const b = brainParts.browser;
+      if (!b) return { handled: true, reply: T("My browser isn't ready."), emotion: 'annoyed', denied: true };
+      if (e.action === 'close') {
+        await b.close();
+        return { handled: true, reply: T('Closed it.'), emotion: 'happy' };
+      }
+      if (e.action === 'read') {
+        const page = await b.read();
+        if (!page.ok) return { handled: true, reply: page.say, emotion: 'annoyed', denied: true };
+        const summary = askPlain ? await orStopped(askPlain([{ role: 'user', content: `Summarize this web page in three short sentences, in the language of the page. Only what it says.\n\n${page.text}` }], { timeout: 60000 }).catch(() => ''), tasks.signal, '') : '';
+        return { handled: true, reply: String(summary).replace(/<think>[\s\S]*?<\/think>/g, '').trim() || page.text.slice(0, 400), emotion: 'happy' };
+      }
+      const res = e.action === 'search' ? await b.search(e.query) : await b.goto(e.url);
+      return res.ok ? { handled: true, reply: res.title ? F('Open: {0}.', res.title) : T('Done!'), emotion: 'happy' } : { handled: true, reply: res.say, emotion: 'annoyed', denied: true };
+    }
     case 'media': {
       if (e.action === 'pause' && state.track && !state.track.playing) return { handled: true, reply: T("Nothing's playing!"), emotion: 'bored' };
       if (e.action === 'play' && state.track?.playing) return { handled: true, reply: T("It's already playing!"), emotion: 'bored' };
@@ -1372,7 +1499,7 @@ async function actNow(e, opts = {}) {
 
 // What her model is told about you and how close she is (chat.js adds it to her persona).
 // facts: her notes picked for this message (recall.js), else the newest; past: lines from your past chats about it
-function brainContext({ cloud = false, facts: picked = null, past = [] } = {}) {
+function brainContext({ cloud = false, facts: picked = null, past = [], episodes = [], working = [], knowledge = [], skill = null } = {}) {
   const c = cfg();
   // the moment, so she never guesses the time or the day
   const now = new Date();
@@ -1386,6 +1513,16 @@ function brainContext({ cloud = false, facts: picked = null, past = [] } = {}) {
   if (c.memoryOn && facts.length && (!cloud || c.cloudMemory)) {
     parts.push(`WHAT THE USER HAS TOLD YOU (use one only when it really fits what they said; never list them or say you keep notes):\n${facts.map((f) => `- ${f}`).join('\n')}`);
   }
+  if (c.memoryOn && working.length && (!cloud || c.cloudMemory)) {
+    parts.push(`GOING ON FOR THEM RIGHT NOW (they told you in the last day; bring it up only if it fits):\n${working.map((w) => `- ${w}`).join('\n')}`);
+  }
+  if (c.memoryOn && episodes.length && (!cloud || c.cloudMemory)) {
+    parts.push(`A DAY YOU REMEMBER THAT THIS IS ABOUT:\n${episodes.map((e) => `- ${e.day}: ${e.text}`).join('\n')}`);
+  }
+  if (knowledge.length && (!cloud || c.cloudMemory)) {
+    parts.push(`FROM WHAT THEY GAVE YOU TO READ (answer from this, name the file you got it from, and say so if it isn't here):\n${knowledge.map((k) => `[${k.title}] ${k.text}`).join('\n\n')}`);
+  }
+  if (skill) parts.push(skill.prompt);
   if (c.memoryOn && past.length && (!cloud || c.cloudMemory)) {
     parts.push(`FROM YOUR PAST CHATS WITH THEM, about this (bring one up only if it really fits, like you just remembered it; never say you looked it up):\n${past.map((m) => `- ${m.day}, they said: "${m.text.slice(0, 240)}"`).join('\n')}`);
   }
@@ -1407,6 +1544,12 @@ function hackLine() {
 }
 
 let ticker = null;
+// main.js, once her memory, knowledge, skills and browser are up
+function setBrainParts(parts) {
+  brainParts = parts;
+  agentTools = null;
+}
+
 function start({ onEvent, model, raw, look, shot, front, coder: coders }) {
   coder = coders || null;
   frontWindow = front || null;
@@ -1455,7 +1598,7 @@ const quiet = (ms) => { state.quietUntil = Date.now() + ms; };
 const setHold = (reason) => { held = ['game', 'focus', 'quiet'].includes(reason) ? reason : null; };
 
 module.exports = {
-  findPath, browserPath, start, stop, startSenses, run, cancel, typeDraft, briefNow, pluginRun, setHold, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
+  tasks, setBrainParts, answerPlan, findPath, browserPath, start, stop, startSenses, run, cancel, typeDraft, briefNow, pluginRun, setHold, addSync, syncPercent, syncLine, brainContext, remember, forget, memories,
   addAlarm, removeAlarm, clearAlarms, startStudy, stopStudy, pauseStudy, studyStatus, hackLine, giveDare, quiet, playSong, lyricsChanged, songNow,
   get track() { return state.track; }, get front() { return state.front; }, get fullscreen() { return Boolean(state.fullscreen); },
 };
