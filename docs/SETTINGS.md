@@ -37,6 +37,7 @@ Her ears and her voice.
   she types for you); only when you say her name; her names; **words to hear right** (names and words of yours, given to
   Whisper); the follow-up window after she answers; the mic button by her; closing her ears while she talks.
 - **React to her name right away**: a tiny model on this PC catches "Capri" at once.
+- **Tell a voice from noise**, **Show my words as I say them** (Whisper on this PC).
 - **Microphone**: which one, sensitivity, its level, the pause that ends a sentence, the longest phrase, a test.
 - **Ears (speech to text)**: the engine (Whisper on your PC, Groq, OpenAI, Windows), the language she listens in,
   **Download better ears…** (Whisper, 199 MB).
@@ -53,6 +54,7 @@ Which AI she talks through.
 - **Her brain**: who answers (Ollama, Gemini, Groq, OpenRouter, OpenAI, Mistral, DeepSeek, Anthropic, Claude Code, any
   OpenAI-compatible server), the model, your key (stored encrypted for your Windows account), creativity, answer length,
   how many messages she keeps in mind, **commands in my own words** (her model reads a command her rules missed).
+- **Improve her** (local models only): what went well, her test, training, installing the result.
 - **What she knows**: how much she remembers, whether by meaning too, the files you gave her. **Her skills**: on or off, and your own.
 - **Fit the model to my graphics card** (Ollama): a smaller model while the one you picked doesn't fit in the free video memory.
 - **Her local brain (Ollama)**: a small model as a backup and for her quick jobs.
