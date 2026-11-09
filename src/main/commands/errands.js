@@ -4,12 +4,12 @@
 // never run anything unexpected (from Capri Desktop 2.4's Errands, with Indonesian added). The commands themselves are
 // in commands/*.js, in the order of commands/index.js. parse(text) -> { kind, ... } or { kind: 'none' }.
 
-const { COMMANDS } = require('./commands');
-const { plain, politely, length, nextClock, describe } = require('./commands/words');
-const { friendly, place } = require('./commands/places');
-const { canon, sensitive, skillName, UNTEACH_ASK, dareCategory, checkDare, DARES } = require('./commands/self');
-const { CODE_THING, codeSpelled } = require('./commands/hands');
-const { siteFor, BROWSERS, firstVideo } = require('./commands/web');
+const { COMMANDS } = require('./index');
+const { plain, politely, length, nextClock, describe } = require('./words');
+const { friendly, place } = require('./places');
+const { canon, sensitive, skillName, UNTEACH_ASK, dareCategory, checkDare, DARES } = require('./self');
+const { CODE_THING, codeSpelled } = require('./hands');
+const { siteFor, BROWSERS, firstVideo } = require('./web');
 
 function parse(said) {
   const cased = plain(said);
