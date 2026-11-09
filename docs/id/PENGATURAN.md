@@ -38,6 +38,7 @@ Telinga dan suaranya.
   didengar benar** (nama dan kata-katamu, diberikan ke Whisper); jeda lanjutan setelah dia menjawab; tombol mic; menutup
   telinganya saat dia bicara.
 - **Langsung bereaksi saat namanya disebut**: model kecil di PC ini menangkap "Capri" seketika.
+- **Bedakan suara orang dari bising**, **Tampilkan kata-kataku saat diucapkan** (Whisper di PC ini).
 - **Mikrofon**: yang mana, sensitivitas, levelnya, jeda yang mengakhiri kalimat, frasa terpanjang, tes.
 - **Telinga (speech to text)**: mesinnya (Whisper di PC-mu, Groq, OpenAI, Windows), bahasa yang dia dengar,
   **Download better ears…** (Whisper, 199 MB).
@@ -55,6 +56,7 @@ AI yang dia pakai untuk bicara.
   server apa pun yang kompatibel dengan OpenAI), modelnya, key-mu (disimpan terenkripsi untuk akun Windows-mu),
   kreativitas, panjang jawaban, berapa pesan yang dia ingat, **perintah dengan kata-kataku sendiri** (modelnya membaca
   perintah yang terlewat oleh aturannya).
+- **Improve her** (hanya model lokal): yang berjalan baik, ujiannya, melatih, memasang hasilnya.
 - **What she knows**: seberapa banyak dia ingat, apakah juga berdasarkan makna, file yang kamu berikan. **Her skills**: nyala atau mati, dan punyamu.
 - **Sesuaikan model dengan kartu grafisku** (Ollama): model lebih kecil selama pilihanmu tidak muat di memori grafis.
 - **Otak lokalnya (Ollama)**: model kecil sebagai cadangan dan untuk tugas-tugas kecilnya.
