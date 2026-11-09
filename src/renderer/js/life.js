@@ -222,6 +222,9 @@ export class Life {
         else if (!this.focusing && was && capri.hold === 'focus') capri.release();
         break;
       }
+      case 'task':
+        this.onTask?.(evt);
+        break;
       case 'mood':
         capri.energy = Math.min(1, Math.max(0, Number(evt.e) || 0));
         this.onMood?.(evt.label);
