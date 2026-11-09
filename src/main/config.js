@@ -63,6 +63,7 @@ const DEFAULTS = {
   listen: 'push',      // 'off', 'push' (click her mic or the hotkey), 'always' (hands-free, she listens all the time)
   wakeWord: true,      // in 'always': only what starts with her name ("Capri, ...") reaches her
   wakeWords: 'capri, kapri, cappy',
+  wakeLocal: true,     // her name caught right away on this PC, before the rest is written out (wake.js)
   followUpSeconds: 8,  // after she answers, a moment where her name isn't needed
   micDevice: '',       // deviceId ('' : Windows default)
   micSensitivity: 55,  // 0..100: how soft a voice still counts as speech
@@ -99,6 +100,8 @@ const DEFAULTS = {
   ttsMinds: 35,        // 0..100: how loud the other minds are under her voice
   ttsShift: 1.06,      // her voice sped up and raised a little (playback rate)
   ttsEmotion: true,    // her emotion of the moment changes how she says it
+  modelRouter: true,   // Ollama: a smaller model while what you picked doesn't fit on the graphics card (gpu.js)
+  ttsStream: true,     // she starts talking with the first sentence, not when the whole answer is in
   ttsFallback: true,   // the engine fails: Windows' voice says it instead
 
   // --- what she does on her own (settings › Behavior) ---
@@ -110,6 +113,9 @@ const DEFAULTS = {
   lyrics: true,        // the words of the song under her as they're sung (LRCLIB, main/lyrics.js)
   musicMood: true,     // she listens along: grooves, dances to songs she likes, dozes off to boring ones
   tastes: {},
+  songData: true,      // a song's real loudness and tempo for what she thinks of it (Deezer, title and artist only: songdata.js)
+  moodEngine: true,    // a mood that builds up over the day and lasts (mood.js): her tone, how much she moves around
+  moodState: null,     // where it is: { v, e, at }
   weatherCity: '',     // where you are, for the weather and her brief of your day (Open-Meteo): '' asks
   dailyBrief: true,    // the first time you're at your PC in the morning, her brief of your day
   briefDay: '',        // the day she gave it          // what she thinks of the songs she's heard: { 'title|artist': 'love' | 'like' | 'meh' }
@@ -128,6 +134,7 @@ const DEFAULTS = {
     media: true,   // the media keys: pause, next, volume
     spotify: true, // search Spotify and press Play
     code: true,    // write code into her Code folder, or open Claude Code for it
+    click: true,   // press a button by its name in the window you were in ("click the Send button")
     type: true,    // type for you in another app (Notepad, VS Code, a chat), and press Enter or Ctrl+S when you ask
   },
   pats: true,          // hover over her for a head pat
