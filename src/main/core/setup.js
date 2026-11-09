@@ -10,7 +10,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawn, execFile } = require('node:child_process');
 const { safeStorage } = require('electron');
-const ollama = require('./ollama');
+const ollama = require('../ai/ollama');
 
 const WIN = process.platform === 'win32';
 
