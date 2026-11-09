@@ -30,6 +30,17 @@ async function models() {
 
 // Loads the model into memory ahead of the first message (the first answer after a fresh start
 // otherwise waits for it to load, which can take a while).
+// Your models with their sizes, and what's on the graphics card now: for her router (gpu.js).
+async function sizes() {
+  const [tags, running] = await Promise.all([
+    fetch(`${base()}/api/tags`, { signal: AbortSignal.timeout(2500) }).then((r) => r.json()),
+    fetch(`${base()}/api/ps`, { signal: AbortSignal.timeout(2500) }).then((r) => r.json()).catch(() => ({})),
+  ]);
+  const loaded = {};
+  for (const m of running.models || []) loaded[m.name] = Number(m.size_vram) || 0;
+  return { models: (tags.models || []).map((m) => ({ name: m.name, size: Number(m.size) || 0 })), loaded };
+}
+
 function warm(model) {
   fetch(`${base()}/api/generate`, {
     method: 'POST',
@@ -76,4 +87,4 @@ async function chat({ model, messages, options = {} }, onDelta, signal) {
   return text;
 }
 
-module.exports = { base, models, warm, chat };
+module.exports = { sizes, base, models, warm, chat };
