@@ -324,6 +324,15 @@ async function boot() {
   const chat = new Chat({ capri, panel, voice, host, brain });
   brain.onTalk = () => chat.start();
   const life = new Life({ capri, panel, voice, host, brain, fx, glitch, mouth });
+  // a job of hers: she says so first, shows the step she's on, and it can be stopped
+  life.onTask = (evt) => {
+    if (currentCfg.debugLog) console.log('[task]', evt.phase, evt.kind, evt.line || evt.label || evt.question || '');
+    if (evt.phase === 'start') {
+      if (capri.mode === 'idle') capri.setMode('work');
+      if (currentCfg.tts && evt.line) life.speak(evt.line, 'happy', { answer: true });
+    } else if (evt.phase === 'end' && capri.mode === 'work') capri.setMode('idle');
+    chat.taskEvent(evt);
+  };
   life.onMood = (label) => chat.setIdleMood(label); // how she is today, in her chat's header
   capri.onPet = (phase, n) => {
     life.pet(phase, n);
