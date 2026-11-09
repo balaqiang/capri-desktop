@@ -42,3 +42,6 @@ models/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# her wake word model ships with her (5 MB, see LICENSES/sherpa-onnx.md)
+!assets/wake/*.onnx
