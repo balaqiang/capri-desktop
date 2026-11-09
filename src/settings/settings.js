@@ -424,6 +424,8 @@ function pageVoice() {
     card('Hearing',
       row('How she listens', 'Push to talk: click the mic by her, or the hotkey. Always: hands-free, she hears everything that starts with her name.', seg('listen', [['off', 'Off'], ['push', 'Push to talk'], ['always', 'Always listening']])),
       row('Fix what I dictate', 'When you say "type…" out loud, her model fixes what speech recognition misheard ("get hub" becomes "GitHub", "every one" becomes "everyone") before she types it, and tells you what she typed. What you type by hand is never changed.', toggle('fixDictation')),
+      row('Tell a voice from noise', 'A small detector on this PC decides whether what she hears is someone speaking and when they stopped, so a keyboard or a song isn\'t written out.', toggle('sttVad')),
+      row('Show my words as I say them', 'While you\'re talking, what she has heard so far appears next to her. Only with Whisper on this PC. Only for showing: she acts on the finished sentence.', toggle('sttPartials')),
       row('React to her name right away', 'A tiny speech model on this PC catches "Capri" the moment you say it, so she reacts before the rest is written out, even when the words come out wrong. Nothing leaves your PC.', toggle('wakeLocal')),
       row('Only when I say her name', 'In always-listening mode: "Capri, open Spotify". A click on her mic counts as her name.', toggle('wakeWord')),
       row('Her names', 'What counts as her name (comma separated). Whisper sometimes hears "Kapri".', text('wakeWords', { placeholder: 'capri, kapri', max: 120 })),
@@ -639,6 +641,46 @@ function knowledgeCard() {
     list);
 }
 
+// Making her local model better (main/training): what went well, her test, a trained model only if it passes.
+function improveCard() {
+  const status = el('span', { class: 'mono', text: '…' });
+  const test = el('span', { class: 'mono', text: '' });
+  const review = el('div');
+  const promote = el('div');
+  let timer = 0;
+  const render = async () => {
+    const res = await act('trainStatus').catch(() => null);
+    if (!res?.ok) {
+      status.textContent = T('Not available');
+      return;
+    }
+    status.textContent = F('{0} answers kept, {1} went well, {2} of {3} needed', res.counts.total, res.counts.liked + res.counts.kept, res.counts.liked + res.counts.kept, res.needed);
+    const r = res.report;
+    test.textContent = res.job.running ? F('{0}: {1} of {2}', res.job.what, res.job.done, res.job.all) : r.current ? F('{0}: {1}%', r.current.model, r.current.score) : T('Not tested yet');
+    promote.replaceChildren(r.candidate && r.verdict ? row(F('{0}: {1}%', r.candidate.model, r.candidate.score), r.verdict.yes ? T('It did better than the one she uses.') : F('Not used: {0}.', r.verdict.why), ...(r.verdict.yes ? [button('Use it', async () => { await act('trainPromote'); toast(T('She talks with it now.')); })] : [])) : el('span'));
+    clearTimeout(timer);
+    if (res.job.running && document.body.contains(status)) timer = setTimeout(render, 2000);
+  };
+  const showReview = async () => {
+    const res = await act('trainReview').catch(() => null);
+    review.replaceChildren(...(res?.list || []).map((x) => row(x.user.slice(0, 80), x.answer.slice(0, 200),
+      button('Keep', async () => { await act('trainJudge', { id: x.id, verdict: 1 }); showReview(); }),
+      button('Never', async () => { await act('trainJudge', { id: x.id, verdict: -1 }); showReview(); }, 'danger'))));
+  };
+  render();
+  return card('Improve her (local models only)',
+    note('Her answers are marked by what you do next: a pat, a laugh, "good answer", a correction. The good ones can train her local model. All of it stays on this PC.'),
+    row('So far', 'Say "good answer" or "jawabanmu salah" right after an answer to mark it yourself.', status, button('Look through them', showReview)),
+    review,
+    row('Her test', '100 questions: in character, short, the right language, honest about what she can\'t do. A few minutes, and it uses your graphics card meanwhile.', test, button('Test her model', async () => { await act('trainTest'); setTimeout(render, 500); }), button('Stop', () => act('trainStop'))),
+    row('Train her', 'Makes a folder with the dataset and the script for a machine with a GPU (Colab, say). Keep it private: it holds your chats and her lines from the show.', button('Make the folder', async () => {
+      const res = await act('trainExport');
+      toast(res?.ok ? F('{0} examples. {1}', res.used, res.enough ? T('Enough to train on.') : T('Too few to train on yet.')) : T('Only for a model on this PC.'), !res?.ok);
+    })),
+    row('Install a trained model', 'Pick the .gguf. It is tested against the one she uses, and offered only if it did better.', button('Choose a file', async () => { await act('trainInstall'); setTimeout(render, 500); })),
+    promote);
+}
+
 // Her skills (assets/skills, and yours in her data): how she goes about a kind of work.
 function skillPacksCard() {
   const list = el('div');
@@ -693,6 +735,7 @@ function pageBrain() {
       row('Coding folder', 'Where the code goes. Empty: Documents\\Capri Code.', text('codeFolder', { placeholder: 'Documents\\Capri Code' }))),
     knowledgeCard(),
     skillPacksCard(),
+    improveCard(),
     card('Her eyes (Look)',
       row('Let her look when I ask', 'Ctrl+Alt+L or "what am I looking at?": one screenshot, kept in memory only, sent to her model, then dropped.', toggle('lookOn')),
       row('Also with a cloud model', 'Off: she only looks through a model on this PC.', toggle('cloudLook')),
