@@ -1,7 +1,7 @@
 // self-check: keyless gateway + Claude Code through llm.js
 const assert = require('node:assert');
 const http = require('node:http');
-const llm = require('../src/main/llm');
+const llm = require('../src/main/ai/llm');
 
 const seen = new Set(); // session ids in the hook events Claude Code sends while she chats
 process.env.CAPRI_PORT = '47999'; // inherited by claude, then by its hooks: not the running Capri's port
