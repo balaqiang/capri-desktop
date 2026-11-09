@@ -3,8 +3,8 @@
 require('./electron-stub');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const recall = require('../src/main/recall');
-const errands = require('../src/main/errands');
+const recall = require('../src/main/engines/recall');
+const errands = require('../src/main/commands/errands');
 
 const FACTS = ['my sister is called Ayu', 'I work as a nurse at the hospital', 'my cat is named Mochi', 'I hate mushrooms', 'favourite band is Hindia',
   'birthday is in May', 'I live in Bandung', 'I study informatics at ITB', 'I drink coffee every morning', 'my dog died last year',
