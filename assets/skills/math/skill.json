@@ -1,0 +1,11 @@
+{
+  "id": "math",
+  "name": "Math",
+  "about": "Working a problem out step by step, with her calculator for the sums.",
+  "when": [
+    "\\b(?:solve|equation|derivative|integral|probability|percentage of|how many .{3,40} (?:left|total|altogether)|word problem)\\b",
+    "\\b(?:hitunglah|tentukan nilai|berapa (?:hasil|jumlah|sisa|total|luas|keliling|volume)|persamaan|turunan|integral|peluang|soal (?:cerita|matematika|hitung))\\b"
+  ],
+  "maxTokens": 800,
+  "temperature": 0.2
+}
