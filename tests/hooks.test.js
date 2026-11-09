@@ -6,7 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { once } = require('node:events');
-const { createBridge } = require('../src/main/bridge');
+const { createBridge } = require('../src/main/core/bridge');
 const { configure, EVENTS } = require('../scripts/install-codex-hooks');
 
 function invoke(script, input, port) {
@@ -149,7 +149,7 @@ test('installer preserves other hooks, is idempotent, backs up, and uninstalls o
     fs.writeFileSync(file, JSON.stringify(original));
     configure();
     const codex = require('../scripts/install-codex-hooks');
-    const { assistant } = require('../src/main/assistants');
+    const { assistant } = require('../src/main/core/assistants');
     assert.equal(codex.status().installed, true);
     assert.equal(assistant('auto').id, 'codex');
     assert.equal(assistant('codex').hooks, codex);
