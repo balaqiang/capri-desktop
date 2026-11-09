@@ -606,6 +606,60 @@ function localBrainCard() {
   );
 }
 
+// What she remembers and what you gave her to read (main/engines): how much, and your files.
+function knowledgeCard() {
+  const status = el('span', { class: 'mono', text: '…' });
+  const meaning = el('span', { class: 'mono', text: '…' });
+  const list = el('div');
+  const render = async () => {
+    const res = await act('knowledgeList').catch(() => null);
+    if (!res?.ok) {
+      status.textContent = T('Not available');
+      return;
+    }
+    const c = res.counts;
+    status.textContent = F('{0} notes · {1} days · {2} messages · {3} pieces of files', c.fact, c.episode, c.chat, c.knowledge);
+    meaning.textContent = res.model ? F('{0} understood, with {1}', c.withMeaning, res.model) : T('Words only for now');
+    list.replaceChildren(...res.docs.map((d) => row(d.title, d.path, el('span', { class: 'mono', text: F('{0} pieces', d.chunks) }), button('Remove', async () => {
+      await act('knowledgeRemove', d.id);
+      render();
+    }, 'danger'))));
+  };
+  render();
+  const adding = (kind) => async () => {
+    const res = await act('knowledgeAdd', kind).catch(() => null);
+    if (res?.ok) toast(F('{0} added, {1} updated, {2} the same.', res.added, res.updated, res.same));
+    render();
+  };
+  return card('What she knows',
+    row('Her memory', 'On this PC only: her notes about you, what is going on for you, what each day was like, and what you said.', status),
+    row('By meaning', 'To find things by what they mean and not only by their words she needs a small embedding model in Ollama: ollama pull nomic-embed-text', meaning),
+    row('Give her something to read', 'Text files, notes, code. She answers from them and names the file. Sent to a cloud model only if you allowed her notes to be (Owner page).', button('Add a file', adding('file')), button('Add a folder', adding('folder')),
+      button('Refresh', async () => { await act('knowledgeRefresh'); render(); })),
+    list);
+}
+
+// Her skills (assets/skills, and yours in her data): how she goes about a kind of work.
+function skillPacksCard() {
+  const list = el('div');
+  const render = async () => {
+    const res = await act('skillList').catch(() => null);
+    const off = cfg().skillPacksOff || [];
+    list.replaceChildren(...(res?.skills || []).map((s) => {
+      const on = !off.includes(s.id);
+      return row(s.name, s.about, button(on ? 'On' : 'Off', async () => {
+        await save({ skillPacksOff: on ? [...off, s.id] : off.filter((x) => x !== s.id) });
+        render();
+      }));
+    }));
+  };
+  render();
+  return card('Her skills',
+    note('How she goes about a kind of work when what you say calls for it. A skill is a folder with skill.json and prompt.md: words only, it can never run anything.'),
+    list,
+    row('Add your own', 'Drop a skill folder in here, then restart her.', button('Open the folder', () => act('skillsFolder'))));
+}
+
 function pageBrain() {
   const provider = cfg().provider;
   const info = state.providers.find((p) => p.id === provider) || {};
@@ -637,6 +691,8 @@ function pageBrain() {
       row('Who writes the code', '"buatkan kode…", "code a script that…": Claude Code in a terminal (you approve its edits there), or Capri herself with her model, one file opened in your editor (never run).',
         select('coder', [['auto', 'Claude Code if installed, else her'], ['claude', 'Claude Code'], ['self', 'Capri herself']])),
       row('Coding folder', 'Where the code goes. Empty: Documents\\Capri Code.', text('codeFolder', { placeholder: 'Documents\\Capri Code' }))),
+    knowledgeCard(),
+    skillPacksCard(),
     card('Her eyes (Look)',
       row('Let her look when I ask', 'Ctrl+Alt+L or "what am I looking at?": one screenshot, kept in memory only, sent to her model, then dropped.', toggle('lookOn')),
       row('Also with a cloud model', 'Off: she only looks through a model on this PC.', toggle('cloudLook')),
@@ -982,6 +1038,7 @@ function pageAccess() {
       row('Media keys', 'Pause, next, previous, volume: the keys on your keyboard, pressed for you.', toggle('access.media')),
       row('Spotify', 'Search Spotify and press Play on the song you ask for.', toggle('access.spotify')),
       row('Write code', 'Write code into her Code folder (never run), or open Claude Code with your task.', toggle('access.code')),
+      row('Her own browser', 'A browser of hers (Edge or Chrome, in a profile of its own, never yours) that she can open, read, click links and fill fields in when you ask ("browse example.com", "baca halaman di browsermu"). Never a password or card field.', toggle('access.browser')),
       row('Press buttons', 'Press a button by its name when you ask ("click the Send button", "klik tombol Kirim"), only in the app you name or the one you were in. Never a button that deletes, pays or can\'t be undone.', toggle('access.click')),
       row('Type for me', 'Type what you say into another app ("type hello in notepad", "buka notepad lalu ketik halo"), and press Enter or Ctrl+S when you ask. Only into the app you name or the one you were in.', toggle('access.type')),
       row('Possess my windows', 'Now and then she dives into the window she sits on: it only looks taken over, nothing in it is touched.', toggle('possess'))),
