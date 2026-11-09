@@ -41,6 +41,7 @@ function describe(e) {
   switch (e.kind) {
     case 'type': { const n = String(e.text || '').length; return `${n} character${n === 1 ? '' : 's'}${e.target ? ` → ${e.target}` : ''}`; }
     case 'key': return `${e.key}${e.target ? ` → ${e.target}` : ''}`;
+    case 'click': return `"${e.name}"${e.target ? ` → ${e.target}` : ''}`;
     case 'media': return `${e.action}${e.seconds ? ` ${e.seconds}s` : ''}`;
     case 'code': return String(e.task || '').slice(0, 80);
     default: return String(e.text || e.target || e.what || '').slice(0, 80);
