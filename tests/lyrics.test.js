@@ -4,8 +4,8 @@
 require('./electron-stub');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parse, lineAt, bareTitle } = require('../src/main/lyrics');
-const { searchFor } = require('../src/main/web');
+const { parse, lineAt, bareTitle } = require('../src/main/online/lyrics');
+const { searchFor } = require('../src/main/online/web');
 
 test('parse: timed lines, sorted, a line with two stamps twice', () => {
   const lines = parse('[ar: someone]\n[00:12.50]first line\n[01:02.34]  third   line \nno stamp here\n[00:30.00][01:30.00]twice\n[00:40]');
