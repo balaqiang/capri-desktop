@@ -11,11 +11,11 @@ const MODULES = {
 
 const ORDER = [
   'self.teach', 'modes.hold', 'day.weather', 'day.brief',
-  'eyes.homework', 'hands.codeHere', 'hands.draft', 'hands.type', 'hands.click', 'hands.key', 'web.browse', 'eyes.look', 'body.move',
+  'eyes.homework', 'hands.codeHere', 'hands.draft', 'hands.type', 'hands.click', 'hands.key', 'web.browse', 'eyes.look', 'body.form', 'body.move',
   'music.lyrics', 'music.songControl', 'music.lyricsNow', 'music.listen', 'music.songOpinion', 'music.nowPlaying',
   'hands.code', 'day.clock', 'day.math',
   'music.spotifySearch', 'web.browserOpen', 'web.browserSearch', 'web.find',
-  'self.sync', 'self.dare', 'self.dareDone', 'self.forgetAll', 'self.forget', 'self.remember',
+  'self.rate', 'self.sync', 'self.dare', 'self.dareDone', 'self.forgetAll', 'self.forget', 'self.remember',
   'day.clearAlarms', 'day.stopStudy', 'day.study', 'day.timer',
   'music.songOnSpotify', 'music.favorite', 'music.playSong', 'web.search', 'web.open', 'music.mediaKeys',
 ];
