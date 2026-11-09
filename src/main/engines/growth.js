@@ -14,11 +14,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { app } = require('electron');
 
-const config = require('./config');
-const lang = require('./lang');
-const history = require('./history');
-const errands = require('./errands');
-const { writeAtomic } = require('./store');
+const config = require('../core/config');
+const lang = require('../core/lang');
+const history = require('../core/history');
+const errands = require('../commands/errands');
+const { writeAtomic } = require('../core/store');
 
 const { T, F } = lang;
 const LESSONS_MAX = 12;
