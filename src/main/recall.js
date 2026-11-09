@@ -162,4 +162,4 @@ async function pastChats(query, messages, { top = 3 } = {}) {
   return order.filter((m) => !seen.has(m.text.toLowerCase()) && seen.add(m.text.toLowerCase())).slice(0, top);
 }
 
-module.exports = { memoriesFor, pastChats, tokens, bm25, ranked, stem };
+module.exports = { findEmbedder, memoriesFor, pastChats, tokens, bm25, ranked, stem };
