@@ -6,11 +6,17 @@
 // into a 16 kHz WAV in memory, and written out by main/hearing.js (Whisper on this PC, Groq, OpenAI or
 // Windows' own). Nothing is recorded to disk here. onHeard(text) gets the words.
 
+import { Transcript, unfinished, LONGER_WAIT_MS } from './transcript.js';
+
 const RATE = 16000;
 const FRAME_MS = 20;
 const PREROLL = 15;   // frames kept from before you started (300 ms)
 const START_FRAMES = 3; // loud frames in a row that make it speech (60 ms)
 const MIN_SPEECH_MS = 350;
+const PARTIAL_EVERY = 1400;  // how often what you've said so far is written out
+const PARTIAL_AFTER = 1200;  // not before you've said something
+const PARTIAL_FRAMES = 500;  // the last 10 seconds of it
+const DETECTOR_LAG = 250;    // the voice detector only says it's over a moment after it is
 // her name as speech recognizers hear it (Windows' hears "Coppery", Whisper "Kapri"…)
 export const MISHEARD = ['capri', 'kapri', 'caprie', 'capree', 'cappy', 'kepri', 'capry', 'coppery', 'copri', 'cabri', 'caprice', 'gabri', 'kaprie'];
 
@@ -35,7 +41,14 @@ export class Ears {
     this.level = 0;
     this.onHeard = null;  // (text, { wake }) => void
     this.onName = null;   // () => void: her name, the moment you said it (main/wake.js)
-    this.nameBuf = [];    // the last 100 ms, on its way to her wake word
+    this.nameBuf = [];    // the last 100 ms, on its way to main (is it a voice? her name?)
+    this.vadAlive = false;  // the voice detector answers (main/vad.js); until then, loudness alone
+    this.vadSpeech = false;
+    this.transcript = new Transcript();
+    this.partialBusy = false;
+    this.partialOff = false; // her ears aren't Whisper on this PC: no words as you say them
+    this.lastPartial = 0;
+    this.onPartial = null;  // ({ text, stable, tail } | null) => void: only ever for showing
     this.nameCount = 0;
     this.namedAt = 0;
     this.onState = null;  // (state: 'idle' | 'listening' | 'hearing' | 'thinking' | 'error', detail) => void
@@ -49,6 +62,8 @@ export class Ears {
   configure(cfg) {
     const before = this.cfg;
     this.cfg = cfg;
+    this.partialOff = false;
+    if (cfg.sttVad === false) this.vadAlive = this.vadSpeech = false;
     const mode = cfg.listen || 'off';
     if (this.button) this.button.hidden = mode === 'off' || cfg.micButton === false || cfg.visible === false;
     const deviceChanged = before.micDevice !== cfg.micDevice;
@@ -96,6 +111,7 @@ export class Ears {
     this.node = this.stream = this.ctx = null;
     this.take = null;
     this.pre = [];
+    this.vadSpeech = false;
   }
 
   // threshold from her sensitivity (settings): 0 -> only a loud voice, 100 -> a whisper
@@ -109,9 +125,9 @@ export class Ears {
     return Boolean(this.stream) && !this.speaking && !this.busy && (this.mode === 'always' || this.armed);
   }
 
-  // the sound as it comes, in 100 ms pieces, to her wake word (main/wake.js): only while she's waiting for her name
-  feedName(samples) {
-    if (this.mode !== 'always' || this.cfg.wakeWord === false || this.cfg.wakeLocal === false || !this.host.wakeAudio) return;
+  // the sound as it comes, in 100 ms pieces, to main: is it a voice (vad.js), and her name while she's waiting for it (wake.js)
+  feedMain(samples) {
+    if (!this.host.earsAudio) return;
     this.nameBuf.push(samples);
     this.nameCount += samples.length;
     if (this.nameCount < 1600) return;
@@ -123,7 +139,40 @@ export class Ears {
     }
     this.nameBuf = [];
     this.nameCount = 0;
-    this.host.wakeAudio(all);
+    this.host.earsAudio(all, this.mode === 'always' && this.cfg.wakeWord !== false && this.cfg.wakeLocal !== false);
+  }
+
+  // the voice detector's word
+  speechSignal(on) {
+    this.vadAlive = this.cfg.sttVad !== false;
+    this.vadSpeech = Boolean(on);
+  }
+
+  // what you've said so far, written out now and then while you're still talking. Only ever shown.
+  maybePartial(take) {
+    if (this.partialOff || this.cfg.sttPartials === false || this.partialBusy || !this.host.transcribePartial) return;
+    const now = performance.now();
+    if (!take.sawSpeech || take.frames.length * FRAME_MS < PARTIAL_AFTER || now - this.lastPartial < PARTIAL_EVERY) return;
+    this.lastPartial = now;
+    this.partialBusy = true;
+    this.host.transcribePartial(toWav(take.frames.slice(-PARTIAL_FRAMES))).then((res) => {
+      this.partialBusy = false;
+      if (res?.off) this.partialOff = true;
+      else if (this.take === take && res?.ok && res.text) this.showPartial(res.text, take);
+    }, () => { this.partialBusy = false; });
+  }
+
+  showPartial(text, take) {
+    const seen = this.transcript.partial(text);
+    take.partial = seen.text;
+    // listening all the time: only what's said to her is shown, not everything said in the room
+    const forHer = this.mode !== 'always' || this.cfg.wakeWord === false || performance.now() <= this.followUntil || take.namedAfter !== undefined || stripWake(text, this.cfg.wakeWords) !== null;
+    if (!forHer) return;
+    if (!take.prepped) {
+      take.prepped = true;
+      this.host.voicePrep?.(); // her model woken up in the meantime; nothing is done with the words
+    }
+    this.onPartial?.(seen);
   }
 
   // her wake word heard it: she reacts now, and the words that come after count as said to her
@@ -141,7 +190,7 @@ export class Ears {
       this.take = null;
       return;
     }
-    this.feedName(samples);
+    this.feedMain(samples);
     const loud = rms > this.threshold;
     if (!this.take) {
       // the room's own sound, followed while nobody talks (faster down than up)
@@ -150,7 +199,7 @@ export class Ears {
       if (this.pre.length > PREROLL) this.pre.shift();
       this.loud = loud ? this.loud + 1 : 0;
       if (this.loud >= START_FRAMES) {
-        this.take = { frames: [...this.pre], quiet: 0, voiced: this.loud };
+        this.take = { frames: [...this.pre], quiet: 0, voiced: this.loud, sawSpeech: this.vadSpeech || !this.vadAlive };
         this.pre = [];
         this.setState('hearing');
       }
@@ -158,14 +207,18 @@ export class Ears {
     }
     const take = this.take;
     take.frames.push(samples);
-    if (loud) {
+    if (this.vadSpeech) take.sawSpeech = true;
+    if (this.vadAlive ? this.vadSpeech : loud) {
       take.voiced++;
       take.quiet = 0;
     } else {
       take.quiet += FRAME_MS;
     }
+    this.maybePartial(take);
+    // the sentence is over after a moment of quiet, a little longer when it stopped on "and" or "yang"
+    const wait = (Number(this.cfg.silenceMs) || 900) - (this.vadAlive ? DETECTOR_LAG : 0) + (unfinished(take.partial) ? LONGER_WAIT_MS : 0);
     const long = take.frames.length * FRAME_MS >= (Number(this.cfg.maxUtterance) || 15) * 1000;
-    if (take.quiet >= (Number(this.cfg.silenceMs) || 900) || long) this.finish();
+    if (take.quiet >= wait || long) this.finish();
   }
 
   // push to talk: listen for one phrase (again: send what was heard so far, or stop)
@@ -212,12 +265,16 @@ export class Ears {
     const take = this.take;
     this.take = null;
     if (!take) return;
+    this.host.cancelPartial?.();
+    this.transcript.reset();
+    this.onPartial?.(null);
     const wasPush = this.mode === 'push';
     if (wasPush) {
       this.armed = false;
       clearTimeout(this.armTimer);
     }
-    if (take.voiced * FRAME_MS < MIN_SPEECH_MS) {
+    // loud, but no voice in it (a door, a keyboard, a song): nothing to write out
+    if (this.vadAlive ? !take.sawSpeech : take.voiced * FRAME_MS < MIN_SPEECH_MS) {
       this.setState(this.mode === 'always' ? 'listening' : 'idle');
       if (wasPush) this.close();
       return;
