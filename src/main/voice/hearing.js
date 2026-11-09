@@ -121,20 +121,21 @@ function heardPrompt(text, prompt) {
   return words.length >= 2 && words.every((w) => known.has(w)) && fold(prompt).includes(said.split(' ').slice(-2).join(' '));
 }
 
-function runWhisper(wav, language, prompt) {
+function runWhisper(wav, language, prompt, { threads = Math.max(2, Math.min(8, os.cpus().length)), timeout = 40000, onChild = null } = {}) {
   const program = whisperProgram();
   const model = whisperModel(language);
   if (!program || !model) return Promise.reject(new Error('Whisper isn\'t set up'));
   const file = path.join(os.tmpdir(), `capri-${crypto.randomUUID()}.wav`);
   fs.writeFileSync(file, wav);
-  const args = ['-m', model, '-f', file, '-nt', '-np', '-l', language || 'auto', '-t', String(Math.max(2, Math.min(8, os.cpus().length))), '-bs', '1', '-bo', '1'];
+  const args = ['-m', model, '-f', file, '-nt', '-np', '-l', language || 'auto', '-t', String(threads), '-bs', '1', '-bo', '1'];
   if (prompt) args.push('--prompt', prompt);
   return new Promise((resolve, reject) => {
-    execFile(program, args, { windowsHide: true, timeout: 40000, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 }, (err, out) => {
+    const child = execFile(program, args, { windowsHide: true, timeout, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 }, (err, out) => {
       fs.rm(file, { force: true }, () => {});
       if (err) return reject(new Error(err.killed ? 'Whisper took too long' : `Whisper stopped (${err.code ?? err.message})`));
       return resolve(clean(out));
     });
+    onChild?.(child);
   });
 }
 
@@ -304,5 +305,25 @@ async function downloadEars(onProgress, signal) {
   log('better ears installed');
 }
 
-module.exports = { transcribe, status, downloadEars, speechDir, logFile, EARS, promptFor, heardPrompt, vocabulary };
+// What you've said so far, while you're still saying it: Whisper on this PC only, one pass at a time, dropped as soon as the
+// sentence is over. { off: true }: her ears are something else (a cloud isn't paid for the same words over and over).
+let partialChild = null;
+function cancelPartial() {
+  partialChild?.kill();
+  partialChild = null;
+}
+
+async function partial(wav, { cfg, keys, language }) {
+  if (pickEngine(cfg, status(cfg, keys, language).engines) !== 'whisper') return { ok: false, off: true };
+  cancelPartial();
+  const prompt = promptFor(cfg, language);
+  try {
+    const text = await runWhisper(wav, language, prompt, { threads: 4, timeout: 9000, onChild: (c) => { partialChild = c; } });
+    return { ok: true, text: heardPrompt(text, prompt) ? '' : text };
+  } catch {
+    return { ok: false };
+  }
+}
+
+module.exports = { partial, cancelPartial, transcribe, status, downloadEars, speechDir, logFile, EARS, promptFor, heardPrompt, vocabulary };
 
