@@ -227,9 +227,12 @@ export class Life {
         break;
       case 'mood':
         capri.energy = Math.min(1, Math.max(0, Number(evt.e) || 0));
+        capri.moodLabel = evt.label || '';
+        capri.sync = Number(evt.sync) || 0;
         this.onMood?.(evt.label);
         break;
       case 'sync':
+        capri.sync = Number(evt.percent) || capri.sync;
         if (evt.line && this.cfg.syncShown !== false) {
           panel.say({ kind: 'error', face: 'manyEyes', badge: 'SYNC', line: evt.line, hold: 6000 });
           this.glitch.syncTarget = Math.max(0.1, evt.percent / 100);
