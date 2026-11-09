@@ -10,7 +10,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { app } = require('electron');
 
-const ROOT = path.resolve(__dirname, '..', '..');
+const ROOT = path.resolve(__dirname, '..', '..', '..');
 
 // every language she can be set to, with its name in its own language, and in English (for the model)
 const CHOICES = [
