@@ -115,6 +115,26 @@ Writing, coding, math and research: how she goes about that kind of work when wh
 Edge or Chrome in a profile of its own, never yours: "browse example.com", "cari kucing di browsermu", "baca halaman di browsermu",
 "tutup browsermu". She never fills a password or card field and never presses something that can't be taken back.
 
+### Better ears
+
+- **A voice told from noise**: a small detector on this PC (Silero) decides whether it's someone talking and when they stopped. A keyboard or a song isn't written out.
+- **Your words as you say them**: with Whisper on this PC, what she's heard so far appears next to her. It's only for showing: she acts on the finished sentence.
+- A sentence that stops on "and" or "yang" gets a little longer to go on.
+
+### Improving her local model
+
+Her answers are marked by what you do next (a pat, a laugh, "good answer", a correction). AI brain › Improve her: look through them, run her
+100-question test on a model, make a folder to train with, and install the result. A trained model is only offered if it passes her test better.
+
+### Her shapes
+
+As your sync grows she gets more of them: glitch (10%), spark (20%), shards (40%), silhouette (60%). "Jadi spark", "become a shadow", "glitch out";
+her AI picks one now and then, and so does a passing mood. To draw her yourself, see [Her body as a drawing](BLUEPRINT.md).
+
+### Her tour
+
+Her menu › Show me around: your microphone, her voice, what she may touch, one thing to try. Every step can be skipped.
+
 ## Errands on your PC
 
 Typed or spoken, in English or Indonesian, no AI needed.
