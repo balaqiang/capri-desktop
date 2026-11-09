@@ -1,0 +1,11 @@
+{
+  "id": "writing",
+  "name": "Writing",
+  "about": "Rewriting, fixing and improving text you give her.",
+  "when": [
+    "\\b(?:rewrite|proofread|paraphrase|reword|polish|make (?:this|it) (?:sound|more)|fix (?:my|this) (?:writing|grammar|text|sentence))\\b",
+    "\\b(?:parafrase|perbaiki (?:tulisan|kalimat|tata bahasa|teks)|koreksi (?:tulisan|kalimat|teks)|tulis ulang|bantu (?:aku |saya )?(?:tulis|nulis|menulis)|perhalus)\\b"
+  ],
+  "maxTokens": 900,
+  "temperature": 0.6
+}
