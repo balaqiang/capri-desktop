@@ -10,6 +10,7 @@ sendirinya:
 | Apa | Ke mana | Untuk apa | Saklar |
 | --- | --- | --- | --- |
 | Judul, artis, album, dan durasi lagu yang diputar | [LRCLIB](https://lrclib.net) | liriknya | Behavior › Song lyrics |
+| Yang dicari oleh skill atau rencana | Bing, Wikipedia, atau halaman yang kamu minta buka | jawabannya, di profil browser miliknya | Access › Her own browser, Look things up online |
 | Judul dan artis lagu yang belum pernah dia dengar | [Deezer](https://developers.deezer.com/api) | kekerasan dan tempo aslinya, untuk penilaiannya | Behavior › Check how a song really sounds |
 | Pertanyaan tentang dunia ("siapa presiden indonesia") | Wikipedia, Bing | jawaban hari ini | Access › Look things up online |
 | Nama kota | [Open-Meteo](https://open-meteo.com) | cuaca | Access › Look things up online |
