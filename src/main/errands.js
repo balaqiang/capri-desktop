@@ -90,7 +90,7 @@ const ROUTE_GROUNDS = {
   web: /\b(?:search|google|look up|cari\w*|carikan|googling\w*)\b/i,
   song: /\b(?:play|put on|hear|listen|tunes?|music|songs?|track|putar\w*|puter\w*|setel\w*|dengar\w*|denger\w*|lagu\w*|musik\w*|mainkan)\b/i,
   timer: /\b(?:timer|alarm|remind|wake|minutes?|hours?|o'?clock|ingat\w*|bangun\w*|menit|jam|pukul)\b/i,
-  type: /\b(?:type|write|enter|press|send|save|ketik\w*|tulis\w*|tekan|kirim|simpan)\b/i,
+  type: /\b(?:type|write|enter|press|send|save|ketik\w*|tulis(?!an\b)\w*|tekan|kirim|simpan)\b/i, // ("tulisan" is a piece of writing, not "write")
 };
 const GROUND_OF = { app: 'app', open: 'app', browser: 'app', find: 'find', web: 'web', song: 'song', spotifySearch: 'song', timer: 'timer', clock: 'timer', type: 'type', key: 'type' };
 const grounded = (e, said) => !GROUND_OF[e.kind] || ROUTE_GROUNDS[GROUND_OF[e.kind]].test(said);
