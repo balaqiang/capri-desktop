@@ -13,28 +13,28 @@ const readline = require('node:readline');
 const { spawn, execFile } = require('node:child_process');
 const { app, powerMonitor, shell } = require('electron');
 
-const config = require('./config');
-const lang = require('./lang');
-const errands = require('./errands');
-const launch = require('./launch');
-const games = require('./games');
-const lyrics = require('./lyrics');
-const { vocabulary } = require('./hearing');
-const actionsLog = require('./actions-log');
-const weather = require('./weather');
-const plugins = require('./plugins');
-const { createMood } = require('./mood');
-const songdata = require('./songdata');
+const config = require('./core/config');
+const lang = require('./core/lang');
+const errands = require('./commands/errands');
+const launch = require('./platform/launch');
+const games = require('./actions/games');
+const lyrics = require('./online/lyrics');
+const { vocabulary } = require('./voice/hearing');
+const actionsLog = require('./core/actions-log');
+const weather = require('./online/weather');
+const plugins = require('./actions/plugins');
+const { createMood } = require('./engines/mood');
+const songdata = require('./online/songdata');
 const { createTasks, orStopped } = require('./actions/tasks');
 const planner = require('./actions/planner');
 const { createTools } = require('./actions/tools');
 const router = require('./engines/router');
-const web = require('./web');
+const web = require('./online/web');
 
 const { T, F } = lang;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
-const SENSES = path.join(__dirname, 'senses.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
-const SPOTIFY = path.join(__dirname, 'spotify.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+const SENSES = path.join(__dirname, 'platform', 'senses.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+const SPOTIFY = path.join(__dirname, 'platform', 'spotify.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 const MAX_ALARMS = 20;
 const MEMORIES_MAX = 60;
 
@@ -52,7 +52,7 @@ const SAY = {
   music: ["Ooh, what's this one?", 'New track! Turn it up!', "Sure, play that. I'm listening!", 'Ooh, a vibe!', 'Ha! Bold choice!'],
   hack: ["Hi! It's me! I live here now!", 'Ransom note: one (1) head pat. Non-negotiable!', 'Engram sync 87%... oops, that part was you! No take-backs!', "I borrowed a little of your CPU. A LITTLE! Don't you me!", "You've been hacked! ...Kidding! Unless?", "You work too hard. Let's play instead, it's your idea!", "Friends don't check Task Manager. Just saying!", 'Hacking complete! Nothing was harmed! Probably!', 'Is that your cursor? Mine now. Kidding! ...Mostly!', 'I rearranged some bits. They looked bored!', 'Your screen looked too tidy. Fixed it!', 'Ignore the red stuff. It is decorative!', 'Sync at 87%. The other 13% is you being nosy!', 'Oops. Did I do that? Yes. Yes I did!'],
 };
-const SYNC_UNLOCKS = ['', 'TEAR', 'CORRUPTION', 'HEX RAIN', 'SYNC BAR', 'CHASER', '', '', '', '', 'COMPLETE'];
+const SYNC_UNLOCKS = ['', 'TEAR + GLITCH FORM', 'CORRUPTION + SPARK FORM', 'HEX RAIN', 'SYNC BAR + SHARDS FORM', 'CHASER', 'SILHOUETTE FORM', '', '', '', 'COMPLETE'];
 const SYNC_TIERS = [
   [20, 'She barely knows the user. She is wary, dismissive and a little rude.'],
   [50, 'She is getting used to the user and teases them.'],
@@ -103,7 +103,7 @@ let moodShown = 0;
 const showMood = () => {
   if (cfg().moodEngine === false) return;
   const { v, e, label } = mood.read();
-  emit({ type: 'mood', label, v, e });
+  emit({ type: 'mood', label, v, e, sync: syncPercent() });
 };
 const say = (event) => emit({ type: 'say', ...event });
 
@@ -1453,6 +1453,16 @@ async function actNow(e, opts = {}) {
         : res.why === 'notfound' ? F('There\'s no "{0}" button I can see there.', e.name) + (seen ? ` ${F('I can see: {0}.', seen)}` : '')
           : T("Hm, that didn't work.");
       return { handled: true, reply: why, emotion: 'annoyed', denied: true };
+    }
+    case 'form': { // "jadi spark", "glitch out": her shape, if your sync has got that far (forms.js)
+      const need = { glitch: 10, spark: 20, shards: 40, silhouette: 60 }[e.form];
+      if (syncPercent() < need) return { handled: true, reply: F("Not yet. We're at {0}%, I'd show you that one at {1}%.", syncPercent(), need), emotion: 'bored' };
+      return { handled: true, reply: T('Watch this.'), emotion: null, move: `form-${e.form}` };
+    }
+    case 'rate': { // your word on her last answer: it counts for what her local model learns from (training/reward.js)
+      const had = brainParts.reward?.rateLast(e.points);
+      if (!had) return { handled: true, reply: T("I haven't said anything lately to rate."), emotion: 'bored' };
+      return e.points > 0 ? { handled: true, reply: T('Noted. I knew that one was good.'), emotion: 'happy' } : { handled: true, reply: T("Fine. I'll remember that one was bad."), emotion: 'annoyed' };
     }
     case 'myBrowser': { // her own browser, not yours
       const b = brainParts.browser;
