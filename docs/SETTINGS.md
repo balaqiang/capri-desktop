@@ -53,6 +53,7 @@ Which AI she talks through.
 - **Her brain**: who answers (Ollama, Gemini, Groq, OpenRouter, OpenAI, Mistral, DeepSeek, Anthropic, Claude Code, any
   OpenAI-compatible server), the model, your key (stored encrypted for your Windows account), creativity, answer length,
   how many messages she keeps in mind, **commands in my own words** (her model reads a command her rules missed).
+- **What she knows**: how much she remembers, whether by meaning too, the files you gave her. **Her skills**: on or off, and your own.
 - **Fit the model to my graphics card** (Ollama): a smaller model while the one you picked doesn't fit in the free video memory.
 - **Her local brain (Ollama)**: a small model as a backup and for her quick jobs.
 - **Coding**: who writes the code you ask for (Claude Code, or her), and where it goes.
@@ -90,7 +91,7 @@ she tells you so.
   and battery (her remarks); whether another AI is in front; what's playing; your coding AI.
 - **What she can hear**: your microphone (off, push to talk, always).
 - **What she can do on your PC**: open apps, folders and files, close apps (always behind a button), websites, **look
-  things up online** (Wikipedia, Bing, the weather), media keys, Spotify, write code, **type for me**, **press buttons**, possess your
+  things up online** (Wikipedia, Bing, the weather), media keys, Spotify, write code, **type for me**, **press buttons**, **her own browser**, possess your
   windows.
 - **What goes online**: song lyrics (LRCLIB), her notes with a cloud model.
 - **What she keeps on this PC**: her memory, recall of past chats, your chats, her verdicts on songs ("Forget them"),
