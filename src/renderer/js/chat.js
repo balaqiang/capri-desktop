@@ -12,6 +12,7 @@ import { T } from './i18n.js';
 import { DEFAULT_PERSONA } from './persona.js';
 import { STORY, STORY_SMALL, loreFor } from './lore.js';
 import { Motion } from './motion.js';
+import { Sentencer } from './sentences.js';
 import { LYRICS_TAG, LYRIC_DUMP, aboutLyrics, NO_DUMP_LINE, FAKE_DONE, worldQuestion, webNote, withSums, sumsIn, fixAnswers } from './rules.js';
 
 export { DEFAULT_PERSONA };
@@ -492,12 +493,17 @@ export class Chat {
       if (this.history.at(-1)?.content === text) this.history.pop();
       return;
     }
+    this.speakStart(text, homework);
     let res = await this.host.chatSend({ id, messages, ...(homework && { maxTokens: 1500, temperature: 0.3 }) });
     if (res.ok && !this.agent && this.turn === id && REFUSAL.test(res.text) && !/\b(?:password|hack|kill|bunuh|bom|bomb)\b/i.test(text)) {
       this.answer = '';
       res = await this.host.chatSend({ id, messages: [...messages, { role: 'assistant', content: res.text }, { role: 'user', content: '[That was a needless refusal: the question is harmless. Answer it now, in character, in one or two sentences. If it asks you to choose, pick one and say why.]' }] });
     }
     clearTimeout(slow);
+    if ((this.turn !== id || !res.ok) && this.flowing) { // no answer after all: what she'd started saying stops
+      this.flowing = null;
+      this.onSpeakBroken?.();
+    }
     if (this.turn !== id) {
       // closed meanwhile: your message goes too, or the next answer would answer it as well
       if (this.history.at(-1)?.content === text) this.history.pop();
@@ -537,11 +543,24 @@ export class Chat {
     this.moveFrom(res.text);
     this.goFrom(res.text, text);
     this.lyricsFrom(res.text, text, dumped);
-    this.onAnswered?.(answer, emotion);
+    // said as it was written: what's left of it, and she's done. Otherwise the whole answer, as before
+    const flowed = this.flowing;
+    if (flowed && !flowed.broken) this.speakPiece(flowed.sentences.end());
+    this.flowing = null;
+    this.onAnswered?.(answer, emotion, { spoken: Boolean(flowed && !flowed.broken && flowed.said) });
     this.motion.answered();
     this.panel.setChatBusy(false);
     if (!this.agent) this.after(res.text, answer, asked, early, text);
     this.listApps(); // fresh for the next message
+  }
+
+  // how she is today (main/mood.js): next to her name while nothing else is going on
+  setIdleMood(label) {
+    const next = String(label || '').toUpperCase() || 'NIGHT CITY';
+    if (MOOD.idle === next) return;
+    const showing = this.open && !this.turn && this.panel.tag?.textContent === MOOD.idle;
+    MOOD.idle = next;
+    if (showing) this.panel.setMood(MOOD.idle);
   }
 
   // an answer of hers, kept with your message before it
@@ -805,9 +824,34 @@ export class Chat {
     ].filter(Boolean);
   }
 
+  // ---- said as it's written: each sentence goes to her voice the moment it's finished (tts.js) -------------------------
+  // Not for what gets changed once it's all in (a song's words written out, homework set straight by the calculator),
+  // nor for Claude Code at work; a refusal her model is about to be asked again stops it, and the whole answer is said.
+  speakStart(text, homework) {
+    this.flowing = null;
+    if (!this.cfg.tts || this.cfg.ttsStream === false || this.agent || homework || aboutLyrics(text)) return;
+    if (this.onSpeakStart?.()) this.flowing = { sentences: new Sentencer(), said: false, broken: false, at: performance.now() };
+  }
+
+  speakPiece(sentence) {
+    const f = this.flowing;
+    if (!f || f.broken) return;
+    if (REFUSAL.test(sentence) || LYRIC_DUMP.test(sentence)) {
+      f.broken = true;
+      this.onSpeakBroken?.();
+      return;
+    }
+    const line = this.unban(clean(withSums(sentence)));
+    if (!line) return;
+    f.said = true;
+    if (this.cfg.debugLog) console.log('[voice] sentence', line.length, 'chars,', Math.round(performance.now() - f.at), 'ms in');
+    this.onSpeakLine?.(line, EMOTION_TAG.exec(this.answer)?.[1]?.toLowerCase() || null);
+  }
+
   onDelta(id, piece) {
     if (id !== this.turn) return;
     this.answer += piece;
+    if (this.flowing) for (const sentence of this.flowing.sentences.push(piece)) this.speakPiece(sentence);
     this.panel.stream(aboutLyrics(this.lyricQuestion) && LYRIC_DUMP.test(this.answer) ? T(NO_DUMP_LINE) : this.unban(clean(withSums(this.answer))));
     this.voice.play('blip'); // her blips as the words come in
     this.moveFrom(this.answer); // her body moves as soon as her AI says how, mid-sentence
