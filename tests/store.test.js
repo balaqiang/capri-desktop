@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { writeAtomic, readJson } = require('../src/main/store');
+const { writeAtomic, readJson } = require('../src/main/core/store');
 
 const fresh = () => fs.mkdtempSync(path.join(os.tmpdir(), 'capri-store-'));
 
