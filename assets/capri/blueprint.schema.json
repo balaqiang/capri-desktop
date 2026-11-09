@@ -1,0 +1,6 @@
+{
+  "parts": ["head", "jaw", "hair_1", "hair_2", "hair_3", "hair_4", "hair_5", "torso", "arm_L", "forearm_L", "hand_L", "arm_R", "forearm_R", "hand_R", "leg_L", "leg_R"],
+  "required": ["head", "torso", "arm_L", "arm_R", "leg_L", "leg_R"],
+  "forms": ["full", "mask", "face", "shards", "spark", "glitch", "possess", "silhouette"],
+  "requiredForms": ["full", "mask"]
+}
