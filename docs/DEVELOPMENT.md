@@ -8,7 +8,14 @@
 src/main/                 Electron: the transparent click-through window, tray, settings, local HTTP bridge
   main.js                 wiring: windows, IPC, hotkeys, her brain, Look (snapshot + OCR), staying on top
   llm.js, ollama.js       her brains: Ollama, OpenAI-compatible (Gemini…), Anthropic, Claude Code
-  errands.js              what she does from plain words (move, open, type, drafts, code here, homework, weather…)
+  errands.js              parse over the registry, several commands in a sentence, her model's reading of you
+  commands/               every command, by what it's about (hands, music, web, day, eyes, body, modes, self); index.js: which goes first
+  helper.js, helper.ps1   one PowerShell that stays up: keys, songs, typing and clicks without starting a new one
+  click.ps1               a button pressed by its name (UI Automation)
+  mood.js                 her mood through the day: built up, fading, kept
+  gpu.js                  which Ollama model fits on the graphics card right now
+  wake.js                 "Capri" heard on this PC (sherpa-onnx, assets/wake)
+  songdata.js             a song's real loudness and tempo (Deezer)
   life.js                 her errands run, chains, typing, drafts, code here, timers, sync, notices, songs, her brief
   plugins.js              plugins made without code: what sets them off, their steps
   recall.js               her notes and your past chats picked for a message (BM25, embeddings in Ollama)
