@@ -10,36 +10,38 @@ const {
   clipboard, ClipboardItem, dialog, powerMonitor, session, desktopCapturer, Notification,
 } = require('electron');
 
-const config = require('./config');
-const { TRAY } = require('./labels');
-const lang = require('./lang');
+const config = require('./core/config');
+const { TRAY } = require('./core/labels');
+const lang = require('./core/lang');
 const life = require('./life');
-const gpu = require('./gpu');
-const wake = require('./wake');
+const gpu = require('./ai/gpu');
+const wake = require('./voice/wake');
+const { createTrainer } = require('./training');
+const { createVad } = require('./voice/vad');
 const startEngines = require('./engines').start;
 const router = require('./engines/router');
 const skills = require('./skills/loader');
 const { createBrowser } = require('./platform/browser');
-const ollama = require('./ollama');
-const helper = require('./helper');
-const hearing = require('./hearing');
-const mouth = require('./mouth');
-const history = require('./history');
-const growth = require('./growth');
-const { createBridge } = require('./bridge');
-const { startWindowWatch } = require('./windows');
-const llm = require('./llm');
-const setup = require('./setup');
-const apps = require('./apps');
-const launch = require('./launch');
-const lyrics = require('./lyrics');
-const web = require('./web');
-const { writeAtomic, readJson } = require('./store');
-const updater = require('./updater');
-const actionsLog = require('./actions-log');
-const recall = require('./recall');
-const plugins = require('./plugins');
-const { ASSISTANTS, assistant } = require('./assistants');
+const ollama = require('./ai/ollama');
+const helper = require('./platform/helper');
+const hearing = require('./voice/hearing');
+const mouth = require('./voice/mouth');
+const history = require('./core/history');
+const growth = require('./engines/growth');
+const { createBridge } = require('./core/bridge');
+const { startWindowWatch } = require('./platform/windows');
+const llm = require('./ai/llm');
+const setup = require('./core/setup');
+const apps = require('./platform/apps');
+const launch = require('./platform/launch');
+const lyrics = require('./online/lyrics');
+const web = require('./online/web');
+const { writeAtomic, readJson } = require('./core/store');
+const updater = require('./core/updater');
+const actionsLog = require('./core/actions-log');
+const recall = require('./engines/recall');
+const plugins = require('./actions/plugins');
+const { ASSISTANTS, assistant } = require('./core/assistants');
 const activeAssistant = () => assistant(config.load().assistant); // Claude Code or Codex
 const activeHooks = () => activeAssistant().hooks;
 const demoSteps = require('../../scripts/demo-sequence');
@@ -544,7 +546,7 @@ function sttLanguage(cfg) {
 // front (what you're asking about, sharper than the whole screen), the text Windows' OCR reads in it (a
 // small vision model can't read a note by itself, and makes it up), and whose window it is. The whole
 // screen when no window is in front. { image: base64 JPEG, text, app, title, window }
-const OCR = path.join(__dirname, 'ocr.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+const OCR = path.join(__dirname, 'platform', 'ocr.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 
 async function snapshot() {
   const point = screen.getCursorScreenPoint();
@@ -1076,6 +1078,7 @@ async function refreshModels() {
 let ollamaModels = { at: 0, list: [] };
 let engines = null;   // her memory and knowledge (engines/index.js)
 let skillList = [];   // skills/loader.js
+let trainer = null;   // training/index.js
 let browser = null;   // her own browser (platform/browser.js)
 async function localModels(fresh = false) {
   if (!fresh && Date.now() - ollamaModels.at < 60000) return ollamaModels.list;
@@ -1390,6 +1393,12 @@ function registerIpc() {
     if (!Array.isArray(entries) || config.load().historyOn === false) return;
     const clean = entries.slice(0, 4).map((e) => ({ role: e?.role, text: String(e?.text || ''), emotion: e?.emotion || undefined, via: e?.via || undefined }));
     for (const e of clean) { try { engines?.memory.addTurn(e.role, e.text); } catch { /* her chat doesn't wait on this */ } }
+    try {
+      const you = clean.find((e) => e.role === 'user');
+      const her = clean.find((e) => e.role === 'assistant');
+      if (you) engines?.reward.react(you.text);
+      if (you && her) engines?.reward.add(you.text, her.text, pickModel() || '');
+    } catch { /* nor on this */ }
     growth.onTurn(clean);
     history.add(clean);
   });
@@ -1434,7 +1443,10 @@ function registerIpc() {
   ipcMain.handle('ollama:models', () => localModels(true));
   ipcMain.handle('history:read', (_e, day) => history.read(day));
   ipcMain.handle('history:search', (_e, query) => history.search(String(query || '').slice(0, 100)));
-  ipcMain.on('life:sync', (_e, { points, source }) => life.addSync(Number(points) || 0, String(source || '')));
+  ipcMain.on('life:sync', (_e, { points, source }) => {
+    life.addSync(Number(points) || 0, String(source || ''));
+    if (source === 'pat') { try { engines?.reward.pet(); } catch { /* only a signal */ } }
+  });
   ipcMain.handle('life:hack', () => life.hackLine());
   ipcMain.on('life:quiet', (_e, ms) => life.quiet(Number(ms) || 0));
   ipcMain.handle('life:dare', () => life.giveDare(true));
@@ -1448,9 +1460,30 @@ function registerIpc() {
       return { ok: false, error: 'blind' };
     }
   });
-  // what her ears hear, on its way to her wake word (only while she's listening for her name)
-  ipcMain.on('wake:audio', (_e, samples) => {
-    if (samples instanceof Float32Array && wake.push(samples)) overlay?.webContents.send('wake:heard');
+  // what her ears hear: is it a voice (vad.js), is it her name (wake.js)
+  const voiceDetector = createVad();
+  let lastSpeech = null;
+  ipcMain.on('ears:audio', (_e, { samples, name } = {}) => {
+    if (!(samples instanceof Float32Array)) return;
+    if (config.load().sttVad !== false) {
+      const speech = voiceDetector.push(samples);
+      if (speech !== null && speech !== lastSpeech) {
+        lastSpeech = speech;
+        overlay?.webContents.send('ears:speech', speech);
+      }
+    }
+    if (name && wake.push(samples)) overlay?.webContents.send('wake:heard');
+  });
+  // what you've said so far, for showing (Whisper on this PC only: no cloud is paid to transcribe the same words over and over)
+  ipcMain.handle('voice:partial', async (_e, { wav }) => {
+    const cfg = config.load();
+    return hearing.partial(Buffer.from(wav), { cfg, keys: setup.openKeys(cfg.apiKeys), language: sttLanguage(cfg) });
+  });
+  ipcMain.on('voice:cancelPartial', () => hearing.cancelPartial());
+  // someone's talking to her: her local model woken up in the meantime, nothing else
+  ipcMain.on('voice:prep', () => {
+    const cfg = config.load();
+    if (cfg.provider === 'ollama' && pickModel(cfg)) llm.warm(cfg.provider, pickModel(cfg));
   });
   ipcMain.handle('voice:transcribe', async (_e, { wav, language }) => {
     const cfg = config.load();
@@ -1627,6 +1660,19 @@ function registerIpc() {
       case 'knowledgeRemove': return { ok: Boolean(engines?.knowledge.remove(Number(arg))) };
       case 'knowledgeRefresh': return { ok: Boolean(engines), ...engines?.knowledge.refresh() };
       case 'knowledgeList': return { ok: Boolean(engines), docs: engines?.knowledge.list() || [], counts: engines?.memory.counts() || {}, model: engines?.model() || null, vectors: Boolean(engines?.hasVectors) };
+      case 'trainStatus': return trainer ? { ok: true, ...trainer.status() } : { ok: false };
+      case 'trainReview': return { ok: true, list: engines?.reward.toReview() || [] };
+      case 'trainJudge': return { ok: Boolean(engines?.reward.judge(Number(arg?.id), Number(arg?.verdict))) };
+      case 'trainExport': return trainer ? trainer.exportPack() : { ok: false };
+      case 'trainTest': trainer?.testCurrent(); return { ok: true };
+      case 'trainStop': trainer?.stop(); return { ok: true };
+      case 'trainPromote': return trainer ? trainer.promote() : { ok: false };
+      case 'trainInstall': {
+        const { canceled, filePaths } = await dialog.showOpenDialog(settingsWin, { properties: ['openFile'], filters: [{ name: 'GGUF model', extensions: ['gguf'] }] });
+        if (canceled || !filePaths[0] || !trainer) return { ok: false };
+        trainer.install(filePaths[0]);
+        return { ok: true };
+      }
       case 'skillList': return { ok: true, skills: skillList.map((s) => ({ id: s.id, name: s.name, about: s.about, source: s.source })) };
       case 'skillsFolder': {
         const dir = path.join(app.getPath('userData'), 'skills');
@@ -1928,6 +1974,17 @@ function main() {
     skills: { find: (id) => skills.find(skillList, id, config.load().skillPacksOff || []), match: (text) => skills.match(skillList, text, config.load().skillPacksOff || []) },
     browser,
     close: (name) => apps.close(name, {}),
+    reward: engines?.reward,
+  });
+  trainer = engines && createTrainer({
+    dir: app.getPath('userData'),
+    reward: engines.reward,
+    isLocal: () => config.load().provider === 'ollama',
+    currentModel: () => pickModel(),
+    persona: () => personaText || 'You are Capri, a personality construct living on the user\'s desktop. You are playful, sharp and a little possessive.',
+    chat: (model, messages, signal) => ollama.chat({ model, messages, options: { temperature: 0.7, maxTokens: 240 } }, () => {}, signal),
+    setModel: (name) => updateConfig({ chatModel: name }),
+    openFolder: (p) => shell.openPath(p),
   });
   app.on('will-quit', () => {
     helper.stop();
