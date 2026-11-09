@@ -35,7 +35,8 @@ function homeworkAsk(said) {
 }
 
 function look({ said, text }) {
-  if (LOOK_ASK.test(text)) return { kind: 'look', text: String(said).trim() };
+  // "perbaiki tulisan ini: aku pergi…": what it's about is in your message, not on your screen
+  if (LOOK_ASK.test(text) && !/:\s*\S.{8,}/.test(text)) return { kind: 'look', text: String(said).trim() };
   return null;
 }
 
