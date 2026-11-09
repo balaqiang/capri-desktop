@@ -37,9 +37,11 @@ Telinga dan suaranya.
   dengar speech-to-text pada yang dia ketik untukmu); hanya saat kamu sebut namanya; nama-namanya; **kata yang harus
   didengar benar** (nama dan kata-katamu, diberikan ke Whisper); jeda lanjutan setelah dia menjawab; tombol mic; menutup
   telinganya saat dia bicara.
+- **Langsung bereaksi saat namanya disebut**: model kecil di PC ini menangkap "Capri" seketika.
 - **Mikrofon**: yang mana, sensitivitas, levelnya, jeda yang mengakhiri kalimat, frasa terpanjang, tes.
 - **Telinga (speech to text)**: mesinnya (Whisper di PC-mu, Groq, OpenAI, Windows), bahasa yang dia dengar,
   **Download better ears…** (Whisper, 199 MB).
+- **Langsung mulai bicara**: dari kalimat pertama, tanpa menunggu seluruh jawaban.
 - **Suaranya**: dibacakan atau tidak (semua, atau jawaban saja), mesinnya (Windows, ElevenLabs, OpenAI, server TTS-mu,
   Piper) dan opsinya, cadangan kalau gagal, volume, tes.
 - **Efek suara**: *Many minds*, glitch, radio; seberapa keras pikiran-pikirannya yang lain, pitch, emosi di suaranya.
@@ -53,6 +55,7 @@ AI yang dia pakai untuk bicara.
   server apa pun yang kompatibel dengan OpenAI), modelnya, key-mu (disimpan terenkripsi untuk akun Windows-mu),
   kreativitas, panjang jawaban, berapa pesan yang dia ingat, **perintah dengan kata-kataku sendiri** (modelnya membaca
   perintah yang terlewat oleh aturannya).
+- **Sesuaikan model dengan kartu grafisku** (Ollama): model lebih kecil selama pilihanmu tidak muat di memori grafis.
 - **Otak lokalnya (Ollama)**: model kecil sebagai cadangan dan untuk tugas-tugas kecilnya.
 - **Coding**: siapa yang menulis kode yang kamu minta (Claude Code, atau dia), dan di mana.
 - **Matanya (Look)**: boleh melihat saat kamu minta, dan dengan model cloud atau tidak.
@@ -68,6 +71,7 @@ Yang dia lakukan sendiri.
   now".
 - **Perintahmu**: perintah yang kamu ajarkan ("kalau aku bilang mode kerja, …"), dan perintah baru: namanya dan apa yang
   dilakukan.
+- **Mood-nya sepanjang hari** dan **Cek bunyi asli lagunya** (kekerasan dan tempo dari katalog Deezer).
 - **Hidup di desktop**: jalan-jalan, merasuki jendela, tempat istirahatnya (pojoknya, taskbar), animasi, elusan, minggir
   saat layar penuh, naik ke cursor.
 - **Dia memperhatikan**: komentarnya, cemburu pada AI lain, lagu yang diputar, **lirik lagu**, **dia ikut mendengarkan**.
@@ -89,7 +93,7 @@ minta sesuatu yang dimatikan, dia bilang begitu.
   dan baterai (komentarnya); apakah ada AI lain di depan; lagu yang diputar; AI coding-mu.
 - **Yang bisa dia dengar**: mikrofonmu (mati, push to talk, selalu).
 - **Yang bisa dia lakukan di PC-mu**: buka aplikasi, folder dan file, tutup aplikasi (selalu lewat tombol), situs,
-  **cari info online** (Wikipedia, Bing, cuaca), tombol media, Spotify, menulis kode, **mengetik untukku**, merasuki
+  **cari info online** (Wikipedia, Bing, cuaca), tombol media, Spotify, menulis kode, **mengetik untukku**, **menekan tombol**, merasuki
   jendela.
 - **Yang dikirim online**: lirik lagu (LRCLIB), catatannya dengan model cloud.
 - **Yang dia simpan di PC ini**: memorinya, ingatan obrolan lama, obrolanmu, penilaiannya tentang lagu ("Forget them"),
