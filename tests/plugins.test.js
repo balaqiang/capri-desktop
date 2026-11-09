@@ -2,7 +2,7 @@
 // Plugins made without code (src/main/plugins.js): what's kept of one, what sets it off, its steps in order.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { clean, summary, createEngine, TEMPLATES } = require('../src/main/plugins');
+const { clean, summary, createEngine, TEMPLATES } = require('../src/main/actions/plugins');
 
 test('clean: only what she can run, nothing more', () => {
   assert.equal(clean(null), null);
