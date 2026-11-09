@@ -88,6 +88,33 @@ Indonesian-English mix by default.
   before the rest is written out. It misses some, so your words are still checked for her name as before.
 - **She starts talking sooner**: her voice starts with the first sentence of her answer, not when all of it is in (Voice › Start right away).
 
+### She tells you what she's doing
+
+Before a job that takes a while (coding, a draft, several steps) she says what she's about to do, her header shows how long it's
+been and which step she's on, and there's a **Stop** button.
+
+### Goals of several steps
+
+"Cari info tentang kucing lalu tulis ringkasannya di notepad": her model works out the steps, each checked against the list of what
+she can do. Steps your words give no ground for are dropped (no closing an app you never mentioned). If a step reaches into your PC
+you see the plan first and say **Go**; closing an app asks for its own yes. A step that fails ends it there, and she says which.
+
+### Memory and what you gave her to read
+
+One SQLite file on this PC: her notes about you, what's going on for you right now (fades in a day), what each day was like, and
+what you said. Found by words, and by meaning too once Ollama has an embedding model (`ollama pull nomic-embed-text`). In
+AI brain › What she knows you can give her text files, notes and folders of code: she answers from them and names the file.
+
+### Skills
+
+Writing, coding, math and research: how she goes about that kind of work when what you say calls for it. A skill is a folder with
+`skill.json` and `prompt.md`, words only, so one you download can't run anything. AI brain › Her skills.
+
+### Her own browser
+
+Edge or Chrome in a profile of its own, never yours: "browse example.com", "cari kucing di browsermu", "baca halaman di browsermu",
+"tutup browsermu". She never fills a password or card field and never presses something that can't be taken back.
+
 ## Errands on your PC
 
 Typed or spoken, in English or Indonesian, no AI needed.
