@@ -41,6 +41,18 @@ async function sizes() {
   return { models: (tags.models || []).map((m) => ({ name: m.name, size: Number(m.size) || 0 })), loaded };
 }
 
+// Meaning, as numbers. On the CPU: an embedding must never push her chat model off the graphics card.
+async function embed(model, texts) {
+  const res = await fetch(`${base()}/api/embed`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ model, input: texts, keep_alive: '1m', options: { num_gpu: 0 } }),
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!res.ok) throw await failure(res);
+  return (await res.json()).embeddings || null;
+}
+
 function warm(model) {
   fetch(`${base()}/api/generate`, {
     method: 'POST',
@@ -87,4 +99,4 @@ async function chat({ model, messages, options = {} }, onDelta, signal) {
   return text;
 }
 
-module.exports = { sizes, base, models, warm, chat };
+module.exports = { embed, sizes, base, models, warm, chat };
