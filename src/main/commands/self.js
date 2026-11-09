@@ -119,7 +119,16 @@ function remember({ cased }) {
   return null;
 }
 
+// your word on her last answer ("good answer", "jawabanmu salah")
+const RATE_GOOD = /^(?:good answer|nice answer|great answer|that was (?:a )?good(?: answer)?|jawaban(?:mu| kamu|nya)? (?:bagus|keren|mantap|bener|benar|tepat)|bagus jawabannya)$/i;
+const RATE_BAD = /^(?:bad answer|wrong answer|that was (?:a )?bad(?: answer)?|jawaban(?:mu| kamu|nya)? (?:jelek|salah|ngaco|aneh)|salah jawabannya)$/i;
+function rate({ text }) {
+  const t = text.replace(/[.!]+$/, '');
+  return RATE_GOOD.test(t) ? { kind: 'rate', points: 3 } : RATE_BAD.test(t) ? { kind: 'rate', points: -3 } : null;
+}
+
 const commands = {
+  rate,
   teach: ({ said }) => teachAsk(said),
   sync,
   dare,
