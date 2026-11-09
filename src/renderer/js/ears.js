@@ -34,6 +34,10 @@ export class Ears {
     this.followUntil = 0;
     this.level = 0;
     this.onHeard = null;  // (text, { wake }) => void
+    this.onName = null;   // () => void: her name, the moment you said it (main/wake.js)
+    this.nameBuf = [];    // the last 100 ms, on its way to her wake word
+    this.nameCount = 0;
+    this.namedAt = 0;
     this.onState = null;  // (state: 'idle' | 'listening' | 'hearing' | 'thinking' | 'error', detail) => void
     this.onError = null;  // (code, message) => void
     button?.addEventListener('click', (e) => {
@@ -105,6 +109,30 @@ export class Ears {
     return Boolean(this.stream) && !this.speaking && !this.busy && (this.mode === 'always' || this.armed);
   }
 
+  // the sound as it comes, in 100 ms pieces, to her wake word (main/wake.js): only while she's waiting for her name
+  feedName(samples) {
+    if (this.mode !== 'always' || this.cfg.wakeWord === false || this.cfg.wakeLocal === false || !this.host.wakeAudio) return;
+    this.nameBuf.push(samples);
+    this.nameCount += samples.length;
+    if (this.nameCount < 1600) return;
+    const all = new Float32Array(this.nameCount);
+    let at = 0;
+    for (const f of this.nameBuf) {
+      all.set(f, at);
+      at += f.length;
+    }
+    this.nameBuf = [];
+    this.nameCount = 0;
+    this.host.wakeAudio(all);
+  }
+
+  // her wake word heard it: she reacts now, and the words that come after count as said to her
+  nameHeard() {
+    this.namedAt = performance.now();
+    if (this.take) this.take.namedAfter ??= this.take.frames.length * FRAME_MS;
+    this.onName?.();
+  }
+
   frame(rms, samples) {
     this.level = this.level * 0.7 + rms * 0.3;
     this.button?.style.setProperty('--level', Math.min(1, this.level / 0.08).toFixed(3));
@@ -113,6 +141,7 @@ export class Ears {
       this.take = null;
       return;
     }
+    this.feedName(samples);
     const loud = rms > this.threshold;
     if (!this.take) {
       // the room's own sound, followed while nobody talks (faster down than up)
@@ -211,8 +240,10 @@ export class Ears {
     let wake = true;
     if (this.mode === 'always' && this.cfg.wakeWord !== false && performance.now() > this.followUntil) {
       const stripped = stripWake(text, this.cfg.wakeWords);
-      if (stripped === null) return; // not for her
-      text = stripped;
+      // her name wasn't in the words, but she heard it: a name written out wrong ("Gabby, open notepad")
+      const named = take.namedAfter !== undefined;
+      if (stripped === null && !named) return; // not for her
+      text = stripped ?? (take.namedAfter < 1600 ? text.replace(/^\S+[,.!?:;]?\s*/, '') : text);
       wake = true;
     }
     if (!text) {
