@@ -44,7 +44,21 @@ function move({ text }) {
   return null;
 }
 
+// her shapes, by words (renderer/js/forms.js)
+const FORM_ASK = [
+  ['spark', /^(?:(?:jadi|berubah jadi|become|turn into|be)\s+)(?:a\s+)?(?:spark|percikan|bola listrik)$/i],
+  ['glitch', /^(?:(?:jadi|berubah jadi|become|turn into|be)\s+)(?:a\s+)?glitch$|^glitch(?: out)?$/i],
+  ['shards', /^(?:(?:jadi|berubah jadi|become|turn into|be)\s+)(?:shards|serpihan|pecahan)$/i],
+  ['silhouette', /^(?:(?:jadi|berubah jadi|become|turn into|be)\s+)(?:a\s+)?(?:silhouette|shadow|bayangan|siluet)$/i],
+];
+function form({ text }) {
+  const t = text.replace(/[.!]+$/, '');
+  const hit = FORM_ASK.find(([, re]) => re.test(t));
+  return hit ? { kind: 'form', form: hit[0] } : null;
+}
+
 const commands = {
+  form,
   move,
 };
 
