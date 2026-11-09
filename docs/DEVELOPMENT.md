@@ -5,54 +5,22 @@
 ## How it's built
 
 ```
-src/main/                 Electron: the transparent click-through window, tray, settings, local HTTP bridge
-  main.js                 wiring: windows, IPC, hotkeys, her brain, Look (snapshot + OCR), staying on top
-  llm.js, ollama.js       her brains: Ollama, OpenAI-compatible (Gemini…), Anthropic, Claude Code
-  errands.js              parse over the registry, several commands in a sentence, her model's reading of you
-  commands/               every command, by what it's about (hands, music, web, day, eyes, body, modes, self); index.js: which goes first
-  helper.js, helper.ps1   one PowerShell that stays up: keys, songs, typing and clicks without starting a new one
-  click.ps1               a button pressed by its name (UI Automation)
-  actions/                tasks.js (told as she goes, Stop), tools.js (all a plan can do), planner.js (steps checked, run)
-  engines/                db.js (SQLite, sqlite-vec), memory.js, knowledge.js, router.js (where something goes)
-  skills/loader.js        assets/skills and yours: skill.json + prompt.md, words only
-  platform/browser.js     her own browser, with Playwright
-  mood.js                 her mood through the day: built up, fading, kept
-  gpu.js                  which Ollama model fits on the graphics card right now
-  wake.js                 "Capri" heard on this PC (sherpa-onnx, assets/wake)
-  songdata.js             a song's real loudness and tempo (Deezer)
-  life.js                 her errands run, chains, typing, drafts, code here, timers, sync, notices, songs, her brief
-  plugins.js              plugins made without code: what sets them off, their steps
-  recall.js               her notes and your past chats picked for a message (BM25, embeddings in Ollama)
-  store.js                her files written atomically (.tmp, .bak, a broken file set aside)
-  updater.js              updates from GitHub Releases (electron-updater)
-  actions-log.js          what she did on your PC (Settings › Access › What she did)
-  weather.js              the weather (Open-Meteo)
-  lyrics.js, web.js       the song's timed lyrics (LRCLIB); questions looked up (Wikipedia, Bing)
-  launch.js, apps.js      opening and closing apps, games, sites; typing in another app
-  hearing.js, mouth.js    her ears (Whisper, Groq, OpenAI, Windows) and her voice (ElevenLabs, OpenAI, Piper…)
-  growth.js, history.js   she improves herself; your chats, a file a day, the story so far
-  games.js, lang.js       her games; her words from assets/lang
-  senses.ps1              the app in front, another AI in front, battery, now playing, fullscreen
-  windows.ps1             where the other windows are, so she can sit on them
-  spotify.ps1, ocr.ps1    pressing Play in Spotify; reading the text in a picture (Windows OCR)
-  media.ps1, type.ps1     the song playing (repeat, shuffle, seek); typing and pasting in another app, safely
-src/renderer/js/
-  sprite.js, acting.js    her rig (WebGL shader) and her moves, drawing by drawing
-  hair.js, ik.js          her mane's springs; her arm's reach and her gaze
-  capri.js                the character: stances, walking, teleport, grab, throw, pet, gestures, hair and IK
-  motion.js               what she learns about when and how to move
-  chat.js, rules.js       talking to her (drafts, homework, her moves from her AI); her chat's rules and calculator
-  persona.js, lore.js     her persona; her story and what she knows of Cyberpunk
-  life.js, glitch.js      pets, emotions, plugins' lines, mischief, her six glitch styles
-  listen.js               her with your music: lyrics over her head, grooving, dancing, dozing off
-  ears.js, tts.js         the microphone; her voice out loud, effects and lips
-  fx.js, panel.js         shards, bolts, cut-ins, hearts; her panel and her faces
-  brain.js, guide.js      coding-AI events into lines; her guide
-src/settings/             her settings window
-hooks/, scripts/          Claude Code / Codex / Antigravity hooks and their installers, the launcher, the demo
-assets/                   her sprite and cut-ins, the 2.4 art, translations, icons
-tests/                    node --test: errands, rules, lyrics, recall, plugins, body, store, hooks…
-tools/                    how the sprite, cut-ins and intro were cut out (Python + Pillow)
+src/main/
+  main.js, life.js   the app, and her life apart from Claude Code (errands, jobs, plans, notices)
+  core/              config, store (atomic writes), lang, updater, history, actions-log, setup, labels, bridge
+  ai/                llm (every provider), ollama, gpu (which model fits on the card)
+  engines/           db (SQLite, sqlite-vec), memory, knowledge, router, recall, growth, mood
+  commands/          errands.js, her registry (index.js: which goes first), and each command by what it's about
+  actions/           tasks (told as she goes, Stop), tools (all a plan can do), planner, plugins, games
+  skills/            loader: assets/skills and yours, words only
+  training/          reward, dataset, evaluate, index: making her local model better
+  voice/             hearing (Whisper and others), mouth (her voice), wake ("Capri"), vad (is it a voice?)
+  online/            web, weather, lyrics, songdata
+  platform/          what touches Windows: apps, launch, helper, windows, browser (Playwright) and the .ps1 scripts
+src/renderer/js/     her window: capri (body), chat, ears, tts, transcript, forms, blueprint, guide, life…
+src/settings/        her settings window
+assets/              her art, skills, eval questions, finetune script, wake and voice detector models
+tests/               node --test
 ```
 
 ## Checks
