@@ -4,9 +4,9 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const claude = require('../../scripts/install-hooks');
-const codex = require('../../scripts/install-codex-hooks');
-const agy = require('../../scripts/install-hooks-agy');
+const claude = require('../../../scripts/install-hooks');
+const codex = require('../../../scripts/install-codex-hooks');
+const agy = require('../../../scripts/install-hooks-agy');
 
 const ASSISTANTS = {
   claude: { name: 'Claude Code', hooks: claude, help: 'https://code.claude.com/docs/en/quickstart' },
