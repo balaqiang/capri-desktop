@@ -90,6 +90,34 @@ Indonesia-Inggris secara bawaan.
   bereaksi sebelum sisanya ditulis. Kadang terlewat, jadi kata-katamu tetap dicek seperti biasa.
 - **Mulai bicara lebih cepat**: suaranya mulai dari kalimat pertama jawabannya, tanpa menunggu semuanya (Voice › Start right away).
 
+### Dia mengabari apa yang dia kerjakan
+
+Sebelum tugas yang makan waktu (ngoding, draf, beberapa langkah) dia bilang dulu apa yang akan dikerjakan, judulnya menampilkan
+lama pengerjaan dan langkahnya, dan ada tombol **Stop**.
+
+### Tujuan beberapa langkah
+
+"Cari info tentang kucing lalu tulis ringkasannya di notepad": modelnya menyusun langkah, masing-masing dicek terhadap daftar yang
+bisa dia lakukan. Langkah yang tidak kamu minta dibuang (tidak menutup aplikasi yang tidak kamu sebut). Kalau ada langkah yang
+menyentuh PC-mu, rencananya ditampilkan dulu dan kamu bilang **Gas**; menutup aplikasi minta izin sendiri. Langkah yang gagal
+menghentikan semuanya, dan dia bilang yang mana.
+
+### Ingatan dan bacaan darimu
+
+Satu file SQLite di PC ini: catatannya tentang kamu, yang sedang terjadi padamu (memudar dalam sehari), seperti apa tiap harinya, dan
+yang kamu katakan. Dicari berdasarkan kata, dan juga makna kalau Ollama punya model embedding (`ollama pull nomic-embed-text`). Di
+AI brain › What she knows kamu bisa memberinya file teks, catatan, dan folder kode: dia menjawab dari situ dan menyebut nama filenya.
+
+### Skill
+
+Menulis, coding, matematika, dan riset: cara dia mengerjakan jenis pekerjaan itu saat kamu memintanya. Skill adalah folder berisi
+`skill.json` dan `prompt.md`, hanya kata-kata, jadi skill yang kamu unduh tidak bisa menjalankan apa pun. AI brain › Her skills.
+
+### Browser miliknya sendiri
+
+Edge atau Chrome dengan profil sendiri, bukan punyamu: "browse example.com", "cari kucing di browsermu", "baca halaman di browsermu",
+"tutup browsermu". Dia tidak pernah mengisi kolom sandi atau kartu, dan tidak menekan yang tidak bisa dibatalkan.
+
 ## Perintah di PC-mu
 
 Diketik atau diucapkan, dalam bahasa Indonesia atau Inggris, tanpa perlu AI.
