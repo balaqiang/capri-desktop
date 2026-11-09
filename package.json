@@ -1,6 +1,6 @@
 {
   "name": "capri-desktop",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Capri, the Project Capricorn construct, living on your desktop: narrates Claude Code, hears you through the mic, runs errands, dares you and glitches your screen (merged with Capri Desktop 2.4).",
   "author": "balaqiang",
   "contributors": [
@@ -51,7 +51,8 @@
   "dependencies": {
     "@fontsource/chakra-petch": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
-    "electron-updater": "6.8.11"
+    "electron-updater": "6.8.11",
+    "sherpa-onnx-node": "^2.0.1"
   },
   "build": {
     "appId": "capri.desktop",
@@ -72,7 +73,12 @@
       "src/main/spotify.ps1",
       "src/main/ocr.ps1",
       "src/main/media.ps1",
-      "src/main/type.ps1"
+      "src/main/type.ps1",
+      "src/main/click.ps1",
+      "src/main/helper.ps1",
+      "assets/wake/**",
+      "node_modules/sherpa-onnx-node/**",
+      "node_modules/sherpa-onnx-win-x64/**"
     ],
     "win": {
       "target": [
