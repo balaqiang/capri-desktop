@@ -22,6 +22,8 @@ export class Mouth {
     this.cfg = {};
     this.turn = 0;        // the line being said; a newer one stops it
     this.playing = null;  // { sources, stop }
+    this.flow = null;     // an answer being said as it's written: { turn, queue, closed, emotion, running }
+    this.offTimer = 0;
     this.onSpeaking = null; // (on) => void: her ears close meanwhile (ears.js)
     this.onLevel = null;  // (0..1 | null) => void: how loud she is right now, null once she's done (her lips)
     this.onError = null;  // ({ error, code, engine }) => void
@@ -34,6 +36,87 @@ export class Mouth {
   configure(cfg) {
     this.cfg = cfg;
     if (!cfg.tts || cfg.muted) this.stop();
+  }
+
+  // she's speaking, or she's stopped (a moment later: the end of her own voice isn't for her ears). Between two
+  // sentences of one answer, she hasn't stopped.
+  speaking(on) {
+    clearTimeout(this.offTimer);
+    if (on) {
+      this.onSpeaking?.(true);
+      return;
+    }
+    if (this.flow && !this.flow.over) return;
+    this.offTimer = setTimeout(() => this.onSpeaking?.(false), 250);
+  }
+
+  // ---- an answer said as it's written (chat.js): begin(), say() each sentence, finish() ------------------------------
+  // Her voice starts with the first sentence, not after the last. The next one is fetched while this one plays.
+  get flowing() {
+    return Boolean(this.flow && !this.flow.over);
+  }
+
+  begin() {
+    if (!this.cfg.tts || this.cfg.muted) return false;
+    this.stop();
+    this.flow = { turn: ++this.turn, queue: [], closed: false, over: false, running: false };
+    return true;
+  }
+
+  say(sentence, emotion = null) {
+    const f = this.flow;
+    if (!f || f.over || f.turn !== this.turn) return;
+    const line = clean(sentence);
+    if (!/[\p{L}\p{N}]/u.test(line)) return; // nothing to say in it
+    const engine = this.cfg.ttsEngine || 'windows';
+    const local = engine === 'windows' || !this.host?.ttsSpeak;
+    // fetched from now, played in turn
+    f.queue.push({ line, emotion, local, audio: local ? null : this.host.ttsSpeak(line, emotion).catch((err) => ({ ok: false, error: err.message })) });
+    this.pump(f);
+  }
+
+  finish() {
+    const f = this.flow;
+    if (!f || f.over) return;
+    f.closed = true;
+    this.pump(f);
+  }
+
+  async pump(f) {
+    if (f.running) return;
+    f.running = true;
+    while (f.turn === this.turn && f.queue.length) {
+      const item = f.queue.shift();
+      await this.sayOne(item, f);
+    }
+    f.running = false;
+    if (f.turn !== this.turn) return;
+    if (f.closed && !f.queue.length) {
+      f.over = true;
+      this.speaking(false);
+    }
+  }
+
+  async sayOne({ line, emotion, local, audio }, f) {
+    if (local) return new Promise((done) => this.speakWindows(line, f.turn, done));
+    const res = await audio;
+    if (f.turn !== this.turn) return undefined;
+    const fallback = () => (this.cfg.ttsFallback !== false ? new Promise((done) => this.speakWindows(line, f.turn, done)) : undefined);
+    if (!res.ok) {
+      console.warn('[capri] her voice:', res.error);
+      this.onError?.(res);
+      return fallback();
+    }
+    try {
+      const ctx = this.voice.ensure();
+      if (ctx.state === 'suspended') await ctx.resume();
+      const buffer = await ctx.decodeAudioData(res.audio);
+      if (f.turn !== this.turn) return undefined;
+      return new Promise((done) => this.play(ctx, buffer, emotion, done));
+    } catch (err) {
+      console.warn('[capri] her voice would not play:', err);
+      return fallback();
+    }
   }
 
   // Windows: the voice picked in settings, else one in the language she answers in
@@ -53,6 +136,7 @@ export class Mouth {
     const line = clean(text);
     if (!line) return false;
     this.stop();
+    this.flow = null;
     const turn = ++this.turn;
     const engine = this.cfg.ttsEngine || 'windows';
     if (engine === 'windows' || !this.host?.ttsSpeak) return this.speakWindows(line, turn);
@@ -76,7 +160,7 @@ export class Mouth {
     }
   }
 
-  speakWindows(line, turn) {
+  speakWindows(line, turn, ended = null) {
     const reply = this.cfg.replyLanguage;
     const hint = reply === 'mix' || reply === 'id' ? 'id' : reply === 'en' ? 'en' : (document.documentElement.lang || 'en');
     const u = new SpeechSynthesisUtterance(line);
@@ -91,14 +175,15 @@ export class Mouth {
     // no sound to follow here: her lips move on a beat, a word at a time
     let flap = null;
     u.onstart = () => {
-      this.onSpeaking?.(true);
+      this.speaking(true);
       let open = false;
       flap = setInterval(() => { open = !open; this.onLevel?.(open ? 0.2 : 0); }, 110);
     };
     const done = () => {
       clearInterval(flap);
       if (turn === this.turn) this.onLevel?.(null);
-      setTimeout(() => this.onSpeaking?.(false), 250);
+      this.speaking(false);
+      ended?.();
     };
     u.onend = done;
     u.onerror = done;
@@ -107,7 +192,7 @@ export class Mouth {
   }
 
   // Her voice through her effects, with a meter on it for her lips.
-  play(ctx, buffer, emotion) {
+  play(ctx, buffer, emotion, ended = null) {
     const cfg = this.cfg;
     const effect = cfg.ttsEffect || 'construct';
     const rate = Math.min(1.4, Math.max(0.8, Number(cfg.ttsShift) || 1));
@@ -208,17 +293,19 @@ export class Mouth {
       }
       setTimeout(() => out.disconnect(), 200);
       this.onLevel?.(null);
-      setTimeout(() => this.onSpeaking?.(false), 250);
+      this.speaking(false);
       if (this.playing?.stop === stop) this.playing = null;
+      ended?.();
     };
     main.onended = stop;
     this.playing = { sources, stop };
-    this.onSpeaking?.(true);
+    this.speaking(true);
     follow();
   }
 
   stop() {
     this.turn++;
+    if (this.flow) this.flow.over = true;
     if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
     this.playing?.stop();
   }
