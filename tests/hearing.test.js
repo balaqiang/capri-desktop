@@ -4,7 +4,7 @@
 require('./electron-stub');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { promptFor, heardPrompt } = require('../src/main/hearing');
+const { promptFor, heardPrompt } = require('../src/main/voice/hearing');
 
 test('the prompt: your words and name first, names only', () => {
   const prompt = promptFor({ sttWords: 'Figma, Obsidian', owner: { nickname: 'Bala' } }, 'en');
