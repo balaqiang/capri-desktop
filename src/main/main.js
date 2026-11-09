@@ -14,6 +14,10 @@ const config = require('./config');
 const { TRAY } = require('./labels');
 const lang = require('./lang');
 const life = require('./life');
+const gpu = require('./gpu');
+const wake = require('./wake');
+const ollama = require('./ollama');
+const helper = require('./helper');
 const hearing = require('./hearing');
 const mouth = require('./mouth');
 const history = require('./history');
@@ -1034,6 +1038,9 @@ function runHooks(action, { quiet = false } = {}) {
   return outcome;
 }
 
+// (the router's choice is for this answer: the model you picked stays picked)
+const fittedAway = (cfg, picked, model) => cfg.provider === 'ollama' && cfg.modelRouter !== false && model !== picked && chatModels?.includes(model);
+
 // The model she talks with: the one picked in her menu if it's still installed, else the first.
 function pickModel(cfg = config.load()) {
   if (!chatModels?.length) return null;
@@ -1092,14 +1099,30 @@ async function pickLocalBrain() {
   updateConfig({ localBrain: best, localBrainChecked: true });
 }
 
+// The model for this answer, by what fits on the graphics card right now (gpu.js): only Ollama, only when it isn't yours
+// to decide (settings › AI brain › Fit the model to my graphics card), and never a model she sees with when she's looking.
+async function fittedModel(cfg, picked, messages) {
+  if (cfg.provider !== 'ollama' || cfg.modelRouter === false || !picked) return picked;
+  if (messages.some((m) => m.images?.length)) return picked;
+  try {
+    const [mem, { models, loaded }] = await Promise.all([gpu.memory(), ollama.sizes()]);
+    const chosen = gpu.choose({ wanted: picked, models, free: mem?.free, loaded });
+    if (chosen !== picked && cfg.debugLog) console.log('[router]', picked, '->', chosen, 'free', Math.round((mem?.free || 0) / 1048576), 'MiB');
+    return chosen;
+  } catch {
+    return picked;
+  }
+}
+
 async function chatWithFallback(cfg, messages, send, signal, streamed) {
-  let model = pickModel(cfg);
+  const picked = pickModel(cfg);
+  let model = await fittedModel(cfg, picked, messages);
   const tried = new Set();
   let busy = 0;
   for (;;) {
     try {
       const text = await llm.chat(cfg.provider, llmConfig(cfg), { model, messages }, send, signal);
-      if (model !== pickModel(cfg)) updateConfig({ chatModel: model });
+      if (model !== picked && !fittedAway(cfg, picked, model)) updateConfig({ chatModel: model });
       return text;
     } catch (err) {
       if (signal.aborted || streamed() || !['busy', 'gone'].includes(err.code)) throw err;
@@ -1387,6 +1410,10 @@ function registerIpc() {
     } catch {
       return { ok: false, error: 'blind' };
     }
+  });
+  // what her ears hear, on its way to her wake word (only while she's listening for her name)
+  ipcMain.on('wake:audio', (_e, samples) => {
+    if (samples instanceof Float32Array && wake.push(samples)) overlay?.webContents.send('wake:heard');
   });
   ipcMain.handle('voice:transcribe', async (_e, { wav, language }) => {
     const cfg = config.load();
@@ -1829,7 +1856,9 @@ function main() {
     setInterval(keepOnTop, 3000);
   });
 
+  setTimeout(() => helper.start(), 3000); // her hands on Windows, ready before you ask
   app.on('will-quit', () => {
+    helper.stop();
     globalShortcut.unregisterAll();
     windowWatch?.stop();
     life.stop();
