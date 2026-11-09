@@ -1,0 +1,12 @@
+{
+  "id": "research",
+  "name": "Research",
+  "about": "Finding out about something from today's web, and saying where it came from.",
+  "web": true,
+  "when": [
+    "\\b(?:research|look into|find out (?:about|whether|if)|compare .{2,40} (?:and|with|vs\\.?|versus) |pros and cons)\\b",
+    "\\b(?:riset|teliti|cari tahu|bandingkan|perbandingan|kelebihan dan kekurangan|plus minus)\\b"
+  ],
+  "maxTokens": 900,
+  "temperature": 0.4
+}
