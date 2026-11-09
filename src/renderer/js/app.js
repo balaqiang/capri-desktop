@@ -5,6 +5,7 @@ import { Panel } from './panel.js';
 import { Voice } from './voice.js';
 import { Brain } from './brain.js';
 import { Guide } from './guide.js';
+import { Blueprint } from './blueprint.js';
 import { Mission } from './mission.js';
 import { Chat } from './chat.js';
 import { Setup } from './setup.js';
@@ -340,7 +341,13 @@ async function boot() {
   };
   // a move her AI asked for in its answer ([[move: wave]]): played on her rig
   chat.onAct = (name, amp) => capri.gesture(name, { amp });
+  // a body drawn in SVG, once you've put one in assets/capri (docs/BLUEPRINT.md): until then, nothing changes
+  loadBlueprint(capri).catch(() => {});
   chat.onMove = async (move) => {
+    if (move.startsWith('form-')) {
+      capri.takeForm(move.slice(5), 6);
+      return;
+    }
     // game mode, focus mode, quiet mode: down to her mask until you call her (her chat closes after her answer)
     if (move.startsWith('hold-')) {
       if (move === 'hold-off') capri.release();
@@ -444,6 +451,8 @@ async function boot() {
   };
   ears.onHeard = (text, info) => chat.hear(text, info);
   host.onWakeHeard?.(() => ears.nameHeard());
+  host.onEarsSpeech?.((on) => ears.speechSignal(on));
+  ears.onPartial = (seen) => chat.showPartial(seen); // the words as you say them
   // her name: she's listening, before a word of the rest is written out (not out of her mask: that takes a click or a command)
   ears.onName = () => {
     if (capri.hold) return;
@@ -481,6 +490,8 @@ async function boot() {
   const setup = new Setup({ guide, panel, host, brain, capri, voice });
   guide.setup = setup;
   guide.onTalk = () => chat.start();
+  guide.speak = (line) => mouth.speak(line, { force: true });
+  guide.tourFirst = () => { if (!currentCfg.toured) guide.tour(); };
   chat.onSetup = (status) => setup.chat(status);
   chat.onBetterModel = () => setup.better();
   setup.onReady = () => chat.start();
@@ -637,7 +648,7 @@ async function boot() {
         console.log('[state]', JSON.stringify({
           pos: { x: Math.round(capri.pos.x), y: Math.round(capri.pos.y) }, floor: capri.floor, stance: capri.stance,
           busy: capri.busy, dragging: capri.dragging, flight: Boolean(capri.flight), alpha: capri.p.alpha, hidden: capri.hidden,
-          interactive, lastMoveAgo: Math.round(performance.now() - lastMove), riding: capri.riding,
+          interactive, lastMoveAgo: Math.round(performance.now() - lastMove), riding: capri.riding, form: capri.form, sync: capri.sync, mood: capri.moodLabel, blueprint: Boolean(capri.blueprint),
         }));
         break;
       case 'fx': { // --dev: { what: 'poke' | 'eyes' | 'whoosh' | 'land' }: her elastic body and its sparks, acted out
@@ -803,6 +814,14 @@ async function boot() {
         }
         break;
       }
+      case 'form': // --dev: { form: 'spark', sync: 100 }: one of her forms, acted out
+        if (cmd.sync !== undefined) capri.sync = cmd.sync;
+        capri.takeForm(cmd.form, cmd.seconds || 2).then((r) => console.log('[form]', cmd.form, r));
+        break;
+      case 'tour': // --dev: her tour; { answer: id } presses a button of it
+        if (cmd.answer !== undefined) guide.answer(cmd.answer);
+        else guide.tour();
+        break;
       case 'guide': // --dev: one topic of her guide (welcome, menu, connect, icon, claude, folder)
         if (cmd.topic === 'welcome') guide.welcome();
         else if (cmd.topic === 'menu') guide.menu();
@@ -930,3 +949,21 @@ async function boot() {
 boot().catch((err) => {
   console.error('[capri] boot failed', err);
 });
+
+// assets/capri/blueprint.svg, if it's there: her body on top of everything she already does
+async function loadBlueprint(capri) {
+  const [svg, schema] = await Promise.all([fetch('../../assets/capri/blueprint.svg'), fetch('../../assets/capri/blueprint.schema.json')]);
+  if (!svg.ok || !schema.ok) return;
+  const bp = new Blueprint(await svg.text(), await schema.json());
+  capri.root.parentElement.appendChild(bp.el);
+  capri.root.style.visibility = 'hidden';
+  capri.blueprint = bp;
+  const follow = () => {
+    const hair = capri.hair?.offsets || [];
+    bp.place(capri.pos.x, capri.pos.y, capri.scale, capri.facing);
+    bp.el.style.visibility = capri.hidden ? 'hidden' : 'visible';
+    bp.setPose({ head: Math.sin(performance.now() / 1400) * 1.5, hair_1: (hair[0]?.[0] || 0) * 0.6, hair_2: (hair[1]?.[0] || 0) * 0.8, hair_3: hair[2]?.[0] || 0, hair_4: (hair[3]?.[0] || 0) * 1.2, hair_5: (hair[4]?.[0] || 0) * 1.4 });
+    requestAnimationFrame(follow);
+  };
+  follow();
+}
