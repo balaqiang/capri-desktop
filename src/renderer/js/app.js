@@ -324,6 +324,7 @@ async function boot() {
   const chat = new Chat({ capri, panel, voice, host, brain });
   brain.onTalk = () => chat.start();
   const life = new Life({ capri, panel, voice, host, brain, fx, glitch, mouth });
+  life.onMood = (label) => chat.setIdleMood(label); // how she is today, in her chat's header
   capri.onPet = (phase, n) => {
     life.pet(phase, n);
     if (phase === 'start') chat.motion.sign('pet'); // her last move went over well
@@ -338,6 +339,7 @@ async function boot() {
         // her line first ("Game mode. Click my mask…"), then she comes apart
         const reason = move.slice(5);
         capri.setHold(reason);
+        if (reason === 'game') await capri.stepAside('left'); // game mode: straight out of your way, then her mask there
         setTimeout(() => {
           if (capri.hold !== reason) return; // called back meanwhile
           if (chat.open) chat.close();
@@ -401,9 +403,13 @@ async function boot() {
     setTimeout(() => { if (capri.pointing) capri.stopPointing(); }, 9000);
   };
   chat.onEmotion = (emotion, opts) => life.react(emotion, opts);
-  chat.onAnswered = (text, emotion) => {
+  chat.onSpeakStart = () => mouth.begin(); // her voice starts with the first sentence of her answer
+  chat.onSpeakLine = (line, emotion) => mouth.say(line, emotion);
+  chat.onSpeakBroken = () => mouth.stop();
+  chat.onAnswered = (text, emotion, { spoken = false } = {}) => {
     ears.follow(); // a moment where her name isn't needed
-    if (currentCfg.tts) life.speak(text, emotion, { answer: true });
+    if (spoken) mouth.finish();
+    else if (currentCfg.tts) life.speak(text, emotion, { answer: true });
     else voice.say('reply');
   };
   mouth.onSpeaking = (on) => ears.setSpeaking(on);
@@ -428,6 +434,13 @@ async function boot() {
     });
   };
   ears.onHeard = (text, info) => chat.hear(text, info);
+  host.onWakeHeard?.(() => ears.nameHeard());
+  // her name: she's listening, before a word of the rest is written out (not out of her mask: that takes a click or a command)
+  ears.onName = () => {
+    if (capri.hold) return;
+    capri.lastActivity = performance.now();
+    capri.pulse();
+  };
   ears.onError = (code, detail) => {
     const lines = {
       nomic: "I can't hear any sound at all. Pick your microphone in Settings, Voice.",
