@@ -2237,3 +2237,102 @@ Model suara kecil di PC ini menangkap "Capri" saat kamu mengucapkannya, jadi dia
 Cek bunyi asli lagunya
 > What she thinks of a new song goes by its real loudness and tempo instead of a guess. Sends only the title and artist to Deezer's public catalogue, once per song.
 Penilaiannya pada lagu baru memakai kekerasan dan tempo aslinya, bukan tebakan. Hanya judul dan artis yang dikirim ke katalog publik Deezer, sekali per lagu.
+
+> On it. I'll write the code first, then paste it in. Stop me any time.
+Oke. Aku tulis kodenya dulu, baru aku tempel. Boleh distop kapan saja.
+> On it. I'm coding this now: {0}. I'll tell you when it's done.
+Oke, aku ngoding dulu: {0}. Nanti aku kabari kalau sudah selesai.
+> Writing it now. One moment.
+Aku tulis dulu ya. Sebentar.
+> Typing it now, {0} characters. Press any key to stop me.
+Aku ketik sekarang, {0} karakter. Tekan tombol apa saja untuk menghentikanku.
+> Writing the {0}…
+Menulis {0}…
+> Writing the code…
+Menulis kodenya…
+> Pasting {0} lines in…
+Menempel {0} baris…
+> Handing it to Claude Code…
+Aku serahkan ke Claude Code…
+> Asking my brain for the code…
+Minta kodenya ke otakku…
+> Saving it and opening it…
+Menyimpan dan membukanya…
+> On it, {0} steps. {1} first.
+Oke, {0} langkah. Mulai dari {1}.
+> You said no, so I stopped there.
+Kamu bilang tidak, jadi aku berhenti di situ.
+> Stopped, after {0} of {1} steps.
+Berhenti, setelah {0} dari {1} langkah.
+> I got stuck on step {0} of {1}: {2}.
+Aku mentok di langkah {0} dari {1}: {2}.
+> Let me work out the steps.
+Aku susun langkahnya dulu.
+> Working out the steps…
+Menyusun langkah…
+> Here's what I'd do:\n{0}\n\nSay go, or cancel.
+Ini rencanaku:\n{0}\n\nBilang gas, atau batal.
+> That plan's gone cold. Ask me again?
+Rencana itu sudah basi. Minta lagi?
+> Okay, forget it.
+Oke, lupakan.
+> My browser isn't ready.
+Browserku belum siap.
+> Closed it.
+Sudah kututup.
+> Open: {0}.
+Terbuka: {0}.
+> Reading it now.
+Aku baca dulu.
+> Opening my browser. Yours stays out of it.
+Aku buka browserku sendiri. Punyamu tidak kusentuh.
+> Yes
+Ya
+> No
+Tidak
+> Go
+Gas
+> Her own browser
+Browser miliknya sendiri
+> A browser of hers (Edge or Chrome, in a profile of its own, never yours) that she can open, read, click links and fill fields in when you ask ("browse example.com", "baca halaman di browsermu"). Never a password or card field.
+Browser miliknya (Edge atau Chrome, dengan profil sendiri, bukan profilmu) yang bisa dia buka, baca, klik tautannya, dan isi kolomnya kalau kamu minta ("baca halaman di browsermu", "browse example.com"). Tidak pernah kolom sandi atau kartu.
+> What she knows
+Yang dia tahu
+> Her memory
+Ingatannya
+> On this PC only: her notes about you, what is going on for you, what each day was like, and what you said.
+Hanya di PC ini: catatannya tentang kamu, yang sedang terjadi padamu, seperti apa tiap harinya, dan yang kamu katakan.
+> By meaning
+Berdasarkan makna
+> To find things by what they mean and not only by their words she needs a small embedding model in Ollama: ollama pull nomic-embed-text
+Agar bisa mencari berdasarkan makna, bukan hanya kata, dia butuh model embedding kecil di Ollama: ollama pull nomic-embed-text
+> Words only for now
+Sementara hanya berdasarkan kata
+> {0} understood, with {1}
+{0} sudah dipahami, dengan {1}
+> {0} notes · {1} days · {2} messages · {3} pieces of files
+{0} catatan · {1} hari · {2} pesan · {3} potongan file
+> {0} pieces
+{0} potongan
+> {0} added, {1} updated, {2} the same.
+{0} ditambahkan, {1} diperbarui, {2} tetap sama.
+> Give her something to read
+Beri dia bacaan
+> Text files, notes, code. She answers from them and names the file. Sent to a cloud model only if you allowed her notes to be (Owner page).
+File teks, catatan, kode. Dia menjawab dari situ dan menyebut nama filenya. Dikirim ke model cloud hanya kalau kamu mengizinkan catatannya dikirim (halaman Owner).
+> Add a file
+Tambah file
+> Add a folder
+Tambah folder
+> Not available
+Tidak tersedia
+> Her skills
+Keahliannya
+> How she goes about a kind of work when what you say calls for it. A skill is a folder with skill.json and prompt.md: words only, it can never run anything.
+Cara dia mengerjakan suatu jenis pekerjaan saat kamu memintanya. Sebuah skill adalah folder berisi skill.json dan prompt.md: hanya kata-kata, tidak bisa menjalankan apa pun.
+> Add your own
+Tambah punyamu
+> Drop a skill folder in here, then restart her.
+Taruh folder skill di sini, lalu mulai ulang dia.
+> Open the folder
+Buka foldernya
