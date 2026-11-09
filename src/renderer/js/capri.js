@@ -48,6 +48,7 @@ export class Capri {
     this.peekSide = null; // left | right | top
     this.windows = { fg: 0, wins: [] };
     this.busy = false;
+    this.energy = 0.5; // her mood's energy (main/mood.js), 0 .. 1
     this.hidden = false;
     this.stowed = false;  // folded away in her biochip (Ctrl+Alt+C)
     this.dormant = false; // asleep, down to her mask
@@ -527,7 +528,7 @@ export class Capri {
 
     // bored, nothing going on for a while: a big yawn, and she nods off (never while music plays: she's listening,
     // and her lyrics would go)
-    if (this.mode === 'idle' && !this.hearing && !this.act && now - this.lastActivity > SLEEP_AFTER) {
+    if (this.mode === 'idle' && !this.hearing && !this.act && now - this.lastActivity > SLEEP_AFTER * (0.5 + this.energy)) {
       this.perform('yawn', this.towardCenter());
       this.setMode('sleep');
     }
@@ -550,7 +551,7 @@ export class Capri {
     }
 
     if (this.mode === 'idle' && now > this.nextMove) {
-      this.nextMove = now + rand(25000, 70000);
+      this.nextMove = now + rand(25000, 70000) * (1.5 - this.energy); // the more energy she has, the less she stays put
       this.wanderStep();
     }
 
@@ -850,6 +851,28 @@ export class Capri {
 
   // Down to her mask and staying there (game mode, focus, quiet mode): no walking, no remarks, nothing wakes her by
   // itself; a click on her mask, a command of yours, or "normal mode" brings her back.
+  // Out of your way before she comes apart (game mode): a teleport to that side of the screen, whatever she was
+  // doing. Her hold stays on all the way, a mask she already was comes back whole for the trip.
+  async stepAside(where) {
+    const reason = this.hold;
+    if (this.stowed) return;
+    if (this.dormant) {
+      const back = this.rouse(); // clears her hold as it starts...
+      this.setHold(reason);      // ...this isn't her being called back
+      await back;
+    }
+    for (let i = 0; i < 30 && this.busy; i++) await sleep(150);
+    if (this.hold !== reason) return; // called back meanwhile
+    if (this.riding) this.setStance('stand');
+    if (this.stance === 'peek') await this.unpeek();
+    const side = 150 * this.scale + 30;
+    const x = where === 'right' ? this.view.w - side : side;
+    this.nextMove = performance.now() + 120000;
+    if (Math.abs(x - this.pos.x) > 24 || Math.abs(this.pos.y - this.floor) > 30 || this.stance === 'sit') {
+      await this.teleport({ x, y: this.floor });
+    }
+  }
+
   async holdIn(reason) {
     this.setHold(reason);
     if (this.stowed || this.dormant) return;
