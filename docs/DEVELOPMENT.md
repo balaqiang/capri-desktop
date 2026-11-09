@@ -12,6 +12,10 @@ src/main/                 Electron: the transparent click-through window, tray, 
   commands/               every command, by what it's about (hands, music, web, day, eyes, body, modes, self); index.js: which goes first
   helper.js, helper.ps1   one PowerShell that stays up: keys, songs, typing and clicks without starting a new one
   click.ps1               a button pressed by its name (UI Automation)
+  actions/                tasks.js (told as she goes, Stop), tools.js (all a plan can do), planner.js (steps checked, run)
+  engines/                db.js (SQLite, sqlite-vec), memory.js, knowledge.js, router.js (where something goes)
+  skills/loader.js        assets/skills and yours: skill.json + prompt.md, words only
+  platform/browser.js     her own browser, with Playwright
   mood.js                 her mood through the day: built up, fading, kept
   gpu.js                  which Ollama model fits on the graphics card right now
   wake.js                 "Capri" heard on this PC (sherpa-onnx, assets/wake)
