@@ -55,6 +55,7 @@ AI yang dia pakai untuk bicara.
   server apa pun yang kompatibel dengan OpenAI), modelnya, key-mu (disimpan terenkripsi untuk akun Windows-mu),
   kreativitas, panjang jawaban, berapa pesan yang dia ingat, **perintah dengan kata-kataku sendiri** (modelnya membaca
   perintah yang terlewat oleh aturannya).
+- **What she knows**: seberapa banyak dia ingat, apakah juga berdasarkan makna, file yang kamu berikan. **Her skills**: nyala atau mati, dan punyamu.
 - **Sesuaikan model dengan kartu grafisku** (Ollama): model lebih kecil selama pilihanmu tidak muat di memori grafis.
 - **Otak lokalnya (Ollama)**: model kecil sebagai cadangan dan untuk tugas-tugas kecilnya.
 - **Coding**: siapa yang menulis kode yang kamu minta (Claude Code, atau dia), dan di mana.
@@ -93,7 +94,7 @@ minta sesuatu yang dimatikan, dia bilang begitu.
   dan baterai (komentarnya); apakah ada AI lain di depan; lagu yang diputar; AI coding-mu.
 - **Yang bisa dia dengar**: mikrofonmu (mati, push to talk, selalu).
 - **Yang bisa dia lakukan di PC-mu**: buka aplikasi, folder dan file, tutup aplikasi (selalu lewat tombol), situs,
-  **cari info online** (Wikipedia, Bing, cuaca), tombol media, Spotify, menulis kode, **mengetik untukku**, **menekan tombol**, merasuki
+  **cari info online** (Wikipedia, Bing, cuaca), tombol media, Spotify, menulis kode, **mengetik untukku**, **menekan tombol**, **browser miliknya**, merasuki
   jendela.
 - **Yang dikirim online**: lirik lagu (LRCLIB), catatannya dengan model cloud.
 - **Yang dia simpan di PC ini**: memorinya, ingatan obrolan lama, obrolanmu, penilaiannya tentang lagu ("Forget them"),
