@@ -114,6 +114,7 @@ const DEFAULTS = {
   musicMood: true,     // she listens along: grooves, dances to songs she likes, dozes off to boring ones
   tastes: {},
   songData: true,      // a song's real loudness and tempo for what she thinks of it (Deezer, title and artist only: songdata.js)
+  skillPacksOff: [],   // the ids of her skills you've turned off (assets/skills, skills/ in her data)
   moodEngine: true,    // a mood that builds up over the day and lasts (mood.js): her tone, how much she moves around
   moodState: null,     // where it is: { v, e, at }
   weatherCity: '',     // where you are, for the weather and her brief of your day (Open-Meteo): '' asks
@@ -134,6 +135,7 @@ const DEFAULTS = {
     media: true,   // the media keys: pause, next, volume
     spotify: true, // search Spotify and press Play
     code: true,    // write code into her Code folder, or open Claude Code for it
+    browser: true, // her own browser (never yours): open, read, click a link, fill a field
     click: true,   // press a button by its name in the window you were in ("click the Send button")
     type: true,    // type for you in another app (Notepad, VS Code, a chat), and press Enter or Ctrl+S when you ask
   },
