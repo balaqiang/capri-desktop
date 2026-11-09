@@ -36,9 +36,11 @@ Her ears and her voice.
 - **Hearing**: off, push to talk or always listening; **fix what I dictate** (her model fixes speech-to-text slips in what
   she types for you); only when you say her name; her names; **words to hear right** (names and words of yours, given to
   Whisper); the follow-up window after she answers; the mic button by her; closing her ears while she talks.
+- **React to her name right away**: a tiny model on this PC catches "Capri" at once.
 - **Microphone**: which one, sensitivity, its level, the pause that ends a sentence, the longest phrase, a test.
 - **Ears (speech to text)**: the engine (Whisper on your PC, Groq, OpenAI, Windows), the language she listens in,
   **Download better ears…** (Whisper, 199 MB).
+- **Start right away**: from the first sentence, without waiting for the whole answer.
 - **Her voice**: read out loud or not (all, or answers only), the engine (Windows, ElevenLabs, OpenAI, your TTS server,
   Piper) and its options, the fallback, volume, a test.
 - **Voice effects**: *Many minds*, glitch, radio; how loud her other minds are, pitch shift, emotion in her voice.
@@ -51,6 +53,7 @@ Which AI she talks through.
 - **Her brain**: who answers (Ollama, Gemini, Groq, OpenRouter, OpenAI, Mistral, DeepSeek, Anthropic, Claude Code, any
   OpenAI-compatible server), the model, your key (stored encrypted for your Windows account), creativity, answer length,
   how many messages she keeps in mind, **commands in my own words** (her model reads a command her rules missed).
+- **Fit the model to my graphics card** (Ollama): a smaller model while the one you picked doesn't fit in the free video memory.
 - **Her local brain (Ollama)**: a small model as a backup and for her quick jobs.
 - **Coding**: who writes the code you ask for (Claude Code, or her), and where it goes.
 - **Her eyes (Look)**: let her look when you ask, and with a cloud model or not.
@@ -65,6 +68,7 @@ What she does on her own.
 - **Your day**: your city (the weather), the **morning brief** (once a day, the first time you're at your PC in the
   morning), and "Brief me now".
 - **Your commands**: commands you taught her ("when I say work mode, …"), and a new one: its name and what to do.
+- **Her mood through the day**, and **Check how a song really sounds** (real loudness and tempo from Deezer's catalogue).
 - **Living on your desktop**: wander, possess your windows, where she rests (her corner, the taskbar), animations, head
   pats, hiding in fullscreen, perch on your cursor.
 - **She notices things**: remarks, jealousy of other AIs, what's playing, **song lyrics**, **she listens along**.
@@ -86,7 +90,7 @@ she tells you so.
   and battery (her remarks); whether another AI is in front; what's playing; your coding AI.
 - **What she can hear**: your microphone (off, push to talk, always).
 - **What she can do on your PC**: open apps, folders and files, close apps (always behind a button), websites, **look
-  things up online** (Wikipedia, Bing, the weather), media keys, Spotify, write code, **type for me**, possess your
+  things up online** (Wikipedia, Bing, the weather), media keys, Spotify, write code, **type for me**, **press buttons**, possess your
   windows.
 - **What goes online**: song lyrics (LRCLIB), her notes with a cloud model.
 - **What she keeps on this PC**: her memory, recall of past chats, your chats, her verdicts on songs ("Forget them"),
