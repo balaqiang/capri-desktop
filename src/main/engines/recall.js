@@ -12,7 +12,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { app } = require('electron');
-const ollama = require('./ollama');
+const ollama = require('../ai/ollama');
 
 const STOP = new Set(`a an the and or but if then so to of in on at for with from by about as is are was were be been am do does did have has had
 i me my mine you your yours we our us they them their he she it its this that these those what which who whom how why when where
