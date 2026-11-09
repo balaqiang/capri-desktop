@@ -1,0 +1,11 @@
+{
+  "id": "coding",
+  "name": "Coding",
+  "about": "Explaining code, finding bugs, reading error messages.",
+  "when": [
+    "\\b(?:stack ?trace|traceback|exception|null pointer|segfault|syntax error|type ?error|reference ?error|compile error|refactor|code review|debug(?:ging)?|why (?:does|is) (?:my|this|the) (?:code|function|script|loop))\\b",
+    "\\b(?:kenapa (?:kode|kodingan|script|program|fungsi)|error (?:di|pada|nya)|kode(?:ku| saya| ini)|benerin (?:kode|bug)|perbaiki (?:kode|bug)|jelasin (?:kode|fungsi)|jelaskan (?:kode|fungsi))\\b"
+  ],
+  "maxTokens": 1500,
+  "temperature": 0.25
+}
