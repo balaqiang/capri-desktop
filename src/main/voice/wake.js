@@ -15,7 +15,7 @@ const THRESHOLD = 0.05;
 const REST_MS = 1200;      // one "Capri" is one hit
 const IDLE_MS = 5 * 60000; // no audio for this long: the model leaves memory
 
-const assets = () => path.join(__dirname, '..', '..', 'assets', 'wake').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+const assets = () => path.join(__dirname, '..', '..', '..', 'assets', 'wake').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 
 let spotter = null;
 let stream = null;
