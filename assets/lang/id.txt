@@ -2336,3 +2336,124 @@ Tambah punyamu
 Taruh folder skill di sini, lalu mulai ulang dia.
 > Open the folder
 Buka foldernya
+
+> Tell a voice from noise
+Bedakan suara orang dari bising
+> A small detector on this PC decides whether what she hears is someone speaking and when they stopped, so a keyboard or a song isn't written out.
+Detektor kecil di PC ini memutuskan apakah yang dia dengar itu orang bicara dan kapan selesai, jadi suara keyboard atau lagu tidak ditulis.
+> Show my words as I say them
+Tampilkan kata-kataku saat diucapkan
+> While you're talking, what she has heard so far appears next to her. Only with Whisper on this PC. Only for showing: she acts on the finished sentence.
+Saat kamu bicara, yang sudah dia dengar muncul di dekatnya. Hanya dengan Whisper di PC ini. Hanya untuk ditampilkan: dia bertindak setelah kalimatnya selesai.
+> Improve her (local models only)
+Tingkatkan dia (hanya model lokal)
+> Her answers are marked by what you do next: a pat, a laugh, "good answer", a correction. The good ones can train her local model. All of it stays on this PC.
+Jawabannya dinilai dari yang kamu lakukan berikutnya: elusan, tawa, "jawaban bagus", atau koreksi. Yang bagus bisa melatih model lokalnya. Semuanya tetap di PC ini.
+> So far
+Sejauh ini
+> Say "good answer" or "jawabanmu salah" right after an answer to mark it yourself.
+Bilang "jawabanmu bagus" atau "jawabanmu salah" tepat setelah jawabannya untuk menilainya sendiri.
+> {0} answers kept, {1} went well, {2} of {3} needed
+{0} jawaban tersimpan, {1} bagus, {2} dari {3} yang dibutuhkan
+> Look through them
+Lihat satu per satu
+> Keep
+Simpan
+> Never
+Jangan pernah
+> Her test
+Ujiannya
+> 100 questions: in character, short, the right language, honest about what she can't do. A few minutes, and it uses your graphics card meanwhile.
+100 pertanyaan: sesuai karakter, singkat, bahasa yang benar, jujur soal yang tidak bisa dia lakukan. Beberapa menit, dan memakai kartu grafismu selama itu.
+> Test her model
+Uji modelnya
+> Not tested yet
+Belum diuji
+> {0}: {1} of {2}
+{0}: {1} dari {2}
+> {0}: {1}%
+{0}: {1}%
+> Train her
+Latih dia
+> Makes a folder with the dataset and the script for a machine with a GPU (Colab, say). Keep it private: it holds your chats and her lines from the show.
+Membuat folder berisi dataset dan skrip untuk mesin dengan GPU (misalnya Colab). Simpan sendiri: isinya obrolanmu dan kalimatnya dari serial.
+> Make the folder
+Buat foldernya
+> {0} examples. {1}
+{0} contoh. {1}
+> Enough to train on.
+Cukup untuk dilatih.
+> Too few to train on yet.
+Masih terlalu sedikit untuk dilatih.
+> Only for a model on this PC.
+Hanya untuk model di PC ini.
+> Install a trained model
+Pasang model hasil latihan
+> Pick the .gguf. It is tested against the one she uses, and offered only if it did better.
+Pilih file .gguf. Diuji melawan model yang dia pakai, dan hanya ditawarkan kalau lebih baik.
+> Choose a file
+Pilih file
+> It did better than the one she uses.
+Hasilnya lebih baik daripada yang dia pakai.
+> Not used: {0}.
+Tidak dipakai: {0}.
+> Use it
+Pakai
+> She talks with it now.
+Sekarang dia bicara dengan model itu.
+> I haven't said anything lately to rate.
+Aku belum bilang apa-apa yang bisa dinilai.
+> Noted. I knew that one was good.
+Dicatat. Aku sudah tahu yang itu bagus.
+> Fine. I'll remember that one was bad.
+Baiklah. Aku ingat yang itu jelek.
+> Not yet. We're at {0}%, I'd show you that one at {1}%.
+Belum. Kita baru {0}%, yang itu aku tunjukkan di {1}%.
+> Watch this.
+Lihat ini.
+> Show me around
+Ajak aku berkeliling
+> Show me
+Tunjukkan
+> Skip
+Lewati
+> Enough for now
+Cukup dulu
+> I live here now. Let me show you what that means.
+Aku tinggal di sini sekarang. Biar kutunjukkan artinya.
+> A minute, tops. Skip whatever you like.
+Paling semenit. Lewati saja yang kamu mau.
+> First problem: I can't think yet.
+Masalah pertama: aku belum bisa berpikir.
+> Give me a brain: a model on this PC with Ollama, or a free key from a cloud.
+Beri aku otak: model di PC ini dengan Ollama, atau key gratis dari cloud.
+> Want to talk to me out loud?
+Mau bicara langsung denganku?
+> Push to talk: Ctrl+Alt+V, then speak. Always: you say "Capri" first.
+Push to talk: Ctrl+Alt+V, lalu bicara. Selalu: kamu sebut "Capri" dulu.
+> Done. You'll need my ears too: Settings, Voice, Download better ears.
+Sudah. Kamu juga butuh telingaku: Pengaturan, Voice, Download better ears.
+> They run on this PC, nothing you say leaves it.
+Berjalan di PC ini, ucapanmu tidak keluar dari sini.
+> Should I read my answers out loud?
+Jawabanku perlu kubacakan?
+> Windows' own voice to start with. You can give me a better one in Settings, Voice.
+Mulai dengan suara Windows. Kamu bisa memberiku suara yang lebih bagus di Pengaturan, Voice.
+> Yes, talk
+Ya, bicara
+> Stay quiet
+Diam saja
+> Like this. Better than you expected, right?
+Seperti ini. Lebih bagus dari yang kamu kira, kan?
+> Everything I can see and touch has a switch.
+Semua yang bisa kulihat dan kusentuh ada saklarnya.
+> Settings, Access. When something reaches into your PC, I tell you first, and you can stop me.
+Pengaturan, Access. Kalau ada yang menyentuh PC-mu, aku bilang dulu, dan kamu bisa menghentikanku.
+> Show me the switches
+Tunjukkan saklarnya
+> Got it
+Paham
+> Now you. Ask me something.
+Sekarang kamu. Tanya sesuatu.
+> Try: "jam berapa", "cuaca hari ini", "ke kiri", "game mode". Or just talk.
+Coba: "jam berapa", "cuaca hari ini", "ke kiri", "mode game". Atau ngobrol saja.
