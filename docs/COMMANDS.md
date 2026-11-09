@@ -16,6 +16,8 @@ hello"). Said in other words, her model works out which command you meant ([in y
 | Modes | "game mode", "focus mode", "quiet mode" / "do not disturb", "normal mode" | "mode game", "mode fokus", "jangan ganggu aku dulu", "mode normal" |
 | Her own browser | "browse example.com", "search cats in your browser", "read the page in your browser", "close your browser" | "buka youtube di browsermu", "cari kucing di browsermu", "baca halaman di browsermu", "tutup browsermu" |
 | Several steps | "search for cats and then write a summary in notepad" | "cari info tentang kucing lalu tulis ringkasannya di notepad" |
+| Her shapes | "become a spark", "become a shadow", "glitch out" | "jadi spark", "jadi serpihan", "jadi bayangan" |
+| Rate her answer | "good answer", "bad answer" | "jawabanmu bagus", "jawabanmu salah" |
 | Press a button | "click the Send button", "click Save in notepad" | "klik tombol Kirim", "pencet tombol OK" |
 | Moving | "move less", "you can move again" | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" |
 | Her | "dare me", "how's our sync?", "who are you?" | "tantang aku", "improve dirimu", "kamu udah belajar apa?" |
