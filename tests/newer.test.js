@@ -6,11 +6,11 @@ const test = require('node:test');
 const assert = require('node:assert');
 
 require('./electron-stub');
-const { createMood, rhythm, temper, labelOf, drift } = require('../src/main/mood');
+const { createMood, rhythm, temper, labelOf, drift } = require('../src/main/engines/mood');
 const { COMMANDS, ORDER } = require('../src/main/commands');
-const errands = require('../src/main/errands');
-const gpu = require('../src/main/gpu');
-const songdata = require('../src/main/songdata');
+const errands = require('../src/main/commands/errands');
+const gpu = require('../src/main/ai/gpu');
+const songdata = require('../src/main/online/songdata');
 
 const HOUR = 3600000;
 
