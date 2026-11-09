@@ -23,6 +23,8 @@ const { vocabulary } = require('./hearing');
 const actionsLog = require('./actions-log');
 const weather = require('./weather');
 const plugins = require('./plugins');
+const { createMood } = require('./mood');
+const songdata = require('./songdata');
 
 const { T, F } = lang;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -78,6 +80,13 @@ const state = {
 };
 
 const cfg = () => config.load();
+const mood = createMood({ load: () => cfg().moodState, save: (moodState) => config.save({ moodState }), off: () => cfg().moodEngine === false });
+let moodShown = 0;
+const showMood = () => {
+  if (cfg().moodEngine === false) return;
+  const { v, e, label } = mood.read();
+  emit({ type: 'mood', label, v, e });
+};
 const say = (event) => emit({ type: 'say', ...event });
 
 // ---- sync ------------------------------------------------------------------------------------------
@@ -88,6 +97,7 @@ const syncTier = () => SYNC_TIERS.find(([upTo]) => syncPercent() < upTo)[1];
 // Points come with daily limits: time with her (one per five active minutes, up to 24), what you tell
 // her (two each, up to ten messages), pats (up to ten), agreeing with her (five), and finished dares.
 function addSync(points, source) {
+  if (['pat', 'chat', 'agree', 'dare'].includes(source)) mood.nudge(source);
   const sync = { ...cfg().sync };
   const today = new Date().toISOString().slice(0, 10);
   if (sync.day !== today) Object.assign(sync, { day: today, minutes: 0, chats: 0, pats: 0, agrees: 0 });
@@ -257,9 +267,15 @@ function observe() {
   const back = state.wasAway && idle < 5;
   const awayMinutes = state.peakIdle / 60;
   if (back) {
+    mood.nudge(awayMinutes >= 180 ? 'neglected' : 'back');
     state.wasAway = false;
     state.peakIdle = 0;
     pluginEngine?.onBack(awayMinutes);
+  }
+  mood.tick();
+  if (now - moodShown >= 60000) {
+    moodShown = now;
+    showMood();
   }
   const cpu = cpuPercent();
   state.cpu = cpu;
@@ -281,6 +297,7 @@ function observe() {
   // another AI in front of you: jealous, whatever else is going on (but not too often)
   if (c.jealous && state.ai && now - state.aiSince > 15000 && now > state.quietUntil) {
     if (remark('jealous', 20 * 60000, SAY.jealous, 'jealous', state.ai)) {
+      mood.nudge('rival');
       addSync(1, 'agree'); // she cares, that's sync too
       return;
     }
@@ -338,6 +355,7 @@ function onTrack(track) {
     if (verdict && state.lastTrackKey === key) {
       state.verdict = { song: songKey(track), verdict };
       emit({ type: 'taste', ...state.verdict });
+      mood.nudge({ love: 'songLove', like: 'songLike', meh: 'songMeh' }[verdict]);
     }
     if (comment) commentOn(track, verdict);
   })();
@@ -451,7 +469,9 @@ async function judge(track, key) {
   // her whim, the same for a song every time: which energetic songs she loves, what she makes of an unknown one
   let h = 0;
   for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  const heard = await sound(track);
+  // the real loudness and tempo when the catalogue has them (songdata.js), her model's guess only otherwise
+  const facts = cfg().songData !== false ? await songdata.lookup(track) : null;
+  const heard = facts?.energy || await sound(track);
   const verdict = heard === 'energetic' ? (h % 10 < 3 ? 'love' : 'like') : heard === 'calm' ? 'meh' : h % 10 < 7 ? 'like' : 'meh';
   const tastes = { ...(cfg().tastes || {}), [key]: verdict };
   const keys = Object.keys(tastes);
@@ -690,8 +710,10 @@ const SESSION_ACTIONS = {
 };
 
 // What each errand needs from you in settings › Access, and what she says when it's off.
-const NEEDS = { weather: 'search', code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media', type: 'type', key: 'type' };
-const ACCESS_NAMES = { search: 'Look things up online', apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code', type: 'Type for me' };
+const NEEDS = { weather: 'search', code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media', type: 'type', key: 'type', click: 'click' };
+// buttons that can't be undone are never pressed from a sentence ("Send" is: you said so, and you can see it)
+const RISKY_BUTTON = /\b(?:delete|remove|erase|wipe|uninstall|format|reset|shut ?down|restart|buy|pay|purchase|order|checkout|transfer|withdraw|confirm|hapus|buang|copot|bayar|beli|pesan sekarang|tarik|konfirmasi|setel ulang)\b/i;
+const ACCESS_NAMES = { click: 'Press buttons', search: 'Look things up online', apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code', type: 'Type for me' };
 const allowed = (what) => config.allowed(what);
 const denied = (what) => ({ handled: true, reply: F("I'm not allowed to do that. Settings › Access › {0}.", T(ACCESS_NAMES[what])), emotion: 'annoyed', denied: true });
 
@@ -979,7 +1001,7 @@ async function runChain(steps, opts = {}) {
       out.emotion = 'annoyed';
       break;
     }
-    const typing = step.e.kind === 'type' || step.e.kind === 'key';
+    const typing = step.e.kind === 'type' || step.e.kind === 'key' || step.e.kind === 'click';
     const e = typing ? { ...step.e, target: step.e.target || opened, fresh: fresh && !step.e.target }
       : step.e.kind === 'draft' ? { ...step.e, target: step.e.target || opened } : step.e;
     if (typing) fresh = false;
@@ -1031,6 +1053,7 @@ Fix only what speech recognition got wrong: misheard words (product names too, l
 // One errand done, and kept in her action log (settings › Access › What she did) when it touched your PC.
 async function act(e, opts = {}) {
   const res = await actNow(e, opts);
+  if (res?.handled && !['move', 'time', 'math', 'sync', 'none'].includes(e.kind)) mood.nudge(res.denied ? 'failed' : 'done');
   actionsLog.record(e, res, { via: opts.voice ? 'voice' : 'typed', routed: opts.routed });
   return res;
 }
@@ -1310,6 +1333,16 @@ async function actNow(e, opts = {}) {
       };
       return { handled: true, reply: why[res.why] || T("Hm, that didn't work."), emotion: 'annoyed', denied: true };
     }
+    case 'click': { // a button pressed by its name, in the window you were in or the app you named
+      if (RISKY_BUTTON.test(e.name)) return { handled: true, reply: F('"{0}" can\'t be taken back, so that one\'s yours to press.', e.name), emotion: 'annoyed', denied: true };
+      const res = await launch.click({ name: e.name, target: e.target || '', hwnd: e.target ? 0 : frontWindow?.() || 0 });
+      if (res.ok) return { handled: true, reply: F('Pressed "{0}".', res.name || e.name), emotion: 'happy', task: 'write' };
+      const seen = (res.seen || []).slice(0, 6).join(', ');
+      const why = res.why === 'nowindow' ? (e.target ? F("I can't find {0} open.", e.target) : T("I don't know which window you mean. Name it: \"in notepad\"."))
+        : res.why === 'notfound' ? F('There\'s no "{0}" button I can see there.', e.name) + (seen ? ` ${F('I can see: {0}.', seen)}` : '')
+          : T("Hm, that didn't work.");
+      return { handled: true, reply: why, emotion: 'annoyed', denied: true };
+    }
     case 'media': {
       if (e.action === 'pause' && state.track && !state.track.playing) return { handled: true, reply: T("Nothing's playing!"), emotion: 'bored' };
       if (e.action === 'play' && state.track?.playing) return { handled: true, reply: T("It's already playing!"), emotion: 'bored' };
@@ -1347,6 +1380,8 @@ function brainContext({ cloud = false, facts: picked = null, past = [] } = {}) {
     `RIGHT NOW (their local time): ${now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}, ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}.`,
     `HOW CLOSE SHE IS TO THE USER RIGHT NOW (sync ${syncPercent()}%): ${syncTier()}`,
   ];
+  const feeling = mood.line();
+  if (feeling) parts.push(feeling);
   const facts = picked || memories().slice(-25);
   if (c.memoryOn && facts.length && (!cloud || c.cloudMemory)) {
     parts.push(`WHAT THE USER HAS TOLD YOU (use one only when it really fits what they said; never list them or say you keep notes):\n${facts.map((f) => `- ${f}`).join('\n')}`);
@@ -1408,6 +1443,7 @@ function start({ onEvent, model, raw, look, shot, front, coder: coders }) {
 const pluginRun = (id) => Boolean(pluginEngine?.runNow(String(id || '')));
 
 function stop() {
+  mood.flush();
   clearInterval(ticker);
   clearInterval(pluginTimer);
   pluginEngine?.stop();
