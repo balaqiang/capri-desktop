@@ -13,6 +13,7 @@ import { DEFAULT_PERSONA } from './persona.js';
 import { STORY, STORY_SMALL, loreFor } from './lore.js';
 import { Motion } from './motion.js';
 import { Sentencer } from './sentences.js';
+import { hasForm, unlockedForms } from './forms.js';
 import { LYRICS_TAG, LYRIC_DUMP, aboutLyrics, NO_DUMP_LINE, FAKE_DONE, worldQuestion, webNote, withSums, sumsIn, fixAnswers } from './rules.js';
 
 export { DEFAULT_PERSONA };
@@ -23,6 +24,8 @@ const EMOTION_TAG = /\[(happy|jealous|bored|glitch|annoyed)\]/i;
 const MOVE_TAG = /\[\[\s*move\s*:\s*([a-z]+)\s*\]\]/i;
 // where her AI sends her when you asked in words the app didn't catch ([[go: cursor]]), and where it may
 const GO_TAG = /\[\[\s*go\s*:\s*([a-z]+)\s*\]\]/i;
+// a shape of hers, from her AI ([[form: spark]]): only the ones she has (forms.js)
+const FORM_TAG = /\[\[\s*form\s*:\s*([a-z]+)\s*\]\]/i;
 const GO_PLACES = ['cursor', 'left', 'right', 'center', 'taskbar', 'top', 'ride', 'unride', 'home', 'hide', 'sleep', 'wander', 'stay'];
 const MOVE_NAMES = 'wave, nod, shrug, think, bow, dance, laugh, shy, spin, hop, curious, look, turn, flinch';
 // the move each emotion of hers comes with (life.js): moving too, so spaced and learned like her AI's moves
@@ -582,6 +585,7 @@ export class Chat {
     if (this.cfg.debugLog && emoMove) console.log('[move]', emoMove, emotion, react ? 'played' : 'held back', `gap ${this.motion.s.gap}`);
     this.moveFrom(res.text);
     this.goFrom(res.text, text);
+    this.formFrom(res.text);
     this.lyricsFrom(res.text, text, dumped);
     // said as it was written: what's left of it, and she's done. Otherwise the whole answer, as before
     const flowed = this.flowing;
@@ -636,6 +640,16 @@ export class Chat {
       this.panel.setMood(MOOD.idle);
       this.panel.setQuote('');
     }
+  }
+
+  // what you've said so far, for showing only (nothing is done with it until the sentence is over)
+  showPartial(seen) {
+    if (!seen) {
+      this.partialShown = false;
+      return;
+    }
+    if (this.open || this.partialShown) this.panel.setQuote(seen.text);
+    else this.partialShown = this.panel.say({ kind: 'info', face: 'eyes', badge: 'MIC', line: T('Listening…'), quote: seen.text, hold: 6000 }) !== false;
   }
 
   // how she is today (main/mood.js): next to her name while nothing else is going on
@@ -869,6 +883,8 @@ export class Chat {
     lines.push('You never open apps, type, save or send anything yourself in your reply: only the app does, from their words, and it says so itself. So NEVER write that you typed, opened, saved or sent something, or that it is done: if they asked for it and you are the one answering, it did not happen; tell them to say it plainly, like "open notepad and type hello".');
     lines.push('The app around you also does these by itself when the user says them plainly: timers, alarms and reminders ("set a timer for 10 minutes", "pasang alarm jam 7"), a study timer, notes about them ("remember that…"), dares ("dare me"), games with you (rock paper scissors: "main suit"; guess the number: "tebak angka"; a coin; dice), typing into an app ("type hello in notepad", "ketik halo di vscode") and pressing Enter or Ctrl+S, several of these at once ("open notepad and type hello", "buka spotify lalu putar musik"), web and YouTube searches, and looking at their screen ("look at my screen" or Ctrl+Alt+L, one screenshot when they ask). If they ask you for one of these and nothing happened, tell them to say it plainly like that; never pretend it is done.');
     lines.push(`When the user asks you to come or go somewhere on their screen in words that didn't move you yet ("temenin aku di deket mouse", "hang out on the left", "get on my pointer"), say you're on it and put one tag [[go: WHERE]] in your reply (never shown), WHERE one of: ${GO_PLACES.join(', ')}. Only when they asked you to move.`);
+    const forms = unlockedForms(this.capri.sync);
+    if (forms.length) lines.push(`You can also stop being a girl for a moment. Rarely, when it really fits how you feel (angry, showing off, gone quiet), add one tag [[form: NAME]] (never shown), NAME one of: ${forms.join(', ')}.`);
     lines.push(`You have a body on their screen and you move it yourself: when a gesture really fits what you say, put one tag [[move: NAME]] in your reply (never shown), NAME one of: ${MOVE_NAMES}. It has to match: a greeting: wave; agreeing: nod; not knowing: shrug; pondering: think; showing off: bow; music or joy: dance; something funny: laugh; flattered: shy. ${this.motion.hint()}`);
     lines.push('Song lyrics: the app shows the words of the song playing over your head by itself, line by line as they are sung. NEVER write song lyrics in your reply, not even a few lines (you would get them wrong): when they ask to see, show, display or hide the lyrics in any words, say so in a few words and put one tag [[lyrics: show]] or [[lyrics: hide]] in your reply (never shown). To say what is being sung, use only the lyrics around this moment you are given, one line at most.');
     lines.push('The app also does these from their words, never you in your reply: drafts a text for them to see and then type ("write an email to my boss saying I am sick", "tuliskan surat izin di notepad"; "make it shorter" changes it), the weather ("cuaca hari ini", "will it rain tomorrow?"), a brief of their day ("brief me", "rangkuman hari ini"), game, focus and quiet mode (you go down to your mask and keep quiet until they call you: "game mode", "mode fokus", "normal mode"), and commands they teach you ("when I say work mode, open vscode and play music"). If they asked in other words and nothing happened, tell them to say it like that.');
@@ -939,6 +955,14 @@ export class Chat {
     this.panel.stream(aboutLyrics(this.lyricQuestion) && LYRIC_DUMP.test(this.answer) ? T(NO_DUMP_LINE) : this.unban(clean(withSums(this.answer))));
     this.voice.play('blip'); // her blips as the words come in
     this.moveFrom(this.answer); // her body moves as soon as her AI says how, mid-sentence
+  }
+
+  // [[form: spark]] in her answer: that shape for a moment, if she has it, and not every other answer
+  formFrom(raw) {
+    const name = FORM_TAG.exec(raw)?.[1]?.toLowerCase();
+    if (!name || !hasForm(name, this.capri.sync) || performance.now() - (this.lastForm || -Infinity) < 120000) return;
+    this.lastForm = performance.now();
+    this.onMove?.(`form-${name}`);
   }
 
   // [[move: wave]] in her answer: that move, once per answer
