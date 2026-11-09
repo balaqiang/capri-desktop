@@ -118,6 +118,26 @@ Menulis, coding, matematika, dan riset: cara dia mengerjakan jenis pekerjaan itu
 Edge atau Chrome dengan profil sendiri, bukan punyamu: "browse example.com", "cari kucing di browsermu", "baca halaman di browsermu",
 "tutup browsermu". Dia tidak pernah mengisi kolom sandi atau kartu, dan tidak menekan yang tidak bisa dibatalkan.
 
+### Telinga yang lebih baik
+
+- **Suara orang dibedakan dari bising**: detektor kecil di PC ini (Silero) memutuskan apakah itu orang bicara dan kapan selesai. Suara keyboard atau lagu tidak ditulis.
+- **Kata-katamu saat diucapkan**: dengan Whisper di PC ini, yang sudah dia dengar muncul di dekatnya. Hanya untuk ditampilkan: dia bertindak setelah kalimatnya selesai.
+- Kalimat yang berhenti di "dan" atau "yang" diberi waktu sedikit lebih lama.
+
+### Meningkatkan model lokalnya
+
+Jawabannya dinilai dari yang kamu lakukan berikutnya (elusan, tawa, "jawaban bagus", koreksi). AI brain › Improve her: lihat satu per satu, jalankan ujian 100
+pertanyaan, buat folder untuk melatih, lalu pasang hasilnya. Model hasil latihan hanya ditawarkan kalau ujiannya lebih baik.
+
+### Wujud-wujudnya
+
+Makin tinggi sync, makin banyak: glitch (10%), spark (20%), serpihan (40%), siluet (60%). "Jadi spark", "jadi bayangan", "glitch out"; AI-nya sesekali memilih
+sendiri, begitu juga mood-nya. Untuk menggambar dia sendiri, lihat [Tubuhnya sebagai gambar](BLUEPRINT.md).
+
+### Tur awal
+
+Menunya › Show me around: mikrofon, suaranya, yang boleh dia sentuh, satu hal untuk dicoba. Setiap langkah bisa dilewati.
+
 ## Perintah di PC-mu
 
 Diketik atau diucapkan, dalam bahasa Indonesia atau Inggris, tanpa perlu AI.
