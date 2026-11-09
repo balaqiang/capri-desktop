@@ -222,6 +222,10 @@ export class Life {
         else if (!this.focusing && was && capri.hold === 'focus') capri.release();
         break;
       }
+      case 'mood':
+        capri.energy = Math.min(1, Math.max(0, Number(evt.e) || 0));
+        this.onMood?.(evt.label);
+        break;
       case 'sync':
         if (evt.line && this.cfg.syncShown !== false) {
           panel.say({ kind: 'error', face: 'manyEyes', badge: 'SYNC', line: evt.line, hold: 6000 });
