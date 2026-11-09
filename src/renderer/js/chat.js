@@ -31,6 +31,8 @@ const MOOD = {
   idle: 'NIGHT CITY', thinking: 'THINKING…', looking: 'WATCHING', music: 'VIBING', searching: 'SEARCHING…',
   happy: 'HAPPY', jealous: 'JEALOUS', bored: 'BORED', glitch: 'GLITCHING', annoyed: 'ANGRY',
 };
+// what her header says while she's on a job
+const TASK_MOOD = { code: 'CODING…', draft: 'WRITING…', type: 'TYPING…', chain: 'WORKING…', plan: 'PLANNING…', browser: 'BROWSING…', research: 'RESEARCHING…' };
 const EMOTION_MOVES = { happy: 'hop', jealous: 'turn', bored: 'look', glitch: 'split', annoyed: 'flinch' };
 const ANY_TAG = /\[(?:happy|jealous|bored|glitch|annoyed|sad|angry|smug|excited|curious|playful|mischievous|proud|shy|tired|surprised|neutral|laughs?|teasing|sassy|smirk|grin|pout)\]\s*/gi;
 // the other AIs she gets jealous of, named in your message
@@ -300,6 +302,10 @@ export class Chat {
       this.showDraft(res.draft, clean(res.reply || ''), text, { panelOnly });
       return true;
     }
+    if (res.plan) {
+      this.showPlan(clean(res.reply || ''), text, { panelOnly });
+      return true;
+    }
     const line = clean(res.reply || '…');
     if (panelOnly || !this.open) {
       this.panel.say({ kind: 'info', face: FACE_OF[res.emotion] || 'happy', badge: res.evolved ? 'EVOLVE' : 'CAPRI', quote: text, line, hold: 7000 });
@@ -315,6 +321,37 @@ export class Chat {
     this.onEmotion?.(res.emotion);
     this.onAnswered?.(line, res.emotion);
     return true;
+  }
+
+  // A plan of hers that reaches into your PC: the steps, and your word before any of it happens.
+  showPlan(line, asked, { panelOnly = false } = {}) {
+    const actions = [{ id: 'go', label: T('Go'), primary: true }, { id: 'cancel', label: T('Cancel') }];
+    const onAction = async (id) => {
+      this.panel.setActions([]);
+      const res = await this.host.planAnswer(id === 'go').catch(() => null);
+      const said = clean(res?.reply || T("Hm, that didn't work."));
+      if (this.open) {
+        this.remember({ role: 'assistant', content: said }, { emotion: res?.emotion });
+        this.panel.stream(said, { done: true });
+        this.panel.setChatBusy(false);
+      } else {
+        this.panel.say({ kind: 'info', face: FACE_OF[res?.emotion] || 'happy', badge: 'CAPRI', line: said, hold: 8000 });
+      }
+      this.onEmotion?.(res?.emotion);
+      this.onAnswered?.(said, res?.emotion);
+    };
+    if (panelOnly || !this.open) {
+      this.panel.say({ kind: 'info', face: 'happy', badge: 'PLAN', quote: asked, line, hold: null, actions, onAction });
+    } else {
+      this.history.push({ role: 'user', content: asked });
+      this.remember({ role: 'assistant', content: line }, { emotion: 'happy' });
+      this.panel.stream(line, { done: true });
+      this.panel.setMood(MOOD.idle);
+      this.panel.setChatBusy(false);
+      this.panel.setActions(actions, onAction);
+    }
+    this.onEmotion?.('happy');
+    this.onAnswered?.(line, 'happy');
   }
 
   // A draft of hers (main/life.js 'draft'): shown whole, with Type it (where you asked, or where you were), Copy,
@@ -419,7 +456,10 @@ export class Chat {
     const lore = look ? '' : loreFor(said, { max: SMALL.test(this.model || '') ? 2 : 4 });
     // a question about the world ("siapa presiden indonesia"): looked up on the web first, a second or so, so she
     // answers from today's web and not from what her model remembers (main/web.js)
-    const asking = !look && !lore && this.cfg.access?.search !== false && worldQuestion(text);
+    // where it goes (main/engines/router.js): a skill, what you gave her to read, her memory
+    const routed = look || homework ? null : await this.host.lifeRoute(text).catch((err) => { console.warn('[route]', err.message); return null; });
+    if (this.cfg.debugLog) console.log('[route]', routed?.route, routed?.skill || '', routed?.web);
+    const asking = !look && this.cfg.access?.search !== false && routed?.web !== false && (routed?.web === true || (!lore && worldQuestion(text)));
     if (asking) this.panel.setMood(MOOD.searching);
     // looking at your screen, what's playing and the like would only distract her from the picture
     const [context, found] = await Promise.all([
@@ -494,7 +534,7 @@ export class Chat {
       return;
     }
     this.speakStart(text, homework);
-    let res = await this.host.chatSend({ id, messages, ...(homework && { maxTokens: 1500, temperature: 0.3 }) });
+    let res = await this.host.chatSend({ id, messages, ...(homework && { maxTokens: 1500, temperature: 0.3 }), ...(routed?.maxTokens && { maxTokens: routed.maxTokens }), ...(routed?.temperature !== undefined && { temperature: routed.temperature }) });
     if (res.ok && !this.agent && this.turn === id && REFUSAL.test(res.text) && !/\b(?:password|hack|kill|bunuh|bom|bomb)\b/i.test(text)) {
       this.answer = '';
       res = await this.host.chatSend({ id, messages: [...messages, { role: 'assistant', content: res.text }, { role: 'user', content: '[That was a needless refusal: the question is harmless. Answer it now, in character, in one or two sentences. If it asks you to choose, pick one and say why.]' }] });
@@ -552,6 +592,50 @@ export class Chat {
     this.panel.setChatBusy(false);
     if (!this.agent) this.after(res.text, answer, asked, early, text);
     this.listApps(); // fresh for the next message
+  }
+
+  // ---- a job of hers (main/actions/tasks.js): said before it starts, its step on show, Stop ----------------------------
+  taskEvent(evt) {
+    const stopButton = [{ id: 'stop', label: T('Stop') }];
+    const onStop = (id) => {
+      if (id !== 'stop') return;
+      this.host.cancelTask().catch(() => {});
+      this.panel.setActions([]);
+    };
+    const label = TASK_MOOD[evt.kind] || MOOD.thinking;
+    if (evt.phase === 'start') {
+      clearInterval(this.taskTimer);
+      const at = performance.now();
+      this.taskBusy = evt.id;
+      this.panel.setFace('happy');
+      if (this.open) {
+        this.panel.stream(evt.line, { done: true });
+        this.panel.setActions(stopButton, onStop);
+      } else {
+        this.panel.say({ kind: 'info', face: 'happy', badge: 'TASK', line: evt.line, quote: evt.title, hold: null, actions: stopButton, onAction: onStop });
+      }
+      this.panel.setMood(label);
+      // it's still going: how long, in her header
+      this.taskTimer = setInterval(() => {
+        if (this.taskBusy === evt.id) this.panel.setMood(`${label} ${Math.round((performance.now() - at) / 1000)}S`);
+      }, 1000);
+    } else if (evt.phase === 'step' && this.taskBusy === evt.id) {
+      this.panel.setQuote(evt.total ? `${evt.index}/${evt.total} · ${evt.label}` : evt.label);
+    } else if (evt.phase === 'ask' && this.taskBusy === evt.id) {
+      const answer = (id) => {
+        this.panel.setActions(stopButton, onStop);
+        this.host.taskAnswer(id === 'yes');
+      };
+      this.panel.setQuote(evt.question);
+      this.panel.setActions([{ id: 'yes', label: T('Yes'), primary: true }, { id: 'no', label: T('No') }], answer);
+      this.onAskAloud?.(evt.question);
+    } else if (evt.phase === 'end' && this.taskBusy === evt.id) {
+      clearInterval(this.taskTimer);
+      this.taskBusy = 0;
+      this.panel.setActions([]);
+      this.panel.setMood(MOOD.idle);
+      this.panel.setQuote('');
+    }
   }
 
   // how she is today (main/mood.js): next to her name while nothing else is going on
