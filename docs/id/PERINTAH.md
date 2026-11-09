@@ -15,6 +15,7 @@ ketik halo"). Kalau diucapkan dengan kata lain, modelnya mencari perintah mana y
 | Cursor | "naik ke cursor", "duduk di cursor aku", "berhenti bergelantungan di cursor" | "sit on my cursor", "get off my cursor" (atau gerakkan cepat) |
 | Mood | "joget", "lambai tangan", "bungkuk", "tidur", "sembunyi" | "dance", "wave", "take a bow", "sleep", "hide" |
 | Mode | "mode game", "mode fokus", "jangan ganggu aku dulu" / "mode senyap", "mode normal" | "game mode", "focus mode", "do not disturb", "normal mode" |
+| Tekan tombol | "klik tombol Kirim", "pencet tombol OK" | "click the Send button", "click Save in notepad" |
 | Gerakan | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" | "move less", "you can move again" |
 | Dia | "tantang aku", "improve dirimu", "kamu udah belajar apa?" | "dare me", "how's our sync?", "who are you?" |
 | Catatan | "ingat bahwa kucingku namanya Neko", "lupakan soal kucingku" | "remember that…", "forget about…" |
