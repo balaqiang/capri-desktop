@@ -16,6 +16,10 @@ const lang = require('./lang');
 const life = require('./life');
 const gpu = require('./gpu');
 const wake = require('./wake');
+const startEngines = require('./engines').start;
+const router = require('./engines/router');
+const skills = require('./skills/loader');
+const { createBrowser } = require('./platform/browser');
 const ollama = require('./ollama');
 const helper = require('./helper');
 const hearing = require('./hearing');
@@ -670,7 +674,7 @@ const CODE_EXT = {
 
 // One file she writes herself with her chat model, saved in her coding folder and opened in an editor (VS Code,
 // else Notepad), never run: a .py, .bat or .js opened with its own program would run.
-async function codeHerself(task) {
+async function codeHerself(task, { signal = null, onStep = () => {} } = {}) {
   const cfg = config.load();
   if (!chatModels?.length) await refreshModels();
   const model = pickModel(cfg);
@@ -682,6 +686,8 @@ async function codeHerself(task) {
   ].join('\n');
   const abort = new AbortController();
   const timer = setTimeout(() => abort.abort(), 4 * 60 * 1000);
+  signal?.addEventListener('abort', () => abort.abort(), { once: true }); // her Stop button
+  onStep('Asking my brain for the code…');
   let text;
   try {
     text = await llm.chat(cfg.provider, { ...llmConfig(cfg), temperature: 0.2, maxTokens: 4000 },
@@ -692,6 +698,7 @@ async function codeHerself(task) {
   const fence = /```([\w#+.-]*)[^\n]*\n([\s\S]*?)(?:```|$)/.exec(String(text || ''));
   const code = (fence ? fence[2] : String(text || '')).replace(/\s+$/, '') + '\n';
   if (code.trim().length < 10) throw Object.assign(new Error('no code came back'), { code: 'empty' });
+  onStep('Saving it and opening it…');
   const named = /FILE:\s*`?([^\s`]+\.[A-Za-z0-9]{1,6})`?/i.exec(text)?.[1];
   const ext = named ? path.extname(named).toLowerCase() : CODE_EXT[(fence?.[1] || '').toLowerCase()] || '.txt';
   const stem = (named ? path.basename(named, path.extname(named)) : task.toLowerCase().split(/\s+/).slice(0, 4).join('-'))
@@ -1067,6 +1074,9 @@ async function refreshModels() {
 // It answers when her main brain can't (offline, out of quota, a key gone wrong), and does her quick jobs on the
 // side (a word on your song, a dare, looking back at your chats when the cloud isn't allowed them).
 let ollamaModels = { at: 0, list: [] };
+let engines = null;   // her memory and knowledge (engines/index.js)
+let skillList = [];   // skills/loader.js
+let browser = null;   // her own browser (platform/browser.js)
 async function localModels(fresh = false) {
   if (!fresh && Date.now() - ollamaModels.at < 60000) return ollamaModels.list;
   const list = (await llm.models('ollama', llmConfig()).catch(() => null)) || [];
@@ -1354,6 +1364,8 @@ function registerIpc() {
   ipcMain.handle('lang:table', () => lang.table());
   // her own growth first ("improve yourself", "from now on…"), then her errands
   ipcMain.handle('task:cancel', () => life.cancel());
+  ipcMain.on('task:answer', (_e, yes) => life.tasks.answer(yes));
+  ipcMain.handle('plan:answer', (_e, yes) => life.answerPlan(yes));
   ipcMain.on('life:hold', (_e, reason) => life.setHold(reason)); // she's held down to her mask, or back
   // a draft of hers (her Type it and Copy buttons)
   ipcMain.handle('draft:type', (_e, d) => life.typeDraft({ text: String(d?.text || '').slice(0, 4000), target: String(d?.target || '').slice(0, 60) }));
@@ -1377,19 +1389,44 @@ function registerIpc() {
   ipcMain.on('history:add', (_e, entries) => {
     if (!Array.isArray(entries) || config.load().historyOn === false) return;
     const clean = entries.slice(0, 4).map((e) => ({ role: e?.role, text: String(e?.text || ''), emotion: e?.emotion || undefined, via: e?.via || undefined }));
+    for (const e of clean) { try { engines?.memory.addTurn(e.role, e.text); } catch { /* her chat doesn't wait on this */ } }
     growth.onTurn(clean);
     history.add(clean);
   });
   ipcMain.on('persona:set', (_e, text) => { personaText = String(text || ''); });
   // her context for your message: her notes it's about, and what you said about it before (recall.js)
+  // where what you said goes, and what comes with it (engines/router.js): looked at once per message, by life:route and life:context
+  let routedFor = { q: null, value: null };
+  const routeOf = async (q) => {
+    if (routedFor.q === q) return routedFor.value;
+    const cfg = config.load();
+    const skill = skills.match(skillList, q, cfg.skillPacksOff || []);
+    const knowledgeHits = engines ? await engines.knowledge.search(q).catch(() => []) : [];
+    const value = { ...router.decide(q, { knowledgeHits, skill }), knowledgeHits };
+    routedFor = { q, value };
+    return value;
+  };
+  ipcMain.handle('life:route', async (_e, about) => {
+    const r = await routeOf(String(about || '').slice(0, 500));
+    return { route: r.route, skill: r.skill?.id || null, web: r.web, maxTokens: r.skill?.maxTokens, temperature: r.skill?.temperature };
+  });
   ipcMain.handle('life:context', async (_e, about) => {
     const cfg = config.load();
     const cloud = !llm.isLocal(cfg.provider, cfg);
     const q = String(about || '').slice(0, 500);
     const share = q && cfg.memoryOn && (!cloud || cfg.cloudMemory);
-    const facts = share ? await recall.memoriesFor(q, life.memories()).catch(() => null) : null;
-    const past = share && cfg.historyOn !== false && cfg.recallChats !== false ? await recall.pastChats(q, history.recent(3000)).catch(() => []) : [];
-    return [life.brainContext({ cloud, facts, past }), growth.context({ cloud })].filter(Boolean).join('\n\n');
+    const route = q ? await routeOf(q) : {};
+    let remembered = {};
+    if (share && engines) {
+      remembered = await engines.memory.forChat(q).catch(() => ({}));
+      if (cfg.historyOn === false || cfg.recallChats === false) remembered = { ...remembered, past: [], episodes: [] };
+    } else if (share) {
+      remembered = {
+        facts: await recall.memoriesFor(q, life.memories()).catch(() => null),
+        past: cfg.historyOn !== false && cfg.recallChats !== false ? await recall.pastChats(q, history.recent(3000)).catch(() => []) : [],
+      };
+    }
+    return [life.brainContext({ cloud, ...remembered, knowledge: route.knowledgeHits || [], skill: route.skill || null }), growth.context({ cloud })].filter(Boolean).join('\n\n');
   });
   ipcMain.handle('life:song', () => life.songNow()); // her window (re)loaded: the song she was following
   // her history, for her settings
@@ -1581,6 +1618,22 @@ function registerIpc() {
         return { ok: true, added: added.length, names: added.map((p) => p.name) };
       }
       case 'brief': await life.briefNow(); break;
+      case 'knowledgeAdd': {
+        if (!engines) return { ok: false, error: 'no database' };
+        const { canceled, filePaths } = await dialog.showOpenDialog(settingsWin, { properties: [arg === 'folder' ? 'openDirectory' : 'openFile'] });
+        if (canceled || !filePaths[0]) return { ok: false };
+        return { ok: true, ...engines.knowledge.add(filePaths[0]) };
+      }
+      case 'knowledgeRemove': return { ok: Boolean(engines?.knowledge.remove(Number(arg))) };
+      case 'knowledgeRefresh': return { ok: Boolean(engines), ...engines?.knowledge.refresh() };
+      case 'knowledgeList': return { ok: Boolean(engines), docs: engines?.knowledge.list() || [], counts: engines?.memory.counts() || {}, model: engines?.model() || null, vectors: Boolean(engines?.hasVectors) };
+      case 'skillList': return { ok: true, skills: skillList.map((s) => ({ id: s.id, name: s.name, about: s.about, source: s.source })) };
+      case 'skillsFolder': {
+        const dir = path.join(app.getPath('userData'), 'skills');
+        fs.mkdirSync(dir, { recursive: true });
+        shell.openPath(dir);
+        break;
+      }
       case 'downloadUpdate': await updater.download(); break;
       case 'installUpdate': updater.install(); break;
       default: return null;
@@ -1857,8 +1910,29 @@ function main() {
   });
 
   setTimeout(() => helper.start(), 3000); // her hands on Windows, ready before you ask
+  // her memory, what you gave her to read, her skills and her own browser
+  skillList = skills.load([{ dir: path.join(__dirname, '..', '..', 'assets', 'skills'), source: 'hers' }, { dir: path.join(app.getPath('userData'), 'skills'), source: 'yours' }]);
+  browser = createBrowser({ dir: app.getPath('userData') });
+  engines = startEngines({
+    dir: app.getPath('userData'),
+    tokens: recall.tokens,
+    embedder: () => recall.findEmbedder(),
+    embed: (model, texts) => ollama.embed(model, texts),
+    ask: (messages, opts) => askRaw(messages, opts),
+    history,
+    facts: () => life.memories(),
+  });
+  life.setBrainParts({
+    memory: engines?.memory,
+    knowledge: engines?.knowledge,
+    skills: { find: (id) => skills.find(skillList, id, config.load().skillPacksOff || []), match: (text) => skills.match(skillList, text, config.load().skillPacksOff || []) },
+    browser,
+    close: (name) => apps.close(name, {}),
+  });
   app.on('will-quit', () => {
     helper.stop();
+    engines?.stop();
+    browser?.close();
     globalShortcut.unregisterAll();
     windowWatch?.stop();
     life.stop();
