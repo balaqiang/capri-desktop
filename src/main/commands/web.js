@@ -100,7 +100,27 @@ function open({ text }) {
   return null;
 }
 
+// Her own browser (platform/browser.js), never yours: "browse example.com", "pakai browsermu buka youtube.com", "cari kucing di browsermu", "baca halaman di browsermu", "tutup browsermu".
+const MY_BROWSER = String.raw`(?:your (?:own )?browser|browser ?(?:mu|kamu|capri)|browser(?:nya)? sendiri)`;
+const BROWSE_READ = new RegExp(String.raw`^(?:read|baca(?:in|kan)?)\s+(?:the |this |that |halaman(?:nya)?\s+)?(?:page\s+)?(?:in|on|di|yang di)\s+${MY_BROWSER}$`, 'i');
+const BROWSE_CLOSE = new RegExp(String.raw`^(?:close|tutup)\s+${MY_BROWSER}$`, 'i');
+const BROWSE_SEARCH = new RegExp(String.raw`^(?:search(?: for)?|look up|google|cari(?:kan|in)?)\s+(.{2,120}?)\s+(?:in|on|di|pakai|pake|dengan|with)\s+${MY_BROWSER}$|^(?:pakai|pake|use|dengan)\s+${MY_BROWSER}\s+(?:to\s+|untuk\s+|buat\s+)?(?:search(?: for)?|look up|cari(?:kan|in)?)\s+(.{2,120})$`, 'i');
+const BROWSE_OPEN = new RegExp(String.raw`^browse\s+(?:to\s+)?(.{2,200})$|^jelajahi\s+(.{2,200})$|^(?:open|buka(?:kan|in)?|go to)\s+(.{2,200}?)\s+(?:in|on|di|pakai|pake|dengan|with)\s+${MY_BROWSER}$|^(?:pakai|pake|use|dengan)\s+${MY_BROWSER}\s+(?:to\s+|untuk\s+|buat\s+)?(?:open|buka(?:kan|in)?|go to)\s+(.{2,200})$`, 'i');
+function browse({ cased }) {
+  if (BROWSE_READ.test(cased)) return { kind: 'myBrowser', action: 'read' };
+  if (BROWSE_CLOSE.test(cased)) return { kind: 'myBrowser', action: 'close' };
+  let m = BROWSE_SEARCH.exec(cased);
+  if (m) return { kind: 'myBrowser', action: 'search', query: (m[1] || m[2]).trim() };
+  m = BROWSE_OPEN.exec(cased);
+  if (m) {
+    const what = (m[1] || m[2] || m[3] || m[4]).trim();
+    return { kind: 'myBrowser', action: 'open', url: siteFor(what) || what };
+  }
+  return null;
+}
+
 const commands = {
+  browse,
   browserOpen,
   browserSearch,
   find,
