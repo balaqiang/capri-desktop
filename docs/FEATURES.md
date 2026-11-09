@@ -82,6 +82,12 @@ Indonesian-English mix by default.
 - **Recorded clips**: drop your own in her voice folder, named for their moment (`pat.wav`, `wake.mp3`, `alarm.wav`,
   `jealous.ogg`…). A README in the folder lists them all.
 
+### Faster ears and voice
+
+- **Her name, at once**: a tiny speech model on this PC (about 2% of one CPU core) catches "Capri" the moment you say it, so she reacts
+  before the rest is written out. It misses some, so your words are still checked for her name as before.
+- **She starts talking sooner**: her voice starts with the first sentence of her answer, not when all of it is in (Voice › Start right away).
+
 ## Errands on your PC
 
 Typed or spoken, in English or Indonesian, no AI needed.
@@ -98,6 +104,13 @@ Typed or spoken, in English or Indonesian, no AI needed.
   rock paper scissors ("main suit"), guess the number ("tebak angka"), a coin, dice.
 - **What she did**: Settings › Access › What she did lists every app, page, search and key, and where she typed (how
   much, never the words), on this PC only.
+
+### Pressing a button by its name
+
+"Click the Send button", "klik tombol Kirim", "click Save in notepad": through Windows' UI Automation, only in the app you
+name or the one you were in, only what's enabled and on screen. Buttons that can't be taken back (delete, pay, buy, confirm…)
+are never pressed from a sentence. Some web pages and games show Windows nothing about their buttons: she says so, and
+lists what she can see. Switch it off in Access › Press buttons.
 
 ## Typing and writing for you
 
@@ -202,6 +215,12 @@ Whatever Windows shows as playing (Spotify, a browser, any player in the volume 
   study timer she does it on her own and comes back for the break (Settings › Timers). A fullscreen game hides her
   completely instead.
 - **She stays reachable**: always on top, clickable, back by herself if something pushed her behind your windows.
+
+### Her mood
+
+She has good days and bad days: how she feels and how much energy she has build up from the hour (at her best late at night),
+the day's temper, how you treat her, the songs she hears, jobs that went wrong, hours left alone. It fades back over an hour or
+two, stays after a restart, colours how she talks, and shows next to her name in her chat. Behavior › Her mood through the day.
 
 ## Petting, grabbing, throwing
 
