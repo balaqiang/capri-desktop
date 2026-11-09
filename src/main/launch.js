@@ -9,6 +9,7 @@ const path = require('node:path');
 const { spawn, execFile } = require('node:child_process');
 const { shell } = require('electron');
 const { powershell } = require('./apps');
+const helper = require('./helper');
 
 const WIN = process.platform === 'win32';
 // not things to open from a chat: uninstallers, help pages and the like
@@ -158,6 +159,7 @@ const KEY_UP = 3;   // ...and KEYEVENTF_KEYUP
 async function media(action) {
   if (!WIN || !MEDIA[action]) return false;
   const [key, times] = MEDIA[action];
+  if (helper.free()) return helper.call('keys', { vk: key, times }, { timeout: 4000 }).then(() => true, () => false);
   return powershell(
     'Add-Type -Namespace Capri -Name Keys -MemberDefinition \'[DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, System.UIntPtr extra);\'; '
     + `1..${times} | ForEach-Object { [Capri.Keys]::keybd_event(${key}, 0, ${KEY_DOWN}, [UIntPtr]::Zero); [Capri.Keys]::keybd_event(${key}, 0, ${KEY_UP}, [UIntPtr]::Zero) }`,
@@ -169,6 +171,7 @@ async function media(action) {
 const MEDIA_PS1 = path.join(__dirname, 'media.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 function session(action, seconds = 0) {
   if (!WIN) return Promise.resolve({ ok: false, why: 'windows' });
+  if (helper.free()) return helper.script('media.ps1', { Action: action, Seconds: seconds }, { timeout: 15000 }).catch(() => ({ ok: false, why: 'failed' }));
   return new Promise((resolve) => {
     execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', MEDIA_PS1, action, String(seconds)],
       { windowsHide: true, timeout: 15000 }, (err, out) => {
@@ -209,6 +212,7 @@ const TYPE_TARGETS = [
   [/^obsidian$/, ['Obsidian']],
   [/^notion$/, ['Notion']],
 ];
+const CLICK_PS1 = path.join(__dirname, 'click.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 const TYPE_PS1 = path.join(__dirname, 'type.ps1').replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 
 // Text typed into an app (its name: "notepad", "Visual Studio Code"…), or into a window (hwnd), then keys pressed
@@ -223,12 +227,43 @@ function stopTyping() {
   return true;
 }
 
+// the processes of an app she knows by name, or the name itself: 'Notepad,notepad'
+function processesOf(target) {
+  const name = String(target || '').trim().toLowerCase();
+  const known = name && TYPE_TARGETS.find(([re]) => re.test(name));
+  return known ? known[1].join(',') : name.replace(/\s+/g, '');
+}
+
 // The title of a window ("hello.html - project - Antigravity"): which file is open in it.
 function windowTitle(hwnd) {
   if (!WIN || !hwnd) return Promise.resolve('');
+  if (helper.free()) return helper.call('title', { hwnd: Number(hwnd) }, { timeout: 4000 }).then((r) => String(r.title || '').trim(), () => '');
   const script = `Add-Type -Namespace CapriW -Name T -MemberDefinition '[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, System.Text.StringBuilder s, int n);'; $s = New-Object System.Text.StringBuilder 512; [void][CapriW.T]::GetWindowText([IntPtr]${Number(hwnd)}, $s, 512); [Console]::OutputEncoding = [Text.Encoding]::UTF8; $s.ToString()`;
   return new Promise((resolve) => {
     execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { windowsHide: true, timeout: 6000, encoding: 'utf8' }, (err, out) => resolve(err ? '' : String(out || '').trim()));
+  });
+}
+
+// A button pressed by its name (click.ps1): in the window you were in (hwnd), or in an app by name.
+// -> { ok, name, app } | { ok: false, why, seen }
+function click({ name = '', hwnd = 0, target = '' } = {}) {
+  if (!WIN) return Promise.resolve({ ok: false, why: 'windows' });
+  const params = { Name: String(name).slice(0, 60) };
+  if (target) params.Process = processesOf(target);
+  else if (hwnd) params.Hwnd = Number(hwnd);
+  else return Promise.resolve({ ok: false, why: 'nowindow' });
+  // a dialog that opens from a button can keep Windows' call waiting: it was pressed all the same
+  if (helper.free()) return helper.script('click.ps1', params, { timeout: 8000 }).catch((err) => ({ ok: err.message === 'timeout', name, why: 'failed' }));
+  const args = ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', CLICK_PS1];
+  for (const [k, v] of Object.entries(params)) args.push(`-${k}`, String(v));
+  return new Promise((resolve) => {
+    execFile('powershell.exe', args, { windowsHide: true, timeout: 12000, encoding: 'utf8' }, (err, out) => {
+      try {
+        resolve(JSON.parse(String(out).trim().split('\n').pop()));
+      } catch {
+        resolve({ ok: false, why: 'failed' });
+      }
+    });
   });
 }
 
@@ -237,15 +272,39 @@ function typeInto({ text = '', target = '', hwnd = 0, keys = [], fresh = false, 
   const name = String(target || '').trim().toLowerCase();
   const known = name && TYPE_TARGETS.find(([re]) => re.test(name));
   const args = ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', TYPE_PS1, '-Wait', fresh ? '12000' : '4000', '-Fresh', fresh ? '1' : '0'];
+  const start = args.indexOf('-Wait');
   if (hwnd && !name) args.push('-Hwnd', String(hwnd));
   else if (known) args.push('-Process', known[1].join(','));
   else if (name) args.push('-Process', name.replace(/\s+/g, ''), '-Title', String(target).trim());
   else return Promise.resolve({ ok: false, why: 'nowindow' });
   if (keys.length) args.push('-Keys', keys.join(','));
   if (paste) args.push('-Paste', '1'); // code: pasted whole, so the editor doesn't indent and close tags as it's typed
-  if (text) args.push('-B64', Buffer.from(String(text), 'utf8').toString('base64')); // every character, as it is
+  const b64 = text ? Buffer.from(String(text), 'utf8').toString('base64') : ''; // every character, as it is
+  if (b64) args.push('-B64', b64);
   return new Promise((resolve) => {
     stopTyping();
+    // through the helper when it's free (no half a second first); her Stop button then drops the helper and starts another
+    if (helper.free()) {
+      const params = {};
+      for (let i = start; i < args.length; i += 2) params[args[i].slice(1)] = args[i + 1];
+      const job = { stopped: false, kill: () => helper.restart() };
+      typing = job;
+      let told = false;
+      const onLine = (line) => {
+        if (told || !/"found"/.test(line)) return;
+        told = true;
+        try {
+          const { found, app } = JSON.parse(line);
+          onFound?.(found, app);
+        } catch { /* only for her show */ }
+      };
+      const end = (res) => {
+        if (typing === job) typing = null;
+        resolve(job.stopped ? { ok: false, why: 'stopped' } : res);
+      };
+      helper.script('type.ps1', params, { timeout: 60000, onLine }).then(end, () => end({ ok: false, why: 'failed' }));
+      return;
+    }
     const child = spawn('powershell.exe', args, { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
     typing = child;
     let out = '';
@@ -305,4 +364,4 @@ async function site(address) {
   return true;
 }
 
-module.exports = { launchables, match, find, covers, launch, media, session, typeInto, stopTyping, windowTitle, music, site, siteUrl };
+module.exports = { launchables, match, find, covers, launch, media, session, click, typeInto, stopTyping, windowTitle, music, site, siteUrl };
