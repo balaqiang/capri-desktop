@@ -3,7 +3,7 @@
 require('./electron-stub');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const log = require('../src/main/actions-log');
+const log = require('../src/main/core/actions-log');
 
 test('what she did, newest first; what she typed only as a count', () => {
   log.clear();
