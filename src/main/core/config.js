@@ -63,6 +63,9 @@ const DEFAULTS = {
   listen: 'push',      // 'off', 'push' (click her mic or the hotkey), 'always' (hands-free, she listens all the time)
   wakeWord: true,      // in 'always': only what starts with her name ("Capri, ...") reaches her
   wakeWords: 'capri, kapri, cappy',
+  toured: false,       // her tour, once
+  sttVad: true,        // Silero tells a voice from noise, and when you've stopped (vad.js)
+  sttPartials: true,   // the words as you say them, for showing (Whisper on this PC only)
   wakeLocal: true,     // her name caught right away on this PC, before the rest is written out (wake.js)
   followUpSeconds: 8,  // after she answers, a moment where her name isn't needed
   micDevice: '',       // deviceId ('' : Windows default)
