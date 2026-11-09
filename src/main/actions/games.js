@@ -5,7 +5,7 @@
 // then (and doesn't hide it well). handle(text, cfg) -> { reply, emotion, sync } or null (not a game).
 // Her lines are English keys, translated through assets/lang like the rest.
 
-const lang = require('./lang');
+const lang = require('../core/lang');
 
 const { T, F } = lang;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
