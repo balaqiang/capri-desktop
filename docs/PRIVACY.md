@@ -9,6 +9,7 @@ Her brain can be Ollama on your PC, her ears Whisper on your PC, her voice Windo
 | What | Where | Why | Switch |
 | --- | --- | --- | --- |
 | The title, artist, album and length of the song playing | [LRCLIB](https://lrclib.net) | its lyrics | Behavior › Song lyrics |
+| The title and artist of a song she hasn't heard before | [Deezer](https://developers.deezer.com/api) | its real loudness and tempo, for what she thinks of it | Behavior › Check how a song really sounds |
 | A question about the world ("siapa presiden indonesia") | Wikipedia, Bing | today's answer | Access › Look things up online |
 | A city's name | [Open-Meteo](https://open-meteo.com) | the weather | Access › Look things up online |
 | A check for a new version | GitHub Releases | updates | Advanced › Updates › Off |
