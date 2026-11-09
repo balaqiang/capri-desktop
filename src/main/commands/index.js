@@ -11,7 +11,7 @@ const MODULES = {
 
 const ORDER = [
   'self.teach', 'modes.hold', 'day.weather', 'day.brief',
-  'eyes.homework', 'hands.codeHere', 'hands.draft', 'hands.type', 'hands.click', 'hands.key', 'eyes.look', 'body.move',
+  'eyes.homework', 'hands.codeHere', 'hands.draft', 'hands.type', 'hands.click', 'hands.key', 'web.browse', 'eyes.look', 'body.move',
   'music.lyrics', 'music.songControl', 'music.lyricsNow', 'music.listen', 'music.songOpinion', 'music.nowPlaying',
   'hands.code', 'day.clock', 'day.math',
   'music.spotifySearch', 'web.browserOpen', 'web.browserSearch', 'web.find',
