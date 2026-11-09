@@ -8,6 +8,7 @@ const path = require('node:path');
 const { openDb, createVectors } = require('./db');
 const { createMemory } = require('./memory');
 const { createKnowledge } = require('./knowledge');
+const { createReward } = require('../training/reward');
 
 const EMBED_EVERY = 60000;
 const EPISODE_EVERY = 3 * 3600000;
@@ -26,6 +27,7 @@ function start({ dir, tokens, embedder, embed, ask, history, facts, busy = () =>
   let model = null;
   const memory = createMemory({ db, vectors, tokens, model: () => model, ask, embed: (texts) => (model ? embed(model, texts) : Promise.resolve(null)) });
   const knowledge = createKnowledge({ db, memory, vectors });
+  const reward = createReward({ db });
 
   // the first time: your notes and your chats so far
   memory.syncFacts(facts());
@@ -51,6 +53,7 @@ function start({ dir, tokens, embedder, embed, ask, history, facts, busy = () =>
   return {
     memory,
     knowledge,
+    reward,
     db,
     hasVectors: handle.hasVec,
     model: () => model,
