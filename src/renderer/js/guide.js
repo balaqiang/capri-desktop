@@ -4,6 +4,7 @@
 // you closing the panel) ends it.
 
 import { fmt } from './util.js';
+import { T } from './i18n.js';
 
 const IDLE_FOR = 10 * 60 * 1000; // no wandering off while she's showing you something
 
@@ -149,6 +150,55 @@ export class Guide {
       this.host.setConfig({ welcomed: true });
     });
     if (talk) this.onTalk?.();
+    else if (!this.brain.custom?.toured && this.tourFirst) this.tourFirst();
+  }
+
+  // Her tour, the first time and whenever you ask: she shows you by doing it. Your microphone, her voice, what she may touch, one
+  // thing to try. Every step can be skipped, and nothing is switched on without you pressing the button for it.
+  async tour() {
+    let talk = false;
+    await this.scene(async () => {
+      const { capri, host } = this;
+      const go = { id: 'next', label: T('Show me'), primary: true };
+      const skip = { id: 'skip', label: T('Skip') };
+      const leave = { id: 'stop', label: T('Enough for now') };
+      capri.perform('curious', capri.towardCenter());
+      let id = await this.ask({ face: 'grin', badge: 'TOUR', line: T("I live here now. Let me show you what that means."), quote: T('A minute, tops. Skip whatever you like.'), actions: [go, leave] });
+      if (id !== 'next') return;
+
+      // her brain
+      const brain = await host.chatStatus?.().catch(() => null);
+      if (brain && !brain.ok) {
+        id = await this.ask({ face: 'annoyed', badge: 'TOUR 1/4', line: T("First problem: I can't think yet."), quote: T("Give me a brain: a model on this PC with Ollama, or a free key from a cloud."), actions: [{ id: 'brain', label: T('Set it up'), primary: true }, skip, leave] });
+        if (id === 'brain') await this.setup?.chat?.(brain);
+        if (id === 'stop' || id === null) return;
+      }
+
+      // her ears
+      id = await this.ask({ face: 'eyes', badge: 'TOUR 2/4', line: T('Want to talk to me out loud?'), quote: T('Push to talk: Ctrl+Alt+V, then speak. Always: you say "Capri" first.'), actions: [{ id: 'push', label: T('Push to talk'), primary: true }, { id: 'always', label: T('Always listening') }, skip, leave] });
+      if (id === 'stop' || id === null) return;
+      if (id === 'push' || id === 'always') {
+        host.setConfig({ listen: id });
+        await this.ask({ face: 'happy', badge: 'TOUR 2/4', line: T("Done. You'll need my ears too: Settings, Voice, Download better ears."), quote: T('They run on this PC, nothing you say leaves it.'), actions: [{ id: 'next', label: T('Next'), primary: true }] });
+      }
+
+      // her voice
+      id = await this.ask({ face: 'content', badge: 'TOUR 3/4', line: T('Should I read my answers out loud?'), quote: T('Windows\' own voice to start with. You can give me a better one in Settings, Voice.'), actions: [{ id: 'yes', label: T('Yes, talk'), primary: true }, { id: 'no', label: T('Stay quiet') }, leave] });
+      if (id === 'stop' || id === null) return;
+      if (id === 'yes') {
+        host.setConfig({ tts: true });
+        this.speak?.(T('Like this. Better than you expected, right?'));
+      }
+
+      // what she may touch, and something to try
+      id = await this.ask({ face: 'smug', badge: 'TOUR 4/4', line: T('Everything I can see and touch has a switch.'), quote: T('Settings, Access. When something reaches into your PC, I tell you first, and you can stop me.'), actions: [{ id: 'access', label: T('Show me the switches') }, { id: 'next', label: T('Got it'), primary: true }, leave] });
+      if (id === 'access') host.openSettings?.('access');
+      if (id === 'stop' || id === null) return;
+      id = await this.ask({ face: 'grin', badge: 'TOUR', line: T('Now you. Ask me something.'), quote: T('Try: "jam berapa", "cuaca hari ini", "ke kiri", "game mode". Or just talk.'), actions: [{ id: 'talk', label: T('Open her chat'), primary: true }, { id: 'done', label: T('Later') }] });
+      talk = id === 'talk';
+    });
+    this.host.setConfig({ toured: true });
+    if (talk) this.onTalk?.();
   }
 
   // Claude Code and Codex can run for free through Ollama (`ollama launch`): she offers it for those two
@@ -176,12 +226,17 @@ export class Guide {
       actions.push({ id: 'claude', label: t.topics.claude });
       actions.push({ id: 'folder', label: t.topics.folder });
     }
+    actions.push({ id: 'tour', label: T('Show me around') });
     actions.push({ id: 'talk', label: t.topics.talk });
     if (this.custom) actions.push({ id: 'custom', label: t.topics.custom });
     actions.push({ id: 'close', label: t.topics.close });
     this.capri.perform('curious', this.capri.towardCenter());
     const id = await this.ask({ face: 'smug', line: t.menu.line, quote: t.menu.quote, actions });
     if (id === 'talk') return 'talk'; // her chat opens once the scene is over (menu, welcome)
+    if (id === 'tour') {
+      setTimeout(() => this.tour(), 0); // a scene of its own, after this one ends
+      return null;
+    }
     if (id === 'custom') await this.custom.steps();
     if (id === 'connect') await this.connect();
     else if (id === 'icon') await this.icon();
