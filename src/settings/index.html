@@ -10,19 +10,17 @@
 <body>
   <header class="bar">
     <img class="bar__face" src="../../assets/art/happyface.png" alt="">
-    <span class="bar__title">CAPRI <b>//</b> <span data-t="Settings">Settings</span></span>
+    <span class="bar__title">Capri · <span data-t="Settings">Settings</span></span>
     <span class="bar__sync" id="sync"></span>
   </header>
-  <div class="tabs">
-    <button class="key" id="prevTab" type="button" aria-label="Previous tab" title="Q">Q</button>
-    <nav class="nav" id="nav" aria-label="Settings sections"></nav>
-    <button class="key" id="nextTab" type="button" aria-label="Next tab" title="E">E</button>
+  <div class="shell">
+    <aside class="side">
+      <label class="search" id="searchBox"><input id="search" type="search" autocomplete="off" spellcheck="false"></label>
+      <nav class="nav" id="nav" aria-label="Settings sections"></nav>
+      <button class="tour-start" id="tourStart" type="button"></button>
+    </aside>
+    <main class="main" id="main" tabindex="-1"></main>
   </div>
-  <main class="main" id="main" tabindex="-1"></main>
-  <footer class="info" id="info" aria-live="polite">
-    <span class="info__mark" aria-hidden="true"></span>
-    <span class="info__text"><b class="info__name" id="infoName"></b><span class="info__help" id="infoHelp"></span></span>
-  </footer>
   <div class="toast" id="toast" role="status" hidden></div>
   <script type="module" src="settings.js"></script>
 </body>
