@@ -120,6 +120,7 @@ export class Life {
   react(emotion, { quiet = false, still = false } = {}) {
     const e = EMOTIONS[emotion];
     if (!e || this.cfg.emotionTags === false) return;
+    this.onFeel?.(emotion); // her eyes and mouth (rig.js), every time
     this.panel.setFace(e.face);
     const now = performance.now();
     if (now - this.lastReact < 1500) return; // one burst at a time
