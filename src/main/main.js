@@ -22,6 +22,9 @@ const startEngines = require('./engines').start;
 const router = require('./engines/router');
 const skills = require('./skills/loader');
 const { createBrowser } = require('./platform/browser');
+const { createSpotify } = require('./online/spotify-api');
+const { createTuya } = require('./online/tuya');
+const homeCommands = require('./commands/home');
 const ollama = require('./ai/ollama');
 const helper = require('./platform/helper');
 const hearing = require('./voice/hearing');
@@ -413,6 +416,7 @@ function trayWords(code) {
 // What the overlay gets: `lang` is the resolved one, `langSetting` what the user picked.
 function rendererConfig() {
   const { apiKeys, ...cfg } = config.load(); // the keys stay here: the overlay only learns which ones are set
+  delete cfg.spotifyToken;
   return { ...cfg, keys: Object.keys(apiKeys || {}), assistant: activeAssistant().id, lang: resolveLang(cfg.lang), langSetting: cfg.lang, floorGap: overlayArea().gap };
 }
 
@@ -476,12 +480,12 @@ function openSettings(tab) {
     minWidth: 760,
     minHeight: 520,
     title: 'Capri — Settings',
-    backgroundColor: '#120e18',
+    backgroundColor: '#1a1a18',
     show: false,
     autoHideMenuBar: true,
     icon: path.join(ROOT, 'assets', 'icons', 'capri.png'),
     titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#120e18', symbolColor: '#f3e8ee', height: 38 },
+    titleBarOverlay: { color: '#1f1e1c', symbolColor: '#c4c2b9', height: 38 },
     webPreferences: {
       preload: path.join(__dirname, '..', 'settings-preload.js'),
       contextIsolation: true,
@@ -1079,6 +1083,8 @@ let ollamaModels = { at: 0, list: [] };
 let engines = null;   // her memory and knowledge (engines/index.js)
 let skillList = [];   // skills/loader.js
 let trainer = null;   // training/index.js
+let homeApi = null; // your lights and plugs, if you've connected them (online/tuya.js)
+let spotifyApi = null; // your own Spotify developer app, if you've connected one (online/spotify-api.js)
 let browser = null;   // her own browser (platform/browser.js)
 async function localModels(fresh = false) {
   if (!fresh && Date.now() - ollamaModels.at < 60000) return ollamaModels.list;
@@ -1516,6 +1522,7 @@ function registerIpc() {
   ipcMain.handle('settings:set', (_e, patch) => {
     const clean = { ...patch };
     delete clean.apiKeys; // keys only through settings:key
+    delete clean.spotifyToken; // and her Spotify login only through its own page
     if ('startup' in clean) {
       app.setLoginItemSettings({ ...loginItemOptions(), openAtLogin: Boolean(clean.startup) });
       delete clean.startup;
@@ -1530,7 +1537,7 @@ function registerIpc() {
     return settingsState();
   });
   ipcMain.handle('settings:key', async (_e, { provider, key }) => {
-    if (!llm.PROVIDERS[provider] && !['groq', 'openai', 'elevenlabs', 'ttscustom'].includes(provider)) return { ok: false };
+    if (!llm.PROVIDERS[provider] && !['groq', 'openai', 'elevenlabs', 'ttscustom', 'tuya'].includes(provider)) return { ok: false };
     const keys = { ...(config.load().apiKeys || {}) };
     if (key) keys[provider] = setup.sealKey(String(key).trim());
     else delete keys[provider];
@@ -1545,6 +1552,11 @@ function registerIpc() {
   ipcMain.handle('settings:action', async (_e, { name, arg } = {}) => {
     const userData = app.getPath('userData');
     switch (name) {
+      case 'tour': sendCommand('settingsTour', { phase: String(arg?.phase || ''), line: String(arg?.line || '').slice(0, 400), speak: Boolean(arg?.speak) }); break;
+      case 'homeStatus': return homeApi ? homeApi.status().catch(() => ({ ok: false, why: 'failed' })) : { ok: false, why: 'notset' };
+      case 'homeSet': return homeApi && config.allowed('home') ? homeApi.setPower(String(arg?.id || ''), Boolean(arg?.on)).catch(() => ({ ok: false, why: 'failed' })) : { ok: false, why: 'denied' };
+      case 'homeDashboard': shell.openExternal('https://platform.tuya.com/cloud'); break;
+      case 'spotifyDashboard': shell.openExternal('https://developer.spotify.com/dashboard'); break;
       case 'openData': shell.openPath(userData); break;
       case 'openSpeech': fs.mkdirSync(hearing.speechDir(), { recursive: true }); shell.openPath(hearing.speechDir()); break;
       case 'openVoiceLog': if (fs.existsSync(hearing.logFile())) shell.openPath(hearing.logFile()); break;
@@ -1585,6 +1597,7 @@ function registerIpc() {
         const { canceled, filePath } = await dialog.showSaveDialog(settingsWin, { defaultPath: 'capri-settings.json', filters: [{ name: 'JSON', extensions: ['json'] }] });
         if (canceled || !filePath) return null;
         const { apiKeys, ...rest } = config.load(); // keys stay on this PC
+        delete rest.spotifyToken;
         fs.writeFileSync(filePath, JSON.stringify(rest, null, 2));
         return { ok: true, file: filePath };
       }
@@ -1593,7 +1606,7 @@ function registerIpc() {
         if (canceled || !filePaths[0]) return null;
         try {
           const { apiKeys, ...data } = JSON.parse(fs.readFileSync(filePaths[0], 'utf8'));
-          const known = Object.fromEntries(Object.entries(data).filter(([k]) => k in config.DEFAULTS));
+          const known = Object.fromEntries(Object.entries(data).filter(([k]) => k in config.DEFAULTS && k !== 'spotifyToken'));
           updateConfig(known);
           registerHotkeys();
           return { ok: true };
@@ -1673,7 +1686,10 @@ function registerIpc() {
         trainer.install(filePaths[0]);
         return { ok: true };
       }
-      case 'skillList': return { ok: true, skills: skillList.map((s) => ({ id: s.id, name: s.name, about: s.about, source: s.source })) };
+      case 'spotifyStatus': return { ok: true, connected: Boolean(spotifyApi?.connected()), redirect: spotifyApi?.redirect || '', validId: Boolean(spotifyApi?.validId(config.load().spotifyClientId)) };
+      case 'spotifyConnect': return spotifyApi ? spotifyApi.login() : { ok: false, why: 'failed' };
+      case 'spotifyDisconnect': spotifyApi?.disconnect(); return { ok: true };
+      case 'skillList': return { ok: true, skills: skillList.map((s) => ({ id: s.id, name: s.name, about: s.about, source: s.source, group: s.group })) };
       case 'skillsFolder': {
         const dir = path.join(app.getPath('userData'), 'skills');
         fs.mkdirSync(dir, { recursive: true });
@@ -1957,7 +1973,7 @@ function main() {
 
   setTimeout(() => helper.start(), 3000); // her hands on Windows, ready before you ask
   // her memory, what you gave her to read, her skills and her own browser
-  skillList = skills.load([{ dir: path.join(__dirname, '..', '..', 'assets', 'skills'), source: 'hers' }, { dir: path.join(app.getPath('userData'), 'skills'), source: 'yours' }]);
+  skillList = skills.load([{ dir: path.join(__dirname, '..', '..', 'assets', 'skills'), source: 'hers' }, { dir: path.join(__dirname, '..', '..', 'assets', 'skills-pack'), source: 'pack' }, { dir: path.join(app.getPath('userData'), 'skills'), source: 'yours' }]);
   browser = createBrowser({ dir: app.getPath('userData') });
   engines = startEngines({
     dir: app.getPath('userData'),
@@ -1975,6 +1991,20 @@ function main() {
     browser,
     close: (name) => apps.close(name, {}),
     reward: engines?.reward,
+    home: homeApi = createTuya({
+      creds: () => {
+        const c = config.load();
+        return { id: String(c.tuyaId || '').trim(), secret: setup.openKeys(c.apiKeys).tuya || '', region: c.tuyaRegion || '' };
+      },
+      saveRegion: (tuyaRegion) => config.save({ tuyaRegion }),
+      onDevices: (names) => homeCommands.setKnown(names),
+    }),
+    spotify: spotifyApi = createSpotify({
+      clientId: () => String(config.load().spotifyClientId || '').trim(),
+      loadToken: () => (config.load().spotifyToken ? setup.openKeys({ t: config.load().spotifyToken }).t : ''),
+      saveToken: (token) => config.save({ spotifyToken: token ? setup.sealKey(token) : '' }),
+      open: (url) => shell.openExternal(url),
+    }),
   });
   trainer = engines && createTrainer({
     dir: app.getPath('userData'),
