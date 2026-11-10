@@ -1,6 +1,6 @@
 {
   "name": "capri-desktop",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Capri, the Project Capricorn construct, living on your desktop: narrates Claude Code, hears you through the mic, runs errands, dares you and glitches your screen (merged with Capri Desktop 2.4).",
   "author": "balaqiang",
   "contributors": [
@@ -29,6 +29,7 @@
     "lint": "eslint .",
     "check:names": "node scripts/check-names.js",
     "check:blueprint": "node scripts/check-blueprint.js",
+    "export:ai": "node scripts/export-ai.js",
     "eval": "node scripts/eval-model.js",
     "check": "npm run lint && npm run check:names && npm test",
     "dist": "electron-builder --win --publish never"
@@ -64,6 +65,8 @@
     "files": [
       "src/**",
       "assets/**",
+      "!assets/CapriAdobe/**",
+      "!assets/CapriPremier/**",
       "hooks/**",
       "scripts/**",
       "package.json",
