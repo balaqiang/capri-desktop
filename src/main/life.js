@@ -685,7 +685,21 @@ function playOnSpotify(query) {
 
 // A song searched on Spotify and played: the row named after it, or else the Top result (spotify.ps1).
 // { ok, reply }
-function playSong(query) {
+// A song: through your own Spotify developer app if you've connected one (no window comes up), else the way it always was.
+async function playSong(query) {
+  const api = brainParts.spotify;
+  if (api?.connected()) {
+    const res = await api.playSong(query).catch(() => ({ why: 'failed' }));
+    if (res.ok) return { ok: true, reply: F('Playing {0}.', `${res.name} · ${res.artist}`) };
+    if (res.why === 'notfound') return { ok: false, reply: F("I couldn't find {0} in Spotify's results.", query) };
+    const old = await playSongInWindow(query);
+    const note = { premium: T('(Spotify only lets Premium accounts start a song from here, so I opened it.)'), nodevice: T("(Spotify wasn't open anywhere, so I opened it.)") }[res.why];
+    return note ? { ...old, reply: `${old.reply} ${note}` } : old;
+  }
+  return playSongInWindow(query);
+}
+
+function playSongInWindow(query) {
   return new Promise((resolve) => {
     shell.openExternal(`spotify:search:${encodeURIComponent(encodeURIComponent(query))}`).catch(() => shell.openExternal(`https://open.spotify.com/search/${encodeURIComponent(query)}`));
     if (process.platform !== 'win32') return resolve({ ok: false, reply: F('Looking up “{0}” on Spotify.', query) });
@@ -728,10 +742,10 @@ const SESSION_ACTIONS = {
 };
 
 // What each errand needs from you in settings › Access, and what she says when it's off.
-const NEEDS = { weather: 'search', code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media', type: 'type', key: 'type', click: 'click', myBrowser: 'browser' };
+const NEEDS = { weather: 'search', code: 'code', spotifySearch: 'spotify', song: 'spotify', browser: 'web', web: 'web', video: 'web', find: 'files', app: 'apps', media: 'media', volumeLevel: 'media', home: 'home', playlist: 'spotify', playlistList: 'spotify', type: 'type', key: 'type', click: 'click', myBrowser: 'browser', songPick: 'spotify' };
 // buttons that can't be undone are never pressed from a sentence ("Send" is: you said so, and you can see it)
 const RISKY_BUTTON = /\b(?:delete|remove|erase|wipe|uninstall|format|reset|shut ?down|restart|buy|pay|purchase|order|checkout|transfer|withdraw|confirm|hapus|buang|copot|bayar|beli|pesan sekarang|tarik|konfirmasi|setel ulang)\b/i;
-const ACCESS_NAMES = { browser: 'Her own browser', click: 'Press buttons', search: 'Look things up online', apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code', type: 'Type for me' };
+const ACCESS_NAMES = { home: 'Smart home', browser: 'Her own browser', click: 'Press buttons', search: 'Look things up online', apps: 'Open apps', files: 'Folders and files', close: 'Close apps', web: 'Websites', media: 'Media keys', spotify: 'Spotify', code: 'Write code', type: 'Type for me' };
 const allowed = (what) => config.allowed(what);
 const denied = (what) => ({ handled: true, reply: F("I'm not allowed to do that. Settings › Access › {0}.", T(ACCESS_NAMES[what])), emotion: 'annoyed', denied: true });
 
@@ -885,7 +899,7 @@ async function run(said, { voice = false, fromPlugin = false } = {}) {
 // only ever be something she does anyway, and nothing she does only behind a button. A few seconds at most.
 const ROUTE_PROMPT = `You turn what someone said to their desktop assistant into ONE of her commands, or NONE.
 Her commands (write one exactly like these, with their words filled in):
-open <app, website or folder> | play <song> by <artist> | play music | pause the music | next song | previous song | louder | quieter | mute | repeat this song | shuffle on | show lyrics | hide lyrics | what song is this | search <words> | search <words> on spotify | type <their exact words> in <app> | write <the code they want, like "a simple HTML page"> here | press enter | set a timer for <n> minutes | wake me at <time> | what time is it | move to the left | move to the right | come to my cursor | dance
+turn on the <room> light | turn off the <room> light | set the <room> light to <number> percent | turn on the ac | turn off the ac | set the ac to <number> degrees | set the ac to <cool, heat, dry, fan or auto> mode | play my <name> playlist | open <app, website or folder> | play <song> by <artist> | play music | pause the music | next song | previous song | louder | quieter | mute | repeat this song | shuffle on | show lyrics | hide lyrics | what song is this | search <words> | search <words> on spotify | type <their exact words> in <app> | write <the code they want, like "a simple HTML page"> here | press enter | set a timer for <n> minutes | wake me at <time> | what time is it | move to the left | move to the right | come to my cursor | dance
 Two commands: join them with " and ". Keep names, song titles and the text to type exactly as they said them (don't translate them).
 If it's chat, a question, a feeling or anything that isn't one of these: NONE.`;
 async function route(said) {
@@ -1276,8 +1290,84 @@ async function actNow(e, opts = {}) {
       const lead = F("Okay, I'm listening: {0}.", brief(t));
       return { handled: true, reply: text ? `${lead} ${text}` : lead, emotion: verdict === 'meh' ? 'bored' : emotion };
     }
-    case 'spotifySearch': // searched, and the top match played right away
+    case 'songPick': { // "putar nomor 2", from what she just found
+      const api = brainParts.spotify;
+      const res = api?.connected() ? await api.playPicked(e.n).catch(() => ({ why: 'failed' })) : { why: 'nothing' };
+      if (res.ok) return { handled: true, reply: F('Playing {0}.', res.artist ? `${res.name} · ${res.artist}` : res.name), emotion: 'happy', zap: true };
+      const why = { nothing: T('Search for something first.'), premium: T('Spotify only lets Premium accounts start a song from here.'), nodevice: T("Spotify isn't open anywhere. Open it on this PC or your phone.") }[res.why];
+      return { handled: true, reply: why || T("Hm, that didn't work."), emotion: 'annoyed', denied: true };
+    }
+    case 'playlist': case 'playlistList': { // your own playlists, through your Spotify developer app
+      const api = brainParts.spotify;
+      if (!api?.connected()) return { handled: true, reply: T('To play your playlists, connect your Spotify app in my settings.'), emotion: 'bored' };
+      const res = await (e.kind === 'playlist' ? api.playPlaylist(e.text) : api.playlists()).catch(() => ({ why: 'failed' }));
+      const list = res.playlists;
+      if (list?.length && (res.why === 'ask' || e.kind === 'playlistList')) return { handled: true, reply: `${list.slice(0, 20).map((p, i) => `${i + 1}. ${p.name}`).join('\n')}\n\n${T('Say "putar nomor 2" to play one.')}`, emotion: 'happy' };
+      if (res.ok && res.name) return { handled: true, reply: F('Playing your playlist {0}.', res.name), emotion: 'happy', zap: true };
+      const why = {
+        notfound: F("I can't find a playlist called {0}.", e.text),
+        none: T("You don't have any playlists yet."),
+        scope: T('Press Connect once more in my Spotify settings, so I can see your playlists.'),
+        premium: T('Spotify only lets Premium accounts start a song from here.'),
+        nodevice: T("Spotify isn't open anywhere. Open it on this PC or your phone."),
+      }[res.ok ? 'none' : res.why];
+      return { handled: true, reply: why || T("Hm, that didn't work."), emotion: 'annoyed' };
+    }
+    case 'home': { // your lights and plugs (online/tuya.js)
+      const api = brainParts.home;
+      if (!api?.ready()) return { handled: true, reply: T('Your lights are not connected to me yet. Settings, Access, Smart home.'), emotion: 'bored' };
+      const res = await api.act(e).catch(() => ({ ok: false, why: 'failed' }));
+      const names = (res.names || []).join(', ');
+      if (res.ok) {
+        const line = {
+          on: F('{0}: on.', names),
+          off: F('{0}: off.', names),
+          level: F('{0}: {1}%.', names, e.level),
+          color: F('{0}: {1}.', names, T(e.shade || '')),
+          white: F('{0}: {1}.', names, T(e.shade || '')),
+          status: e.noun === 'ac' && Number.isFinite(res.temp) ? F(res.on ? '{0} is on, last set to {1}°C.' : '{0} is off, last set to {1}°C.', names, res.temp) : F(res.on ? '{0} is on.' : '{0} is off.', names),
+          scene: F('{0}: {1} mode.', names, e.shade || ''),
+          temp: res.clamped ? F('{0} only goes from {1} to {2}°C, so: {3}°C.', names, res.low, res.high, res.temp) : F('{0}: {1}°C.', names, res.temp),
+          tempStep: res.clamped ? F('{0} only goes from {1} to {2}°C, so: {3}°C.', names, res.low, res.high, res.temp) : F('{0}: {1}°C.', names, res.temp),
+          acMode: F('{0}: {1} mode.', names, e.word || ''),
+          fan: F('{0}: fan {1}.', names, e.word || ''),
+        }[e.action];
+        return { handled: true, reply: line, emotion: 'happy', zap: e.action !== 'status' };
+      }
+      const problem = {
+        ask: F('Which one? {0}.', names),
+        none: F("I can't find {0} among your devices.", e.target),
+        offline: F('{0} is offline. Is it plugged in?', names),
+        nodevices: T('I got no devices from Tuya. Check that your app account is linked to your project.'),
+        badkey: T('Tuya says your Access ID or Secret is wrong.'),
+        noaccess: T('Tuya refused. Check that your project has IoT Core and your app account is linked.'),
+        expired: T('Your Tuya project has run out of its free period. Renew it on the Tuya site.'),
+        unsupported: T("That device can't do that."),
+        noac: T("I can't find an air conditioner. A normal AC needs an IR blaster, with the AC added as a remote in Smart Life."),
+        noir: T('Tuya refused the AC. Add the IR Control Hub Open Service to your project in Service API.'),
+      }[res.why];
+      return { handled: true, reply: problem || T("Hm, that didn't work."), emotion: 'annoyed' };
+    }
+    case 'volumeLevel': { // an exact number needs your Spotify developer app; without it, Windows only has a step up or down
+      const api = brainParts.spotify;
+      if (api?.connected()) {
+        const res = await api.setVolume(e.level).catch(() => ({ why: 'failed' }));
+        if (res.ok) return { handled: true, reply: F('Volume at {0}%.', e.level), emotion: 'happy' };
+        if (res.why === 'nodevice') return { handled: true, reply: T("Nothing's playing right now. Or it's hiding from me."), emotion: 'bored' };
+        if (res.why === 'premium') return { handled: true, reply: T('Setting the volume needs Spotify Premium.'), emotion: 'annoyed' };
+      }
+      await launch.media(e.level >= 50 ? 'volup' : 'voldown');
+      return { handled: true, reply: T('One notch for now. For an exact number, connect your Spotify app in my settings.'), emotion: 'bored' };
+    }
+    case 'spotifySearch': { // your developer app: the results, no window. Otherwise: searched, and the top match played right away
+      const api = brainParts.spotify;
+      if (api?.connected()) {
+        const found = await api.search(e.text).catch(() => ({ why: 'failed' }));
+        if (found.ok && found.tracks.length) return { handled: true, reply: `${found.tracks.map((t, i) => `${i + 1}. ${t.name} · ${t.artist}`).join('\n')}\n\n${T('Say "putar nomor 2" to play one.')}`, emotion: 'happy' };
+        if (found.ok) return { handled: true, reply: F("I couldn't find {0} in Spotify's results.", e.text), emotion: 'bored' };
+      }
       return { handled: true, reply: await playOnSpotify(e.text), emotion: 'happy', zap: true };
+    }
     case 'browser': {
       const exe = errands.BROWSERS[e.browser];
       const program = exe && process.platform === 'win32' ? await browserPath(exe) : null;
