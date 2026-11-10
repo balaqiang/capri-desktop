@@ -325,5 +325,5 @@ async function partial(wav, { cfg, keys, language }) {
   }
 }
 
-module.exports = { partial, cancelPartial, transcribe, status, downloadEars, speechDir, logFile, EARS, promptFor, heardPrompt, vocabulary };
+module.exports = { partial, cancelPartial, transcribe, status, downloadEars, getChecked, speechDir, logFile, EARS, promptFor, heardPrompt, vocabulary };
 
