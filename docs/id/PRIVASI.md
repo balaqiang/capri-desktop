@@ -11,6 +11,7 @@ sendirinya:
 | --- | --- | --- | --- |
 | Judul, artis, album, dan durasi lagu yang diputar | [LRCLIB](https://lrclib.net) | liriknya | Behavior › Song lyrics |
 | Yang dicari oleh skill atau rencana | Bing, Wikipedia, atau halaman yang kamu minta buka | jawabannya, di profil browser miliknya | Access › Her own browser, Look things up online |
+| Yang kamu cari atau putar, kalau aplikasi developer-mu tersambung | [Spotify](https://developer.spotify.com/documentation/web-api) | hasilnya, dan lagunya mulai; login dilakukan di halaman Spotify sendiri | Access › Spotify developer app (mati kalau tidak kamu sambungkan) |
 | Judul dan artis lagu yang belum pernah dia dengar | [Deezer](https://developers.deezer.com/api) | kekerasan dan tempo aslinya, untuk penilaiannya | Behavior › Check how a song really sounds |
 | Pertanyaan tentang dunia ("siapa presiden indonesia") | Wikipedia, Bing | jawaban hari ini | Access › Look things up online |
 | Nama kota | [Open-Meteo](https://open-meteo.com) | cuaca | Access › Look things up online |
