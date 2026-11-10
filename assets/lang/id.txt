@@ -2993,3 +2993,41 @@ Untuk AC: AC Wi-Fi di Smart Life langsung bisa. AC biasa butuh IR Blaster (Bardi
 
 > Your IR blaster is there, but Tuya refused to list its remotes. Add the IR Control Hub Open Service to your project in Service API.
 IR Blaster-mu terbaca, tapi Tuya menolak menampilkan remote-nya. Tambahkan IR Control Hub Open Service di Service API project-mu.
+
+# ---- her own voice ----
+
+> Capri's own voice
+Suara Capri sendiri
+
+> Free and offline, no key: Piper with the voice made for her. About 85 MB, once.
+Gratis dan offline, tanpa key: Piper dengan suara yang dibuat untuknya. Sekitar 85 MB, sekali saja.
+
+> Use her voice
+Pakai suaranya
+
+> She speaks with her own voice now.
+Sekarang dia bicara dengan suaranya sendiri.
+
+> She will download Piper (about 22 MB, from its official GitHub release) and her voice (about 61 MB, from this app's release on GitHub), and check every file against its known fingerprint before using it.
+Dia akan mengunduh Piper (sekitar 22 MB, dari rilis resminya di GitHub) dan suaranya (sekitar 61 MB, dari release aplikasi ini di GitHub), lalu memeriksa setiap file dengan sidik jarinya sebelum dipakai.
+
+> Her voice is here.
+Suaranya sudah terpasang.
+
+> Her voice isn't in the latest release yet.
+Suaranya belum ada di release terbaru.
+
+> Not downloaded
+Belum diunduh
+
+> In use
+Sedang dipakai
+
+> Downloaded
+Sudah diunduh
+
+> Download
+Unduh
+
+> Download again
+Unduh lagi
