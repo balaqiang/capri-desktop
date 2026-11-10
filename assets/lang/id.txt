@@ -2457,3 +2457,539 @@ Paham
 Sekarang kamu. Tanya sesuatu.
 > Try: "jam berapa", "cuaca hari ini", "ke kiri", "game mode". Or just talk.
 Coba: "jam berapa", "cuaca hari ini", "ke kiri", "mode game". Atau ngobrol saja.
+
+> (Spotify only lets Premium accounts start a song from here, so I opened it.)
+(Spotify hanya mengizinkan akun Premium memulai lagu dari sini, jadi aku buka aplikasinya.)
+> (Spotify wasn't open anywhere, so I opened it.)
+(Spotify belum terbuka di mana pun, jadi aku buka.)
+> Search for something first.
+Cari lagu dulu.
+> Spotify only lets Premium accounts start a song from here.
+Spotify hanya mengizinkan akun Premium memulai lagu dari sini.
+> Spotify isn't open anywhere. Open it on this PC or your phone.
+Spotify belum terbuka di mana pun. Buka di PC ini atau di HP-mu.
+> Say "putar nomor 2" to play one.
+Bilang "putar nomor 2" untuk memutar salah satunya.
+> Spotify developer app (optional)
+Aplikasi developer Spotify (opsional)
+> Without this she opens Spotify and presses Play, as always. With it she searches and plays with no window coming up. Playing needs Spotify Premium, and Spotify running on this PC or your phone. Your password never goes through her: you log in on Spotify's own page.
+Tanpa ini dia membuka Spotify lalu menekan Play, seperti biasa. Dengan ini dia mencari dan memutar tanpa jendela muncul. Memutar lagu butuh Spotify Premium, dan Spotify yang berjalan di PC ini atau HP-mu. Kata sandimu tidak pernah lewat dia: kamu login di halaman Spotify sendiri.
+> Client ID
+Client ID
+> From your app at developer.spotify.com/dashboard. Web API ticked.
+Dari aplikasimu di developer.spotify.com/dashboard. Centang Web API.
+> 32 letters and numbers
+32 huruf dan angka
+> Redirect URI
+Redirect URI
+> Add exactly this to your app in the dashboard.
+Tambahkan persis ini ke aplikasimu di dashboard.
+> Copied.
+Tersalin.
+> Account
+Akun
+> Connect
+Sambungkan
+> Disconnect
+Putuskan
+> Connected
+Tersambung
+> Connected.
+Tersambung.
+> Not connected
+Belum tersambung
+> Waiting for your browser…
+Menunggu browsermu…
+> Paste your Client ID first.
+Tempel Client ID-mu dulu.
+> You said no on Spotify's page.
+Kamu menolak di halaman Spotify.
+> Nothing came back in time.
+Tidak ada jawaban tepat waktu.
+> Something else is using the port she needs.
+Port yang dia butuhkan sedang dipakai program lain.
+> That did not work.
+Itu tidak berhasil.
+
+# ---- her tour of the settings window (src/settings/tour-steps.js) ----
+
+> Want me to show you around? It takes a few minutes, and you can leave whenever you like.
+Mau kutemani keliling? Cuma beberapa menit, dan bisa berhenti kapan saja.
+
+> Show me
+Ayo
+
+> Maybe later
+Nanti saja
+
+> Tour with Capri
+Tur bareng Capri
+
+> Point at any setting in here and I will explain it. You can try it too.
+Arahkan kursor ke setelan mana pun di kotak ini, nanti kujelaskan. Boleh langsung dicoba juga.
+
+> Saved already. You never have to press save here.
+Sudah tersimpan. Di sini tidak perlu tekan simpan.
+
+> There. It works right away.
+Nah, langsung berlaku.
+
+> Noted. You can always change it back.
+Oke. Kapan pun bisa dikembalikan.
+
+> Voice: on
+Suara: nyala
+
+> Voice: off
+Suara: mati
+
+> Skip this page
+Lewati halaman ini
+
+> Back
+Kembali
+
+> Next
+Lanjut
+
+> Done
+Selesai
+
+> Close
+Tutup
+
+> Search settings…
+Cari setelan…
+
+> Results
+Hasil pencarian
+
+> Nothing here matches that. Try another word.
+Tidak ada yang cocok. Coba kata lain.
+
+> What she does
+Yang dia lakukan
+
+> Your PC
+PC kamu
+
+> More
+Lainnya
+
+> Hi! I'm going to walk you through everything in here, one section at a time. Press Next whenever you're ready.
+Hai! Aku temani kamu keliling semua yang ada di sini, satu per satu. Tekan Lanjut kalau sudah siap.
+
+> This page is about me: who I am, how I talk, how big I am on your screen.
+Halaman ini soal aku: siapa aku, cara ngomongku, sampai seberapa besar aku di layarmu.
+
+> My character, written out, and five dials: sass, mischief, jealousy, affection, chattiness. Slide them and I change.
+Karakterku ditulis di sini, plus lima pengatur: sass, jahil, cemburu, sayang, dan cerewet. Geser, dan aku ikut berubah.
+
+> How long my answers are, what language I use, words I must never say, and how much my face shows it.
+Seberapa panjang jawabanku, bahasa yang kupakai, kata yang tidak boleh kuucapkan, dan seberapa ekspresif wajahku.
+
+> I can learn from our chats and write myself lessons. Everything I changed is listed, and you can start over.
+Aku bisa belajar dari obrolan kita dan menulis pelajaran sendiri. Semua yang berubah tercatat, dan bisa diulang dari awal.
+
+> Lines of your own for me to say now and then.
+Kalimat buatanmu sendiri yang sesekali kuucapkan.
+
+> How big I am, how loud my little sounds are, and a place for sounds of your own.
+Ukuran tubuhku, volume suara-suara kecilku, dan tempat untuk memasukkan suara buatanmu.
+
+> Now you. The more you tell me here, the better we get along.
+Sekarang giliranmu. Makin banyak yang kamu isi di sini, makin nyambung kita.
+
+> Your name, what I call you, your birthday, what you like and hate, and what you are to me.
+Namamu, panggilanmu, ulang tahun, hal yang kamu suka dan benci, dan kamu ini apanya aku.
+
+> What I remember about you. You can read every note, delete one, or wipe them all.
+Apa saja yang kuingat tentangmu. Semua catatan bisa kamu baca, hapus satu, atau hapus semuanya.
+
+> My ears and my voice.
+Telinga dan suaraku.
+
+> When I listen: only when you press, or always, or only when you say my name.
+Kapan aku mendengar: hanya saat kamu tekan, selalu, atau hanya saat namaku dipanggil.
+
+> Which microphone I use and how sensitive it is. Test my mic shows you if I can hear you.
+Mikrofon mana yang kupakai dan seberapa peka. Coba tes mic untuk memastikan aku bisa dengar kamu.
+
+> What turns your voice into words, and in which language.
+Mesin yang mengubah suaramu jadi tulisan, dan bahasanya.
+
+> Voice clips recorded for me, and where they are.
+Klip suara yang direkam untukku, dan lokasinya.
+
+> Which voice I speak with. Some run on this PC, some online.
+Suara yang kupakai. Ada yang berjalan di PC ini, ada yang online.
+
+> The robot in my throat: effects, pitch, and emotion in how I sound.
+Efek robot di tenggorokanku: efek, nada, dan emosi di suaraku.
+
+> What I think with. This is the first thing to set up if I am not answering.
+AI yang jadi otakku. Kalau aku tidak menjawab, atur ini dulu.
+
+> Who answers you: a model on this PC or an online one, with its key and how creative it is.
+Siapa yang menjawabmu: model di PC ini atau yang online, lengkap dengan kunci dan tingkat kreativitasnya.
+
+> A brain that lives on your PC, so nothing has to leave it.
+Otak yang tinggal di PC-mu, jadi tidak ada yang keluar dari sini.
+
+> Files you give me to read, so I can answer from them.
+File yang kamu berikan untuk kubaca, supaya aku bisa menjawab darinya.
+
+> Test how good my local model is, train it on your own PC, and install it only if it got better.
+Tes seberapa bagus model lokalku, latih di PC-mu sendiri, dan pasang hanya kalau memang lebih baik.
+
+> Extra abilities you can add to me.
+Kemampuan tambahan yang bisa kamu pasang.
+
+> Who writes code when you ask me to, and which folder it works in.
+Siapa yang menulis kode saat kamu minta, dan di folder mana.
+
+> Letting me look at your screen, only when you ask.
+Izin agar aku bisa melihat layarmu, hanya saat kamu minta.
+
+> Talking to me, and forgetting what we said.
+Mengobrol denganku, dan menghapus apa yang sudah kita bicarakan.
+
+> What I get up to when nobody asked me anything.
+Kelakuanku saat tidak ada yang menyuruh apa-apa.
+
+> Your own commands: say a phrase, and I do the steps you wrote.
+Perintah buatanmu: ucapkan satu kalimat, dan aku jalankan langkah yang kamu tulis.
+
+> Your city and a morning brief.
+Kotamu dan ringkasan pagi.
+
+> Whether I wander, sit on your windows, where I rest, and whether I hide when you go full screen.
+Apakah aku berkeliaran, duduk di atas window, tempatku istirahat, dan apakah aku sembunyi saat layar penuh.
+
+> Comments about what you do, jealousy of other AIs, and reacting to your music.
+Komentar soal apa yang kamu lakukan, cemburu pada AI lain, dan reaksiku pada musikmu.
+
+> Sometimes I dare you to do something.
+Kadang aku menantangmu melakukan sesuatu.
+
+> Playing with me, and whether I am allowed to cheat.
+Main bersamaku, dan apakah aku boleh curang.
+
+> Little glitches and pranks. Turn them down if they get annoying.
+Glitch dan kejahilan kecil. Kurangi kalau mulai mengganggu.
+
+> How close we are, as a number. It goes up the more we spend time together.
+Seberapa dekat kita, dalam angka. Naik kalau kita sering bersama.
+
+> Your own routines, with no code: when something happens, I do your steps.
+Rutinitas buatanmu, tanpa kode: kalau sesuatu terjadi, aku jalankan langkahmu.
+
+> The ones you made. Add one, switch it off, or change its steps.
+Yang sudah kamu buat. Tambah, matikan, atau ubah langkahnya.
+
+> Some ready to use, if you would rather not start from nothing.
+Beberapa yang siap pakai, kalau tidak mau mulai dari nol.
+
+> Keeping time for you.
+Urusan waktu.
+
+> Alarms and timers. I am the one who tells you.
+Alarm dan timer. Aku yang akan mengingatkanmu.
+
+> A study timer, with me watching.
+Timer belajar, sambil aku awasi.
+
+> The important page. You decide what I can see and touch on your PC.
+Halaman paling penting. Kamu yang menentukan apa yang boleh kulihat dan kusentuh di PC-mu.
+
+> What I am allowed to see.
+Apa saja yang boleh kulihat.
+
+> What I am allowed to hear.
+Apa saja yang boleh kudengar.
+
+> One switch per kind of action: apps, files, websites, music. Off means I cannot, even if you ask.
+Satu sakelar untuk tiap jenis tindakan: aplikasi, file, situs, musik. Kalau mati, aku tidak bisa, walau kamu minta.
+
+> Optional: your own Spotify app, so I can search and play without opening Spotify.
+Opsional: aplikasi Spotify milikmu, supaya aku bisa mencari dan memutar lagu tanpa membuka Spotify.
+
+> Exactly what leaves this PC.
+Persis apa saja yang keluar dari PC ini.
+
+> What I store here, and clearing it.
+Apa yang kusimpan di sini, dan cara menghapusnya.
+
+> A log of everything I did on your PC. Check up on me whenever you like.
+Catatan semua yang kulakukan di PC-mu. Periksa saja kapan pun.
+
+> Our past.
+Masa lalu kita.
+
+> My long-term memory of us, written as a story.
+Ingatan jangka panjangku tentang kita, ditulis seperti cerita.
+
+> Every chat we had, by day.
+Semua obrolan kita, per hari.
+
+> The rest of the machinery. Fine to leave alone.
+Sisa mesinnya. Tidak apa-apa kalau dibiarkan saja.
+
+> The language of my menus and lines.
+Bahasa menu dan kalimatku.
+
+> Keyboard shortcuts for calling me.
+Pintasan keyboard untuk memanggilku.
+
+> Starting with Windows, which display I am on, and other technical bits.
+Mulai bersama Windows, layar mana yang kupakai, dan hal teknis lainnya.
+
+> Where my files are, updates, and a full reset.
+Lokasi fileku, pembaruan, dan reset total.
+
+> Who made me and what I can do.
+Siapa yang membuatku dan apa yang bisa kulakukan.
+
+> That's everything. If you forget where something is, type it in the search box at the top left.
+Itu semuanya. Kalau lupa letak sesuatu, ketik saja di kotak cari di kiri atas.
+
+# ---- her skills collection, and setting up Spotify ----
+
+> {0} skills, like {1}.
+{0} skill, misalnya {1}.
+
+> To use one from the collection, name it: "pakai skill seo audit", or ask for help with it by name.
+Untuk memakai skill dari koleksi ini, sebut namanya: "pakai skill seo audit", atau minta bantuan dengan menyebut namanya.
+
+> Marketing
+Marketing
+
+> Engineering
+Engineering
+
+> Executive advisors
+Penasihat eksekutif
+
+> Product
+Produk
+
+> Compliance and quality
+Kepatuhan dan kualitas
+
+> Project management
+Manajemen proyek
+
+> Business
+Bisnis
+
+> Finance
+Keuangan
+
+> Research
+Riset
+
+> Productivity
+Produktivitas
+
+> Other
+Lainnya
+
+> How to set it up
+Cara memasangnya
+
+> Once only. 1: open your app in the Spotify dashboard, then Settings and Edit. 2: under Redirect URIs paste the address below, press Add, then Save at the very bottom. 3: paste the Client ID here and press Connect.
+Cukup sekali. 1: buka app-mu di dashboard Spotify, lalu Settings dan Edit. 2: di Redirect URIs tempel alamat di bawah, tekan Add, lalu Save di paling bawah. 3: tempel Client ID di sini dan tekan Connect.
+
+> Open Spotify dashboard
+Buka dashboard Spotify
+
+> Must be exactly this: http, 127.0.0.1 (not localhost), and no slash at the end.
+Harus persis ini: http, 127.0.0.1 (bukan localhost), dan tanpa garis miring di akhir.
+
+> Nothing came back in time. If Spotify showed "redirect_uri: Not matching configuration", the Redirect URI above is not saved in your app yet: do steps 1 and 2 again, and press Save at the very bottom of Spotify's page.
+Tidak ada balasan. Kalau Spotify menampilkan "redirect_uri: Not matching configuration", Redirect URI di atas belum tersimpan di app-mu: ulangi langkah 1 dan 2, dan tekan Save di paling bawah halaman Spotify.
+
+> Volume at {0}%.
+Volume di {0}%.
+
+> Setting the volume needs Spotify Premium.
+Mengatur volume butuh Spotify Premium.
+
+> One notch for now. For an exact number, connect your Spotify app in my settings.
+Baru bisa naik-turun selangkah. Supaya angkanya pas, sambungkan app Spotify-mu di setting-ku.
+
+# ---- your lights and plugs ----
+
+> Connect your Bardi lights here, and you can just tell me to switch them.
+Sambungkan lampu Bardi-mu di sini, nanti tinggal suruh aku.
+
+> Smart home
+Rumah pintar
+
+> Not checked yet
+Belum dicek
+
+> Checking…
+Mengecek…
+
+> {0} devices
+{0} perangkat
+
+> Online
+Online
+
+> Offline
+Offline
+
+> Done.
+Beres.
+
+> On
+Nyala
+
+> Off
+Mati
+
+> Connect
+Hubungkan
+
+> Fill in your Access ID and Access Secret first.
+Isi Access ID dan Access Secret dulu.
+
+> No devices came back. Check step 3: your app account has to be linked to this project.
+Tidak ada perangkat yang muncul. Cek langkah 3: akun aplikasimu harus tertaut ke project ini.
+
+> Tuya says your Access ID or Access Secret is wrong.
+Kata Tuya, Access ID atau Access Secret-mu salah.
+
+> Tuya refused. Check that your project has the IoT Core service and that your app account is linked.
+Tuya menolak. Pastikan project-mu punya layanan IoT Core dan akun aplikasimu sudah tertaut.
+
+> Your Tuya project has run out of its free period. Renew it on the Tuya site.
+Masa gratis project Tuya-mu habis. Perpanjang di situs Tuya.
+
+> Lights and plugs from Bardi and other Tuya-based brands: say "matiin lampu kamar" and it happens. Commands go through your own free Tuya cloud project, so they need internet. Your password never goes through her.
+Lampu dan colokan Bardi serta merek lain berbasis Tuya: bilang "matiin lampu kamar", langsung jalan. Perintahnya lewat project cloud Tuya gratis milikmu, jadi butuh internet. Kata sandimu tidak pernah lewat Capri.
+
+> Once only. 1: put your lights in the Smart Life app. If your Bardi account does not work there, add the lights again in Smart Life. 2: on the Tuya site create a Cloud project with the IoT Core service, and copy its Access ID and Access Secret. 3: in the project open Devices, Link App Account, and scan the code with Smart Life. 4: fill in the two fields here and press Connect.
+Cukup sekali. 1: masukkan lampumu ke aplikasi Smart Life. Kalau akun Bardi-mu tidak bisa dipakai di sana, tambahkan ulang lampunya di Smart Life. 2: di situs Tuya buat Cloud project dengan layanan IoT Core, lalu salin Access ID dan Access Secret-nya. 3: di project buka Devices, Link App Account, lalu pindai kodenya dengan Smart Life. 4: isi dua kolom di sini dan tekan Hubungkan.
+
+> Open the Tuya site
+Buka situs Tuya
+
+> From your Tuya cloud project.
+Dari project cloud Tuya-mu.
+
+> Kept encrypted on this PC, and never shown again.
+Disimpan terenkripsi di PC ini, dan tidak ditampilkan lagi.
+
+> Data center
+Pusat data
+
+> Automatic finds it the first time you connect.
+Otomatis dicari saat pertama kali terhubung.
+
+> Automatic
+Otomatis
+
+> Your devices
+Perangkatmu
+
+> Press Connect after any change. On and Off here try each one.
+Tekan Hubungkan setiap ada perubahan. Tombol Nyala dan Mati untuk mencoba tiap perangkat.
+
+> Switch your connected lights and plugs when you ask.
+Menyalakan dan mematikan lampu serta colokan yang tersambung saat kamu minta.
+
+> Your lights are not connected to me yet. Settings, Access, Smart home.
+Lampumu belum tersambung ke aku. Buka Setting, Akses, Rumah pintar.
+
+> {0}: on.
+{0}: nyala.
+
+> {0}: off.
+{0}: mati.
+
+> {0}: {1}%.
+{0}: {1}%.
+
+> {0}: {1}.
+{0}: {1}.
+
+> {0} is on.
+{0} lagi nyala.
+
+> {0} is off.
+{0} lagi mati.
+
+> Which one? {0}.
+Yang mana? {0}.
+
+> I can't find {0} among your devices.
+Aku nggak nemu {0} di perangkatmu.
+
+> {0} is offline. Is it plugged in?
+{0} lagi offline. Listriknya nyala?
+
+> I got no devices from Tuya. Check that your app account is linked to your project.
+Tuya nggak ngasih perangkat apa pun. Cek akun aplikasimu sudah tertaut ke project.
+
+> Tuya says your Access ID or Secret is wrong.
+Kata Tuya, Access ID atau Secret-mu salah.
+
+> Tuya refused. Check that your project has IoT Core and your app account is linked.
+Tuya menolak. Cek project-mu punya IoT Core dan akun aplikasimu tertaut.
+
+> That device can't do that.
+Perangkat itu nggak bisa begitu.
+
+> To play your playlists, connect your Spotify app in my settings.
+Supaya bisa putar playlist-mu, sambungkan app Spotify-mu di setting-ku.
+
+> Playing your playlist {0}.
+Memutar playlist {0}.
+
+> I can't find a playlist called {0}.
+Aku nggak nemu playlist bernama {0}.
+
+> You don't have any playlists yet.
+Kamu belum punya playlist.
+
+> Press Connect once more in my Spotify settings, so I can see your playlists.
+Tekan Connect sekali lagi di setting Spotify-ku, supaya aku bisa lihat playlist-mu.
+
+> Connected, she can also play your own playlists: "putar playlist chill", "daftar playlist aku". If you connected before this was added, press Connect once more.
+Kalau tersambung, dia juga bisa memutar playlist-mu: "putar playlist chill", "daftar playlist aku". Kalau sudah pernah tersambung sebelum fitur ini ada, tekan Connect sekali lagi.
+
+> {0} is on, last set to {1}°C.
+{0} lagi nyala, terakhir diatur {1}°C.
+
+> {0} is off, last set to {1}°C.
+{0} lagi mati, terakhir diatur {1}°C.
+
+> {0}: {1} mode.
+{0}: mode {1}.
+
+> {0}: {1}°C.
+{0}: {1}°C.
+
+> {0} only goes from {1} to {2}°C, so: {3}°C.
+{0} cuma bisa {1} sampai {2}°C, jadi: {3}°C.
+
+> {0}: fan {1}.
+{0}: kipas {1}.
+
+> I can't find an air conditioner. A normal AC needs an IR blaster, with the AC added as a remote in Smart Life.
+Aku nggak nemu AC. AC biasa butuh IR Blaster, dan AC-nya ditambahkan sebagai remote di Smart Life.
+
+> Tuya refused the AC. Add the IR Control Hub Open Service to your project in Service API.
+Tuya menolak perintah AC. Tambahkan IR Control Hub Open Service di Service API project-mu.
+
+> Air conditioner
+AC
+
+> For an air conditioner: a Wi-Fi AC in Smart Life works as it is. A normal AC needs an IR blaster (Bardi sells one), with the AC added as a remote in Smart Life, and the IR Control Hub Open Service added to your project in Service API. Then: "ac 24 derajat", "ac mode kering", "kipas ac kencang".
+Untuk AC: AC Wi-Fi di Smart Life langsung bisa. AC biasa butuh IR Blaster (Bardi juga menjual), AC-nya ditambahkan sebagai remote di Smart Life, dan IR Control Hub Open Service ditambahkan di Service API project-mu. Lalu: "ac 24 derajat", "ac mode kering", "kipas ac kencang".
+
+> Your IR blaster is there, but Tuya refused to list its remotes. Add the IR Control Hub Open Service to your project in Service API.
+IR Blaster-mu terbaca, tapi Tuya menolak menampilkan remote-nya. Tambahkan IR Control Hub Open Service di Service API project-mu.
