@@ -139,11 +139,13 @@ test('the folder to train with: the dataset and the script', () => {
   r.rateLast(3);
   const res = t.exportPack();
   assert.strictEqual(res.ok, true);
-  assert.ok(res.used >= 15, 'her lines and yours');
-  assert.strictEqual(res.enough, false);
+  assert.ok(res.used >= 900, 'her lines, what was written for her, and yours');
+  assert.strictEqual(res.enough, true);
   const pack = path.join(dir, 'training', 'pack');
-  assert.deepStrictEqual(fs.readdirSync(pack).sort(), ['capri-dataset.jsonl', 'requirements.txt', 'train.py']);
-  assert.match(fs.readFileSync(path.join(pack, 'capri-dataset.jsonl'), 'utf8'), /Akhirnya/);
+  assert.deepStrictEqual(fs.readdirSync(pack).sort(), ['capri-dataset.jsonl', 'capri-valid.jsonl', 'dataset-card.json', 'requirements.txt', 'train.py']);
+  assert.match(['capri-dataset.jsonl', 'capri-valid.jsonl'].map((f) => fs.readFileSync(path.join(pack, f), 'utf8')).join(''), /Akhirnya/);
+  const card = JSON.parse(fs.readFileSync(path.join(pack, 'dataset-card.json'), 'utf8'));
+  assert.ok(card.counts.lore > 300 && card.counts.body > 50 && card.valid > 50);
 });
 
 test('one test at a time; no promoting without a pass', async () => {
