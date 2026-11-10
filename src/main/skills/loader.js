@@ -44,6 +44,7 @@ function readSkill(dir, source) {
     id: manifest.id,
     name: String(manifest.name || manifest.id).slice(0, 40),
     about: String(manifest.about || '').slice(0, 200),
+    group: String(manifest.group || '').slice(0, 40),
     web: manifest.web === true,
     maxTokens: number(manifest.maxTokens, 50, 4000),
     temperature: number(manifest.temperature, 0, 1.5),
