@@ -3,6 +3,7 @@
 // API keys only go through settings:key and never come back here.
 
 import { DEFAULT_PERSONA } from '../renderer/js/persona.js';
+import { Tour } from './tour.js';
 
 const api = window.settings;
 let state = null;   // what main.js sends (settings:get)
@@ -76,40 +77,9 @@ function toggle(path, { onChange } = {}) {
   return el('span', { class: 'switch' }, input, el('span'));
 }
 
-// A choice: ◁ the value ▷, the way Night City's menus do it (←/→ too, its marks under it), or a drop-down
-// for a long list.
+// A choice: a plain drop-down, the same everywhere.
 function select(path, options, { onChange } = {}) {
-  if (options.length > 8) return dropdown(path, options, { onChange });
-  const at = () => Math.max(0, options.findIndex(([v]) => String(v) === String(get(path) ?? '')));
-  const value = el('span', { class: 'step__value' });
-  const pips = el('span', { class: 'step__pips', 'aria-hidden': 'true' }, options.map(() => el('i')));
-  const wrap = el('div', { class: 'step', role: 'spinbutton', tabindex: '0', 'aria-valuemin': '0', 'aria-valuemax': String(options.length - 1) });
-  const paint = () => {
-    const i = at();
-    value.textContent = T(options[i][1]);
-    wrap.setAttribute('aria-valuenow', String(i));
-    wrap.setAttribute('aria-valuetext', value.textContent);
-    pips.querySelectorAll('i').forEach((p, j) => p.classList.toggle('is-on', j === i));
-  };
-  const go = async (by) => {
-    const next = options[(at() + by + options.length) % options.length];
-    await save(patchFor(path, next[0]));
-    paint();
-    onChange?.(String(next[0]));
-  };
-  wrap.append(
-    el('button', { type: 'button', class: 'step__arrow', tabindex: '-1', 'aria-label': T('Previous'), onclick: () => go(-1) }, '◁'),
-    el('span', { class: 'step__mid' }, value, pips),
-    el('button', { type: 'button', class: 'step__arrow', tabindex: '-1', 'aria-label': T('Next'), onclick: () => go(1) }, '▷'),
-  );
-  wrap.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      e.preventDefault();
-      go(e.key === 'ArrowLeft' ? -1 : 1);
-    }
-  });
-  paint();
-  return wrap;
+  return dropdown(path, options, { onChange });
 }
 
 function dropdown(path, options, { onChange } = {}) {
@@ -144,7 +114,7 @@ function range(path, min, max, step, show = (v) => v) {
   const input = el('input', { type: 'range', min, max, step });
   input.value = get(path);
   const out = el('span', { class: 'range__value', text: show(Number(input.value)) });
-  // the cyan part of the bar, up to the handle
+  // the filled part of the bar, up to the handle
   const fill = () => input.style.setProperty('--fill', `${((Number(input.value) - min) / (max - min || 1)) * 100}%`);
   fill();
   input.addEventListener('input', () => { out.textContent = show(Number(input.value)); fill(); });
@@ -687,17 +657,31 @@ function skillPacksCard() {
   const render = async () => {
     const res = await act('skillList').catch(() => null);
     const off = cfg().skillPacksOff || [];
-    list.replaceChildren(...(res?.skills || []).map((s) => {
+    const all = res?.skills || [];
+    const single = all.filter((s) => s.source !== 'pack').map((s) => {
       const on = !off.includes(s.id);
       return row(s.name, s.about, button(on ? 'On' : 'Off', async () => {
         await save({ skillPacksOff: on ? [...off, s.id] : off.filter((x) => x !== s.id) });
         render();
       }));
-    }));
+    });
+    // the big collection, a switch per subject
+    const groups = new Map();
+    for (const s of all.filter((x) => x.source === 'pack')) groups.set(s.group || 'Other', [...(groups.get(s.group || 'Other') || []), s]);
+    const packs = [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([group, skills]) => {
+      const ids = skills.map((s) => s.id);
+      const on = ids.some((id) => !off.includes(id));
+      return row(group, F('{0} skills, like {1}.', skills.length, skills.slice(0, 3).map((s) => s.name).join(', ')), button(on ? 'On' : 'Off', async () => {
+        await save({ skillPacksOff: on ? [...new Set([...off, ...ids])] : off.filter((x) => !ids.includes(x)) });
+        render();
+      }));
+    });
+    list.replaceChildren(...single, ...packs);
   };
   render();
   return card('Her skills',
     note('How she goes about a kind of work when what you say calls for it. A skill is a folder with skill.json and prompt.md: words only, it can never run anything.'),
+    note('To use one from the collection, name it: "pakai skill seo audit", or ask for help with it by name.'),
     list,
     row('Add your own', 'Drop a skill folder in here, then restart her.', button('Open the folder', () => act('skillsFolder'))));
 }
@@ -1049,6 +1033,86 @@ function updatesRow() {
 
 // Everything she can see, hear and do on your PC, in one place (the same switches as on the other pages, and
 // the ones only here: what she may do with your apps, files, sites, media, Spotify and code).
+// Your own Spotify developer app: optional. Without it nothing changes.
+function spotifyCard() {
+  const status = el('span', { class: 'mono', text: '…' });
+  const redirect = el('span', { class: 'mono', text: '' });
+  const problem = el('p', { class: 'note' });
+  problem.hidden = true;
+  const connect = button('Connect', async () => {
+    status.textContent = T('Waiting for your browser…');
+    problem.hidden = true;
+    const res = await act('spotifyConnect').catch(() => null);
+    const why = { noid: 'Paste your Client ID first.', denied: 'You said no on Spotify\'s page.', timeout: 'Nothing came back in time. If Spotify showed "redirect_uri: Not matching configuration", the Redirect URI above is not saved in your app yet: do steps 1 and 2 again, and press Save at the very bottom of Spotify\'s page.', port: 'Something else is using the port she needs.' }[res?.why];
+    if (res?.ok) toast(T('Connected.'));
+    else {
+      problem.textContent = T(why || 'That did not work.');
+      problem.hidden = false;
+    }
+    render();
+  });
+  const render = async () => {
+    const res = await act('spotifyStatus').catch(() => null);
+    status.textContent = res?.connected ? T('Connected') : T('Not connected');
+    redirect.textContent = res?.redirect || '';
+  };
+  render();
+  return card('Spotify developer app (optional)',
+    note('Without this she opens Spotify and presses Play, as always. With it she searches and plays with no window coming up. Playing needs Spotify Premium, and Spotify running on this PC or your phone. Your password never goes through her.'),
+    stack('How to set it up', 'Once only. 1: open your app in the Spotify dashboard, then Settings and Edit. 2: under Redirect URIs paste the address below, press Add, then Save at the very bottom. 3: paste the Client ID here and press Connect.', el('div', { class: 'row__control' }, button('Open Spotify dashboard', () => act('spotifyDashboard')))),
+    row('Client ID', 'From your app at developer.spotify.com/dashboard. Web API ticked.', text('spotifyClientId', { placeholder: '32 letters and numbers', max: 64 })),
+    row('Redirect URI', 'Must be exactly this: http, 127.0.0.1 (not localhost), and no slash at the end.', redirect, button('Copy', async () => { await navigator.clipboard.writeText(redirect.textContent); toast(T('Copied.')); })),
+    row('Account', 'Connected, she can also play your own playlists: "putar playlist chill", "daftar playlist aku". If you connected before this was added, press Connect once more.', status, connect, button('Disconnect', async () => { await act('spotifyDisconnect'); render(); }, 'danger')),
+    problem);
+}
+
+function smartHomeCard() {
+  const status = el('span', { class: 'mono', text: T('Not checked yet') });
+  const list = el('div');
+  const problem = el('p', { class: 'note' });
+  problem.hidden = true;
+  const WHY = {
+    notset: 'Fill in your Access ID and Access Secret first.',
+    nodevices: 'No devices came back. Check step 3: your app account has to be linked to this project.',
+    badkey: 'Tuya says your Access ID or Access Secret is wrong.',
+    noaccess: 'Tuya refused. Check that your project has the IoT Core service and that your app account is linked.',
+    expired: 'Your Tuya project has run out of its free period. Renew it on the Tuya site.',
+  };
+  const check = async () => {
+    status.textContent = T('Checking…');
+    problem.hidden = true;
+    const res = await act('homeStatus').catch(() => null);
+    status.textContent = res?.ok ? F('{0} devices', res.devices.length) : T('Not connected');
+    if (res?.ok && res.refused) {
+      problem.textContent = T('Your IR blaster is there, but Tuya refused to list its remotes. Add the IR Control Hub Open Service to your project in Service API.');
+      problem.hidden = false;
+    }
+    if (!res?.ok) {
+      problem.textContent = T(WHY[res?.why] || 'That did not work.');
+      problem.hidden = false;
+      list.replaceChildren();
+      return;
+    }
+    list.replaceChildren(...res.devices.map((d) => {
+      const send = (on) => async () => {
+        const done = await act('homeSet', { id: d.id, on }).catch(() => null);
+        toast(done?.ok ? T('Done.') : T(WHY[done?.why] || 'That did not work.'), !done?.ok);
+      };
+      return row(d.name, `${d.ac ? `${T('Air conditioner')} · ` : ''}${d.online ? T('Online') : T('Offline')}`, button('On', send(true)), button('Off', send(false)));
+    }));
+  };
+  return card('Smart home',
+    note('Lights and plugs from Bardi and other Tuya-based brands: say "matiin lampu kamar" and it happens. Commands go through your own free Tuya cloud project, so they need internet. Your password never goes through her.'),
+    stack('How to set it up', 'Once only. 1: put your lights in the Smart Life app. If your Bardi account does not work there, add the lights again in Smart Life. 2: on the Tuya site create a Cloud project with the IoT Core service, and copy its Access ID and Access Secret. 3: in the project open Devices, Link App Account, and scan the code with Smart Life. 4: fill in the two fields here and press Connect.', el('div', { class: 'row__control' }, button('Open the Tuya site', () => act('homeDashboard')))),
+    note('For an air conditioner: a Wi-Fi AC in Smart Life works as it is. A normal AC needs an IR blaster (Bardi sells one), with the AC added as a remote in Smart Life, and the IR Control Hub Open Service added to your project in Service API. Then: "ac 24 derajat", "ac mode kering", "kipas ac kencang".'),
+    row('Access ID', 'From your Tuya cloud project.', text('tuyaId', { placeholder: 'Access ID', max: 64 })),
+    row('Access Secret', 'Kept encrypted on this PC, and never shown again.', keyField('tuya')),
+    row('Data center', 'Automatic finds it the first time you connect.', select('tuyaRegion', [['', 'Automatic'], ['sg', 'Singapore'], ['us', 'Western America'], ['us-e', 'Eastern America'], ['eu', 'Central Europe'], ['eu-w', 'Western Europe'], ['in', 'India'], ['cn', 'China']])),
+    row('Your devices', 'Press Connect after any change. On and Off here try each one.', status, button('Connect', check, 'primary')),
+    list,
+    problem);
+}
+
 function pageAccess() {
   const kept = el('span', { class: 'mono', text: '…' });
   const showKept = (info) => {
@@ -1080,11 +1144,14 @@ function pageAccess() {
       row('Look things up online', 'Questions about the world ("siapa presiden indonesia", "who is the CEO of Nvidia") are looked up on Wikipedia and Bing first, a second or so, so she answers from today\'s web. Only your question goes out.', toggle('access.search')),
       row('Media keys', 'Pause, next, previous, volume: the keys on your keyboard, pressed for you.', toggle('access.media')),
       row('Spotify', 'Search Spotify and press Play on the song you ask for.', toggle('access.spotify')),
+      row('Smart home', 'Switch your connected lights and plugs when you ask.', toggle('access.home')),
       row('Write code', 'Write code into her Code folder (never run), or open Claude Code with your task.', toggle('access.code')),
       row('Her own browser', 'A browser of hers (Edge or Chrome, in a profile of its own, never yours) that she can open, read, click links and fill fields in when you ask ("browse example.com", "baca halaman di browsermu"). Never a password or card field.', toggle('access.browser')),
       row('Press buttons', 'Press a button by its name when you ask ("click the Send button", "klik tombol Kirim"), only in the app you name or the one you were in. Never a button that deletes, pays or can\'t be undone.', toggle('access.click')),
       row('Type for me', 'Type what you say into another app ("type hello in notepad", "buka notepad lalu ketik halo"), and press Enter or Ctrl+S when you ask. Only into the app you name or the one you were in.', toggle('access.type')),
       row('Possess my windows', 'Now and then she dives into the window she sits on: it only looks taken over, nothing in it is touched.', toggle('possess'))),
+    spotifyCard(),
+    smartHomeCard(),
     card('What goes online',
       row('Song lyrics', 'The words of the song over her head as they\'re sung, from LRCLIB (lrclib.net, free, no account). Only the title, artist, album and length go out to look them up.', toggle('lyrics')),
       row('Her notes with a cloud model', 'Off: her notes about you, the story so far and her self-improvement only use a model on this PC. On: they also go to your cloud AI (needed for an online brain that remembers you).', toggle('cloudMemory'))),
@@ -1099,7 +1166,7 @@ function pageAccess() {
 }
 
 // What she did on your PC, newest first: the app, the page, the key, how much she typed and where (never what).
-const ACTION_NAMES = { app: 'Opened', open: 'Opened', find: 'Found', browser: 'Opened in a browser', web: 'Searched', video: 'Played a video', song: 'Played', spotifySearch: 'Searched Spotify', media: 'Media', type: 'Typed', key: 'Pressed', close: 'Closed', code: 'Code' };
+const ACTION_NAMES = { app: 'Opened', open: 'Opened', find: 'Found', browser: 'Opened in a browser', web: 'Searched', video: 'Played a video', song: 'Played', playlist: 'Played', spotifySearch: 'Searched Spotify', home: 'Smart home', media: 'Media', type: 'Typed', key: 'Pressed', close: 'Closed', code: 'Code' };
 function actionsCard() {
   const list = state.actions || [];
   const when = (at) => new Date(at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -1294,35 +1361,79 @@ function pagePlugins() {
 }
 
 const PAGES = [
-  ['capri', '◆', 'Capri', 'Who she is, how she talks and how she shows it.', pageCapri],
-  ['owner', '◇', 'Owner', 'Who you are to her: your profile and what she remembers about you.', pageOwner],
-  ['voice', '◉', 'Voice', 'Her ears (your microphone) and her voice.', pageVoice],
-  ['brain', '▣', 'AI brain', 'Which AI she talks through, and her eyes.', pageBrain],
-  ['behavior', '✦', 'Behavior', 'What she does on her own: remarks, dares, mischief, sync.', pageBehavior],
-  ['plugins', '⬡', 'Plugins', 'Make her do things on her own, without code: when something happens, she does your steps.', pagePlugins],
-  ['access', '◎', 'Access', 'What she can see, hear and do on your PC, and what she keeps.', pageAccess],
-  ['timers', '◷', 'Timers', 'Alarms, timers and the study timer.', pageTimers],
-  ['history', '☰', 'History', 'Your chats with her, and her long-term memory of them.', pageHistory],
-  ['advanced', '⚙', 'Advanced', 'Language, hotkeys, system, your data.', pageAdvanced],
-  ['about', '?', 'About', 'What she is, and what she can do.', pageAbout],
+  ['capri', 'Capri', 'Who she is, how she talks and how she shows it.', pageCapri],
+  ['owner', 'Owner', 'Who you are to her: your profile and what she remembers about you.', pageOwner],
+  ['voice', 'Voice', 'Her ears (your microphone) and her voice.', pageVoice],
+  ['brain', 'AI brain', 'Which AI she talks through, and her eyes.', pageBrain],
+  ['behavior', 'Behavior', 'What she does on her own: remarks, dares, mischief, sync.', pageBehavior],
+  ['plugins', 'Plugins', 'Make her do things on her own, without code: when something happens, she does your steps.', pagePlugins],
+  ['access', 'Access', 'What she can see, hear and do on your PC, and what she keeps.', pageAccess],
+  ['timers', 'Timers', 'Alarms, timers and the study timer.', pageTimers],
+  ['history', 'History', 'Your chats with her, and her long-term memory of them.', pageHistory],
+  ['advanced', 'Advanced', 'Language, hotkeys, system, your data.', pageAdvanced],
+  ['about', 'About', 'What she is, and what she can do.', pageAbout],
 ];
 
 // ---- drawing ---------------------------------------------------------------------------------------
 
+const GROUPS = [
+  ['Who she is', ['capri', 'owner', 'voice']],
+  ['What she does', ['brain', 'behavior', 'plugins', 'timers']],
+  ['Your PC', ['access', 'history']],
+  ['More', ['advanced', 'about']],
+];
+
+const ring = 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z';
+const ICONS = {
+  capri: ['M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z', 'M19 16v4M17 18h4'],
+  owner: ['M12 4a4 4 0 1 0 0 8a4 4 0 1 0 0-8z', 'M4 21a8 8 0 0 1 16 0'],
+  voice: ['M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M5 11a7 7 0 0 0 14 0', 'M12 18v3'],
+  brain: ['M6 6h12v12H6z', 'M10 10h4v4h-4z', 'M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4'],
+  behavior: [ring, 'M8 14s1.5 2 4 2 4-2 4-2', 'M9 9.5h.01M15 9.5h.01'],
+  plugins: ['M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z', 'M16.5 14v6M13.5 17h6'],
+  access: ['M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z', 'M9 12l2 2 4-4'],
+  timers: [ring, 'M12 7v5l3 2'],
+  history: ['M3 12a9 9 0 1 0 3-6.7L3 8', 'M3 3v5h5', 'M12 7v5l3 2'],
+  advanced: ['M4 7h10M18 7h2M4 17h2M10 17h10', 'M16 5a2 2 0 1 0 0 4a2 2 0 1 0 0-4z', 'M8 15a2 2 0 1 0 0 4a2 2 0 1 0 0-4z'],
+  about: [ring, 'M12 11v5M12 8h.01'],
+  search: ['M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z', 'M20 20l-3.5-3.5'],
+  tour: ['M9 4l6 2 6-2v14l-6 2-6-2-6 2V6z', 'M9 4v14M15 6v14'],
+  close: ['M6 6l12 12M18 6L6 18'],
+};
+
+function icon(name) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('class', 'icon');
+  svg.setAttribute('aria-hidden', 'true');
+  for (const d of ICONS[name] || []) {
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', d);
+    svg.append(path);
+  }
+  return svg;
+}
+
+let tour = null;
+let found = null; // what to light up once its page is drawn: { card, label }
+
 function go(id) {
+  const search = document.getElementById('search');
+  search.value = '';
   page = id;
-  location.hash = id;
+  if (location.hash.slice(1) !== id) location.hash = id;
   render();
   document.getElementById('main').scrollTop = 0;
 }
 
-// the tabs along the top; Q and E (or the keys at the ends) for the one before and after
 function renderNav() {
   const nav = document.getElementById('nav');
-  nav.replaceChildren(...PAGES.map(([id, icon, title]) => el('button', {
-    type: 'button', 'aria-current': id === page ? 'page' : null, onclick: () => go(id),
-  }, el('span', { class: 'nav__icon', text: icon }), el('span', { class: 'nav__text', text: T(title) }))));
-  nav.querySelector('[aria-current]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  nav.replaceChildren(...GROUPS.map(([title, ids]) => el('div', { class: 'nav__group' },
+    el('div', { class: 'nav__title', text: T(title) }),
+    ids.map((id) => el('button', {
+      type: 'button', 'data-page': id, 'aria-current': id === page ? 'page' : null, onclick: () => go(id),
+    }, icon(id), el('span', { text: T(PAGES.find(([p]) => p === id)[1]) }))))));
 }
 
 function step(by) {
@@ -1330,19 +1441,9 @@ function step(by) {
   go(PAGES[(i + by + PAGES.length) % PAGES.length][0]);
 }
 
-// The bar at the bottom: what the setting under your pointer (or your keyboard) does, else what the page is for.
-function describe(row) {
-  const def = PAGES.find(([id]) => id === page) || PAGES[0];
-  const label = row?.querySelector('.row__label');
-  const name = label ? [...label.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE).map((n) => n.textContent).join('').trim() : '';
-  const help = row?.querySelector('.row__help')?.textContent || '';
-  document.getElementById('infoName').textContent = name || T(def[2]);
-  document.getElementById('infoHelp').textContent = name ? help : T(def[3]);
-}
-
 function renderSync() {
   if (!state) return;
-  document.getElementById('sync').textContent = cfg().syncShown === false ? '' : `SYNC ${state.sync}%`;
+  document.getElementById('sync').textContent = cfg().syncShown === false ? '' : `Sync ${state.sync}%`;
 }
 
 function render() {
@@ -1350,7 +1451,7 @@ function render() {
   earsProgress = null;
   const def = PAGES.find(([id]) => id === page) || PAGES[0];
   page = def[0];
-  const [, , title, lede, build] = def;
+  const [, title, lede, build] = def;
   const main = document.getElementById('main');
   const scroll = main.scrollTop;
   main.replaceChildren(
@@ -1361,7 +1462,96 @@ function render() {
   document.querySelectorAll('[data-t]').forEach((n) => { n.textContent = T(n.dataset.t); });
   renderNav();
   renderSync();
-  describe(null);
+  lightFound();
+}
+
+const rowName = (row) => {
+  const label = row.querySelector('.row__label');
+  return label ? [...label.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE).map((n) => n.textContent).join('').trim() : '';
+};
+
+// Opened from a search: go to it and light it up for a moment.
+function lightFound() {
+  if (!found) return;
+  const { card, label } = found;
+  found = null;
+  const main = document.getElementById('main');
+  const box = [...main.querySelectorAll('.card')].find((c) => c.querySelector('.card__title')?.textContent === card);
+  if (!box) return;
+  const row = [...box.querySelectorAll('.row')].find((r) => rowName(r) === label);
+  (row || box).scrollIntoView({ block: 'center' });
+  if (!row) return;
+  row.classList.add('is-found');
+  setTimeout(() => row.classList.remove('is-found'), 1800);
+}
+
+// ---- finding a setting ---------------------------------------------------------------------------------
+
+let searchIndex = null;
+
+// Every setting of every page, read off the pages themselves, so it can't go out of date. (Building a page has no side effects: mics and
+// tests only start from their buttons.)
+function buildIndex() {
+  if (searchIndex) return searchIndex;
+  const out = [];
+  const pendingCleanup = cleanup;
+  const pendingEars = earsProgress;
+  cleanup = [];
+  for (const [id, title, , build] of PAGES) {
+    let nodes = [];
+    try {
+      nodes = build().filter(Boolean);
+    } catch {
+      continue;
+    }
+    const holder = el('div', {}, ...nodes);
+    for (const box of holder.querySelectorAll('.card')) {
+      const card = box.querySelector('.card__title')?.textContent || T(title);
+      out.push({ page: id, where: T(title), card, label: card, help: '' });
+      for (const row of box.querySelectorAll('.row')) {
+        const label = rowName(row);
+        if (label) out.push({ page: id, where: `${T(title)} · ${card}`, card, label, help: row.querySelector('.row__help')?.textContent || '' });
+      }
+    }
+  }
+  for (const stop of cleanup.splice(0)) stop();
+  cleanup = pendingCleanup;
+  earsProgress = pendingEars;
+  searchIndex = out;
+  return out;
+}
+
+function renderSearch(query) {
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) {
+    render();
+    return;
+  }
+  const hits = buildIndex().filter((e) => terms.every((t) => `${e.label} ${e.help} ${e.where}`.toLowerCase().includes(t))).slice(0, 40);
+  const main = document.getElementById('main');
+  main.replaceChildren(
+    el('header', { class: 'page__head' }, el('h1', { class: 'page__title', text: T('Results') })),
+    hits.length
+      ? el('div', { class: 'results' }, hits.map((e) => el('button', {
+        class: 'result', type: 'button',
+        onclick: () => {
+          found = { card: e.card, label: e.label };
+          go(e.page);
+        },
+      }, el('span', { class: 'result__where', text: e.where }), el('span', { text: e.label }), e.help && el('span', { class: 'result__help', text: e.help }))))
+      : el('p', { class: 'results__empty', text: T('Nothing here matches that. Try another word.') }),
+  );
+  main.scrollTop = 0;
+}
+
+function drawChrome() {
+  const search = document.getElementById('search');
+  search.placeholder = T('Search settings…');
+  search.setAttribute('aria-label', T('Search settings…'));
+  const box = document.getElementById('searchBox');
+  box.querySelector('.icon')?.remove();
+  box.prepend(icon('search'));
+  document.getElementById('tourStart').replaceChildren(icon('tour'), el('span', { text: T('Tour with Capri') }));
 }
 
 // typing somewhere: don't redraw under the cursor
@@ -1371,6 +1561,8 @@ async function loadLines() {
   const table = await api.langTable();
   lines = table?.lines || {};
   document.documentElement.lang = table?.code || 'en';
+  searchIndex = null;
+  drawChrome();
   render();
 }
 
@@ -1379,6 +1571,7 @@ async function boot() {
   const table = await api.langTable();
   lines = table?.lines || {};
   document.documentElement.lang = table?.code || 'en';
+  drawChrome();
   render();
   api.onConfig(async () => {
     if (typing()) return;
@@ -1387,29 +1580,38 @@ async function boot() {
   });
   api.onRefresh(async () => {
     state = await api.get();
-    if (!typing() && ['timers', 'behavior'].includes(page)) render();
+    if (!typing() && !tour?.open && ['timers', 'behavior'].includes(page)) render();
     else renderSync();
   });
   api.onTab((tab) => { page = tab; render(); });
   api.onEarsProgress((p) => earsProgress?.(p));
   const main = document.getElementById('main');
-  main.addEventListener('mouseover', (e) => describe(e.target.closest('.row')));
-  main.addEventListener('focusin', (e) => describe(e.target.closest('.row')));
-  main.addEventListener('mouseleave', () => describe(main.contains(document.activeElement) ? document.activeElement.closest('.row') : null));
-  document.getElementById('prevTab').addEventListener('click', () => step(-1));
-  document.getElementById('nextTab').addEventListener('click', () => step(1));
+  const search = document.getElementById('search');
+  search.addEventListener('input', () => renderSearch(search.value));
   window.addEventListener('keydown', (e) => {
-    if (typing() || e.ctrlKey || e.altKey || e.metaKey) {
-      if (e.ctrlKey && (e.key === 'PageUp' || e.key === 'PageDown')) step(e.key === 'PageUp' ? -1 : 1);
-      return;
+    if (e.ctrlKey && (e.key === 'PageUp' || e.key === 'PageDown')) step(e.key === 'PageUp' ? -1 : 1);
+    else if (e.ctrlKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      search.focus();
     }
-    if (e.key === 'q' || e.key === 'Q') step(-1);
-    else if (e.key === 'e' || e.key === 'E') step(1);
   });
   window.addEventListener('hashchange', () => {
     const id = location.hash.slice(1);
-    if (id && id !== page) { page = id; render(); }
+    if (id && id !== page) {
+      page = id;
+      render();
+    }
   });
+  tour = new Tour({
+    T, go, main, icon,
+    send: (phase, extra = {}) => api.action('tour', { phase, ...extra }),
+    onDone: () => { if (!cfg().settingsToured) save({ settingsToured: true }); },
+  });
+  document.getElementById('tourStart').addEventListener('click', () => {
+    tour.stop();
+    tour.start();
+  });
+  if (!cfg().settingsToured) tour.invite();
 }
 
 boot();
