@@ -1,6 +1,6 @@
 'use strict';
 
-// What her local model can be trained on: her lines from the show and the chats that went well, cleaned up. Only ever written
+// What her local model can be trained on: her lines from the show, what was written for her (curated.jsonl) and the chats that went well, cleaned up. Only ever written
 // to this PC. Names, numbers and addresses are the reason a chat is left out, not something to scrub and hope: a chat with a
 // phone number in it simply doesn't go in. Her lines from the show stay yours to use: don't publish a dataset or a model made
 // from them.
@@ -21,8 +21,37 @@ function usable({ user, answer }) {
   return { user: u, answer: a };
 }
 
-// canon: [{ user, answer }], good: what went well (reward.js). -> { rows: [{ messages }], used, dropped }
-function build({ persona, canon = [], good = [] }) {
+// One written example, fit to learn from? Its emotion tags stay: that's how she should answer. The profile and body notes in context are made up.
+function usableCurated(row) {
+  const turns = Array.isArray(row?.turns) ? row.turns : [];
+  if (turns.length < 2 || turns.length % 2 || turns.at(-1).role !== 'assistant') return false;
+  return turns.filter((t) => t.role === 'assistant').every((t) => {
+    const text = String(t.content || '');
+    return text.length >= 2 && text.length <= MAX_ANSWER && !OFF_CHARACTER.test(text);
+  });
+}
+
+// As the app sends it: your profile and what's going on come right before the last thing you said.
+function curatedMessages(persona, { turns, context }) {
+  const before = turns.slice(0, -2);
+  return [{ role: 'system', content: persona }, ...before, ...(context ? [{ role: 'system', content: context }] : []), ...turns.slice(-2)];
+}
+
+// A tenth of the examples held back, always the same ones, to see whether training helped. -> { train, valid }
+function split(rows) {
+  const train = [];
+  const valid = [];
+  for (const row of rows) {
+    const user = row.messages.filter((m) => m.role === 'user').map((m) => m.content).join('|');
+    let hash = 7;
+    for (let i = 0; i < user.length; i++) hash = (hash * 31 + user.charCodeAt(i)) % 1000003;
+    (hash % 10 === 0 ? valid : train).push(row);
+  }
+  return { train, valid };
+}
+
+// canon: [{ user, answer }], curated: [{ cat, turns, context }], good: what went well (reward.js). -> { rows: [{ messages }], used, dropped, counts }
+function build({ persona, canon = [], curated = [], good = [] }) {
   const seen = new Set();
   const rows = [];
   let dropped = 0;
@@ -36,7 +65,19 @@ function build({ persona, canon = [], good = [] }) {
     seen.add(key);
     rows.push({ messages: [{ role: 'system', content: persona }, { role: 'user', content: ok.user }, { role: 'assistant', content: ok.answer }] });
   }
-  return { rows, used: rows.length, dropped };
+  const counts = { canon: 0, chats: 0 };
+  for (const row of curated) {
+    const messages = usableCurated(row) ? curatedMessages(persona, row) : null;
+    const key = messages && JSON.stringify(messages.slice(1));
+    if (!messages || seen.has(key)) {
+      dropped++;
+      continue;
+    }
+    seen.add(key);
+    rows.push({ messages });
+    counts[row.cat || 'other'] = (counts[row.cat || 'other'] || 0) + 1;
+  }
+  return { rows, used: rows.length, dropped, counts };
 }
 
 const toJsonl = (rows) => `${rows.map((r) => JSON.stringify(r)).join('\n')}\n`;
@@ -47,4 +88,4 @@ function modelfile({ gguf, persona, temperature = 0.85 }) {
   return `FROM "${String(gguf).replace(/"/g, '')}"\nPARAMETER temperature ${Number(temperature) || 0.85}\nSYSTEM """${quoted}"""\n`;
 }
 
-module.exports = { build, usable, toJsonl, modelfile };
+module.exports = { build, usable, usableCurated, curatedMessages, split, toJsonl, modelfile };
