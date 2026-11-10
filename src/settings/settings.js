@@ -11,6 +11,7 @@ let lines = {};     // her translations (assets/lang)
 let page = (location.hash || '#capri').slice(1);
 let cleanup = [];   // what the page on screen left running (a mic, a meter)
 let earsProgress = null;
+let ownVoiceProgress = null; // her own voice, downloading (ownVoiceRow)
 
 const T = (english) => lines[english] || english;
 const F = (english, ...v) => T(english).replace(/\{(\d+)\}/g, (_, i) => (v[i] ?? ''));
@@ -444,6 +445,47 @@ const ENGINES = [
 ];
 
 // a list of voices filled in once the engine answers, with what's saved kept even if it isn't listed
+// Her own voice: Piper and the voice made for her, from the app's release on GitHub, with one click to use it.
+function ownVoiceRow() {
+  const status = el('span', { class: 'mono', text: '…' });
+  let name = '';
+  const using = () => cfg().ttsEngine === 'piper' && cfg().ttsPiperModel === `${name}.onnx`;
+  const use = button('Use her voice', async () => {
+    await save({ ttsEngine: 'piper', ttsPiperModel: `${name}.onnx` });
+    toast(T('She speaks with her own voice now.'));
+    render();
+  }, 'primary');
+  const cancel = button('Cancel', () => act('cancelOwnVoice'));
+  const download = button('Download', async () => {
+    if (!confirm(T('She will download Piper (about 22 MB, from its official GitHub release) and her voice (about 61 MB, from this app\'s release on GitHub), and check every file against its known fingerprint before using it.'))) return;
+    download.disabled = true;
+    cancel.hidden = false;
+    const res = await act('downloadOwnVoice');
+    cancel.hidden = true;
+    download.disabled = false;
+    if (res?.ok) {
+      name = res.name;
+      toast(T('Her voice is here.'));
+    } else toast(res?.error === 'novoice' ? T("Her voice isn't in the latest release yet.") : `${T('Download failed:')} ${res?.error || ''}`, true);
+    paint();
+  });
+  cancel.hidden = true;
+  const paint = async () => {
+    const res = await act('ownVoiceStatus').catch(() => null);
+    name = name || (res?.voices || []).find((v) => v === 'en_US-capri-medium') || res?.voices?.[0] || '';
+    const here = Boolean(name && res?.piper);
+    status.textContent = !here ? T('Not downloaded') : using() ? T('In use') : T('Downloaded');
+    download.textContent = T(here ? 'Download again' : 'Download');
+    use.hidden = !here || using();
+  };
+  ownVoiceProgress = (p) => {
+    status.textContent = `${Math.round(p.done / 1e6)} / ${Math.round(p.total / 1e6)} MB · ${p.percent}%`;
+  };
+  use.hidden = true;
+  paint();
+  return row("Capri's own voice", 'Free and offline, no key: Piper with the voice made for her. About 85 MB, once.', status, download, use, cancel);
+}
+
 function voiceSelect(path, engine, { empty = 'Pick a voice…' } = {}) {
   const s = el('select', {}, el('option', { value: get(path) || '', text: get(path) || T(empty) }));
   s.addEventListener('change', () => save(patchFor(path, s.value)));
@@ -530,6 +572,7 @@ function voiceCards() {
       row('Read out loud', 'She speaks instead of only writing. Her portrait\'s lips follow her voice.', toggle('tts')),
       row('What she says out loud', null, seg('ttsWhat', [['all', 'Everything'], ['answers', 'Only her answers']])),
       row('Voice engine', null, select('ttsEngine', ENGINES, { onChange: () => render() })),
+      ownVoiceRow(),
       ...rows,
       row('Start right away', 'She starts talking with the first sentence, while the rest is still being written, instead of waiting for the whole answer.', toggle('ttsStream')),
       engine !== 'windows' && row('If it fails', 'Windows\' own voice says it instead.', toggle('ttsFallback')),
@@ -1585,6 +1628,7 @@ async function boot() {
   });
   api.onTab((tab) => { page = tab; render(); });
   api.onEarsProgress((p) => earsProgress?.(p));
+  api.onOwnVoiceProgress((p) => ownVoiceProgress?.(p));
   const main = document.getElementById('main');
   const search = document.getElementById('search');
   search.addEventListener('input', () => renderSearch(search.value));
