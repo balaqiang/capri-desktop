@@ -7,10 +7,12 @@ Run it where there's a GPU (Google Colab, a rented machine, or this PC with a sm
 
 Then in Capri: Settings > AI brain > Improve her > Install a trained model, and pick the .gguf.
 
-The dataset comes from your own chats and her lines from the show: keep it, and the model made from it, to yourself.
+The dataset comes from your own chats, her lines from the show and examples written for her: keep it, and the model made from it, to yourself.
+A tenth of the examples (capri-valid.jsonl) is held back and only measured, to show whether training helped.
 """
 import argparse
 import json
+import os
 
 from datasets import Dataset
 from transformers import DataCollatorForSeq2Seq, Trainer, TrainingArguments
@@ -20,6 +22,7 @@ from unsloth import FastLanguageModel
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="capri-dataset.jsonl")
+    parser.add_argument("--valid", default="capri-valid.jsonl")
     parser.add_argument("--base", default="unsloth/gemma-3-1b-it")
     parser.add_argument("--out", default="capri-trained")
     parser.add_argument("--epochs", type=float, default=3)
@@ -40,8 +43,11 @@ def main():
         use_gradient_checkpointing="unsloth",
     )
 
-    with open(args.data, encoding="utf-8") as f:
-        rows = [json.loads(line) for line in f if line.strip()]
+    def read(path):
+        with open(path, encoding="utf-8") as f:
+            return [json.loads(line) for line in f if line.strip()]
+
+    rows = read(args.data)
 
     def encode(row):
         text = tokenizer.apply_chat_template(row["messages"], tokenize=False)
@@ -67,7 +73,16 @@ def main():
             report_to=[],
         ),
     )
+    valid = (
+        Dataset.from_list(read(args.valid)).map(encode, remove_columns=["messages"])
+        if os.path.exists(args.valid)
+        else None
+    )
+    if valid is not None:
+        print("Held-back examples, before training:", trainer.evaluate(valid))
     trainer.train()
+    if valid is not None:
+        print("Held-back examples, after training:", trainer.evaluate(valid))
 
     model.save_pretrained_gguf(args.out, tokenizer, quantization_method="q4_k_m")
     print(f"Done. The .gguf file is in {args.out}/")
