@@ -6,6 +6,7 @@
 // right away; anything only the model asked for, a website, and closing an app behind a button.
 
 import { pick, fmt } from './util.js';
+import { ownerFacts } from './owner-facts.js';
 import { ASSISTANT_NAMES } from './lines.js';
 import { T } from './i18n.js';
 
@@ -465,16 +466,18 @@ export class Chat {
     const asking = !look && this.cfg.access?.search !== false && routed?.web !== false && (routed?.web === true || (!lore && worldQuestion(text)));
     if (asking) this.panel.setMood(MOOD.searching);
     // looking at your screen, what's playing and the like would only distract her from the picture
-    const [context, found] = await Promise.all([
+    const [moment, found] = await Promise.all([
       look ? '' : this.host.lifeContext(text).catch(() => ''),
       asking ? Promise.race([this.host.webLookup(text).catch(() => null), new Promise((r) => setTimeout(() => r(null), 5500))]) : null,
     ]);
+    // what she's doing with herself, so she can say so (self-report.js)
+    const context = [moment, look ? '' : this.bodyNow?.(text)].filter(Boolean).join('\n\n');
     if (asking) this.panel.setMood(MOOD.thinking);
     if (asking && this.cfg.debugLog) console.log('[web]', found ? `${found.results.length} results for "${found.query}"` : 'no answer in time');
     // what changes from one message to the next (the moment, what's playing, the apps open, lore, the web) goes
     // last, just before your message: everything before it is the same as last time, so a local model (Ollama)
     // reuses what it already read instead of reading her whole prompt and your chat again
-    const now = [lore, context, this.appsNow(), webNote(text, found)].filter(Boolean).join('\n\n');
+    const now = [lore, context, this.appsNow(), webNote(text, found), look ? '' : this.ownerNow()].filter(Boolean).join('\n\n');
     let recent = this.history.slice(-(Number(this.cfg.contextMessages) || REMEMBER));
     // the same question asked before and looked up again: her old answers to it go (she copies them, stale or not)
     if (found?.results?.length) {
@@ -900,6 +903,13 @@ export class Chat {
   appsNow() {
     if (!this.apps.length) return '';
     return `Apps open right now: ${this.apps.map(({ name, label }) => (label && label !== name ? `${name} (${label})` : name)).join(', ')}.`;
+  }
+
+  // Your profile, for right before your message (owner-facts.js).
+  ownerNow() {
+    const owner = this.cfg?.owner || {};
+    const relation = owner.relationship === 'custom' ? owner.relationshipCustom : RELATIONS[owner.relationship];
+    return ownerFacts({ name: this.brain.custom?.userName, owner, relation });
   }
 
   // What the user made her (custom.js): their name, how they want her, what to remember.
