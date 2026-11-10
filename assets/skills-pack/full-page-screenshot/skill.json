@@ -1,0 +1,12 @@
+{
+  "id": "full-page-screenshot",
+  "name": "Full Page Screenshot",
+  "about": "Use when asked for a full-page or long screenshot of a web page. Captures SPA scroll containers, lazy images and very tall pages through Chrome DevTools Protocol with no extra dependencies.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+full[\\s-]+page[\\s-]+screenshot\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfull[\\s-]+page[\\s-]+screenshot\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

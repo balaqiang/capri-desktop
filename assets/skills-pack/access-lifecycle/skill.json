@@ -1,0 +1,12 @@
+{
+  "id": "access-lifecycle",
+  "name": "Access Lifecycle",
+  "about": "Use when preparing or running a user access review, checking that leavers lost their access, finding orphaned or ownerless service accounts, answering an auditor's access-control request for SOC 2, IS",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+access[\\s-]+lifecycle\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\baccess[\\s-]+lifecycle\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

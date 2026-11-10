@@ -1,0 +1,12 @@
+{
+  "id": "md-slides",
+  "name": "Md Slides",
+  "about": "Turn a markdown file into a single-file HTML slide deck with keyboard navigation, presenter notes and print-to-PDF. Use whenever the user wants slides or a presentation from markdown or notes.",
+  "group": "Productivity",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+md[\\s-]+slides\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmd[\\s-]+slides\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

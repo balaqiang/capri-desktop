@@ -1,0 +1,12 @@
+{
+  "id": "launch-strategy",
+  "name": "Launch Strategy",
+  "about": "Plan a product or feature launch: readiness score and a phased plan by channel. Use whenever the user is launching soon, planning a Product Hunt day, beta or waitlist, or asks how to launch.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+launch[\\s-]+strategy\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\blaunch[\\s-]+strategy\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

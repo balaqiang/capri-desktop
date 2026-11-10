@@ -1,0 +1,12 @@
+{
+  "id": "deal-desk",
+  "name": "Deal Desk",
+  "about": "Use before closing a deal that needs a discount beyond AE authority, has a redlined MSA or unclear per-deal economics. Scores it with deal_scorer.py, names approvers with discount_approval_router.py a",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+deal[\\s-]+desk\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bdeal[\\s-]+desk\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

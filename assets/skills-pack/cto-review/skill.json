@@ -1,0 +1,12 @@
+{
+  "id": "cto-review",
+  "name": "Cto Review",
+  "about": "Challenge an architecture bet, 10x scaling plan or rebuild vs buy. Use whenever asked or /c-level-agents:cto-review.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cto[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcto[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

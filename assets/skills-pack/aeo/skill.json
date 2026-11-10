@@ -1,0 +1,11 @@
+{
+  "id": "aeo",
+  "name": "Aeo",
+  "about": "Use when content should be cited by ChatGPT, Perplexity, Claude or Gemini (answer engine optimization), before rewriting it. Scores E-E-A-T and structure with aeo_audit.py, rewrites with aeo_optimizer",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+aeo\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

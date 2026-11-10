@@ -1,0 +1,12 @@
+{
+  "id": "competitive-teardown",
+  "name": "Competitive Teardown",
+  "about": "Deep competitor teardown: pricing, reviews, hiring, SEO, UX, scored across 12 dimensions with SWOT and positioning maps. Use whenever the user asks how they compare to a rival or how to respond to a c",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+competitive[\\s-]+teardown\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcompetitive[\\s-]+teardown\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

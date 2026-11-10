@@ -1,0 +1,12 @@
+{
+  "id": "dependency-auditor",
+  "name": "Dependency Auditor",
+  "about": "Audit project dependencies for CVEs and licenses and plan safe upgrades. Use whenever the user asks if their packages are safe, before a release or major version bump, while chasing a CVE, or for a li",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+dependency[\\s-]+auditor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bdependency[\\s-]+auditor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

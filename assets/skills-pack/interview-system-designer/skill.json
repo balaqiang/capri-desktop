@@ -1,0 +1,12 @@
+{
+  "id": "interview-system-designer",
+  "name": "Interview System Designer",
+  "about": "Use when designing a hiring loop, competency matrix, scoring rubric or question bank, or checking interviewer calibration. Plans the loop per role with interview_planner.py.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+interview[\\s-]+system[\\s-]+designer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\binterview[\\s-]+system[\\s-]+designer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

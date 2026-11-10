@@ -1,0 +1,12 @@
+{
+  "id": "session-handoff",
+  "name": "Session Handoff",
+  "about": "Write a handoff document so a fresh session or another agent can pick up exactly where this one left off: goal, current state, decisions, next steps and the skills to load, referencing existing files ",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+session[\\s-]+handoff\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsession[\\s-]+handoff\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

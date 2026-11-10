@@ -1,0 +1,12 @@
+{
+  "id": "marketing-ops",
+  "name": "Marketing Ops",
+  "about": "Use when a marketing request spans several skills (a campaign across content, SEO, CRO and channels) or it is unclear which skill fits. Routes and sequences the work and tracks it with campaign_tracke",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+marketing[\\s-]+ops\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmarketing[\\s-]+ops\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

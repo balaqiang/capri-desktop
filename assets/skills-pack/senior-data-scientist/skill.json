@@ -1,0 +1,12 @@
+{
+  "id": "senior-data-scientist",
+  "name": "Senior Data Scientist",
+  "about": "Design experiments and analyze tabular data: A/B tests, causal inference, feature engineering, model evaluation. Use whenever the user asks how to set up or read an A/B test, whether a change caused a",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+data[\\s-]+scientist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+data[\\s-]+scientist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

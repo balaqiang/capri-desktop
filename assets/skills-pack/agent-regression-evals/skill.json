@@ -1,0 +1,12 @@
+{
+  "id": "agent-regression-evals",
+  "name": "Agent Regression Evals",
+  "about": "Use before shipping any agent, prompt, model or tool change, or when a pass-rate drop needs a verdict. Runs repeated trials, gates candidate vs baseline with paired statistics in regression_gate.py, c",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+agent[\\s-]+regression[\\s-]+evals\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bagent[\\s-]+regression[\\s-]+evals\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "soc2-audit-prep",
+  "name": "Soc2 Audit Prep",
+  "about": "Use for /compliance-os:soc2-audit-prep, or before or during a SOC 2 Type II observation period.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+soc2[\\s-]+audit[\\s-]+prep\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsoc2[\\s-]+audit[\\s-]+prep\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

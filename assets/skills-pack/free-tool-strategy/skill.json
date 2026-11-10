@@ -1,0 +1,12 @@
+{
+  "id": "free-tool-strategy",
+  "name": "Free Tool Strategy",
+  "about": "Use when considering a free calculator, grader, checker or generator as a marketing asset, before building it. Estimates traffic, leads and ROI with tool_roi_estimator.py and scores the idea for searc",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+free[\\s-]+tool[\\s-]+strategy\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfree[\\s-]+tool[\\s-]+strategy\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

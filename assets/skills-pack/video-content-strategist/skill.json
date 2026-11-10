@@ -1,0 +1,12 @@
+{
+  "id": "video-content-strategist",
+  "name": "Video Content Strategist",
+  "about": "Use for video strategy, scripts, YouTube SEO, short-form pipelines (Reels, TikTok, Shorts) or turning long content into video, before scripting. Sets hooks, structure and repurposing per platform.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+video[\\s-]+content[\\s-]+strategist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bvideo[\\s-]+content[\\s-]+strategist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

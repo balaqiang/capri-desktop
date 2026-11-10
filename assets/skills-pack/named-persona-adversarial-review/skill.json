@@ -1,0 +1,12 @@
+{
+  "id": "named-persona-adversarial-review",
+  "name": "Named Persona Adversarial Review",
+  "about": "Use when a PR has architectural or UX impact, or automated review feels generic, and you want it reviewed through named engineers' documented views (Torvalds, Thompson, Carmack, Beck, Jobs, Cagan). Ci",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+named[\\s-]+persona[\\s-]+adversarial[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bnamed[\\s-]+persona[\\s-]+adversarial[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

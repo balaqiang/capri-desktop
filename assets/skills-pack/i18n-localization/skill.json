@@ -1,0 +1,12 @@
+{
+  "id": "i18n-localization",
+  "name": "I18n Localization",
+  "about": "Use when adding UI text, adding or shipping a language, reviewing translation files, or building i18n into an app. Checks missing keys, placeholders and CLDR plural forms with locale_sync.py, finds ha",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+i18n[\\s-]+localization\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bi18n[\\s-]+localization\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "linkedin-engagement",
+  "name": "Linkedin Engagement",
+  "about": "Use for LinkedIn comments, connection notes, DMs or outreach plans, or checking outreach volume is safe. Plans targets with comment_target_planner.py, drafts notes with outreach_message_builder.py and",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+linkedin[\\s-]+engagement\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\blinkedin[\\s-]+engagement\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

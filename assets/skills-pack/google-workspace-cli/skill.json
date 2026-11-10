@@ -1,0 +1,12 @@
+{
+  "id": "google-workspace-cli",
+  "name": "Google Workspace Cli",
+  "about": "Use for Google Workspace admin or automation from the gws CLI (Gmail, Drive, Sheets, Calendar, Docs, Chat, Tasks). Sets up auth with auth_setup_guide.py, diagnoses with gws_doctor.py, runs recipes wit",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+google[\\s-]+workspace[\\s-]+cli\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bgoogle[\\s-]+workspace[\\s-]+cli\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

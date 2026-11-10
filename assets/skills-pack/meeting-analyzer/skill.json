@@ -1,0 +1,12 @@
+{
+  "id": "meeting-analyzer",
+  "name": "Meeting Analyzer",
+  "about": "Use when the user shares meeting transcripts (.vtt, .srt, .txt, Otter, Granola, Zoom) or asks how they come across in meetings. Measures speaking ratio, filler words and avoidance patterns and gives c",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+meeting[\\s-]+analyzer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmeeting[\\s-]+analyzer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

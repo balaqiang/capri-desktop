@@ -1,0 +1,12 @@
+{
+  "id": "aws-solution-architect",
+  "name": "Aws Solution Architect",
+  "about": "Use when designing or costing an AWS architecture (serverless, Lambda, API Gateway, DynamoDB, ECS, Aurora, CloudFormation, migration to AWS). Designs it with architecture_designer.py, generates stacks",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+aws[\\s-]+solution[\\s-]+architect\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\baws[\\s-]+solution[\\s-]+architect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

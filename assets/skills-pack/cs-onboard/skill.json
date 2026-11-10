@@ -1,0 +1,12 @@
+{
+  "id": "cs-onboard",
+  "name": "Cs Onboard",
+  "about": "Use when setting up the C-suite advisors for the first time, or when company context is missing or stale after a raise or pivot. Interviews the founder across 7 dimensions and writes ~/.claude/company",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cs[\\s-]+onboard\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcs[\\s-]+onboard\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "content-creator",
+  "name": "Content Creator",
+  "about": "Use when someone asks for 'content creator' by name. Deprecated alias: hands writing to content-production and planning to content-strategy.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+content[\\s-]+creator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcontent[\\s-]+creator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

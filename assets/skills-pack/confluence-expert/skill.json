@@ -1,0 +1,12 @@
+{
+  "id": "confluence-expert",
+  "name": "Confluence Expert",
+  "about": "Use when building or restructuring a Confluence space: page hierarchy, permissions, templates, Jira macros or a content audit. Generates structure with space_structure_generator.py and audits with con",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+confluence[\\s-]+expert\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bconfluence[\\s-]+expert\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

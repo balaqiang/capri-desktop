@@ -1,0 +1,12 @@
+{
+  "id": "brand-guidelines",
+  "name": "Brand Guidelines",
+  "about": "Use when writing or enforcing brand guidelines (colors, typography, logo rules, imagery, tone of voice), or checking an asset against them. Builds the color system, type scale and tone matrix, includi",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+brand[\\s-]+guidelines\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bbrand[\\s-]+guidelines\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

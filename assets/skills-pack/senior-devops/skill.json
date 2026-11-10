@@ -1,0 +1,12 @@
+{
+  "id": "senior-devops",
+  "name": "Senior Devops",
+  "about": "Set up CI/CD pipelines, infrastructure as code, containers and deployments on AWS, GCP or Azure. Use whenever the user needs a build or deploy pipeline, Terraform, a Dockerfile, or wants to manage a r",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+devops\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+devops\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

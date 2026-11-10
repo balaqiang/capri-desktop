@@ -1,0 +1,12 @@
+{
+  "id": "commit-craft",
+  "name": "Commit Craft",
+  "about": "Turn a mix of changes into clean, reviewable commits with good messages, blocking staged secrets and .env files. Use whenever the user says commit this, wants to split work into commits, write a commi",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+commit[\\s-]+craft\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcommit[\\s-]+craft\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

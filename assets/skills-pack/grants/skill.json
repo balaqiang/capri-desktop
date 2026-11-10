@@ -1,0 +1,11 @@
+{
+  "id": "grants",
+  "name": "Grants",
+  "about": "Use for any NIH funding question ('find grants for my research', 'which NIH institute'). Maps the idea to institutes, study sections and NOSIs via RePORTER, matches mechanisms with mechanism_matcher.p",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+grants\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

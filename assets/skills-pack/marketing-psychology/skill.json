@@ -1,0 +1,12 @@
+{
+  "id": "marketing-psychology",
+  "name": "Marketing Psychology",
+  "about": "Apply persuasion and behavioral science ethically to a page, offer or campaign, from 70+ mental models. Use whenever the user asks why people buy or how to nudge them.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+marketing[\\s-]+psychology\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmarketing[\\s-]+psychology\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

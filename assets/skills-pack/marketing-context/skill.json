@@ -1,0 +1,12 @@
+{
+  "id": "marketing-context",
+  "name": "Marketing Context",
+  "about": "Use at the start of any marketing project, or when ICP, positioning or brand voice are missing, before other marketing skills. Writes the shared context file the other skills read and validates it wit",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+marketing[\\s-]+context\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmarketing[\\s-]+context\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

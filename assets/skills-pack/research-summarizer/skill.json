@@ -1,0 +1,12 @@
+{
+  "id": "research-summarizer",
+  "name": "Research Summarizer",
+  "about": "Use when summarizing a research paper, article or report, comparing several sources or extracting citations into a brief. Formats with format_summary.py and pulls citations with extract_citations.py.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+research[\\s-]+summarizer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bresearch[\\s-]+summarizer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

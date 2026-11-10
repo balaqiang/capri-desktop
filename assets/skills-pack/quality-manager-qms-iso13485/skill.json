@@ -1,0 +1,12 @@
+{
+  "id": "quality-manager-qms-iso13485",
+  "name": "Quality Manager Qms Iso13485",
+  "about": "Build or maintain an ISO 13485 medical device QMS: design, documentation, CAPA, audit prep. Use whenever the user faces a 13485 certification audit or needs quality procedures.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+quality[\\s-]+manager[\\s-]+qms[\\s-]+iso13485\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bquality[\\s-]+manager[\\s-]+qms[\\s-]+iso13485\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

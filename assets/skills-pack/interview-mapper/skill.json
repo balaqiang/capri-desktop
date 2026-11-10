@@ -1,0 +1,12 @@
+{
+  "id": "interview-mapper",
+  "name": "Interview Mapper",
+  "about": "Use when coding or making sense of one interview transcript (customer, JTBD, expert, usability, exit). Extracts verbatim-grounded nuggets with extract_nuggets.py, verifies quotes with verify_quotes.py",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+interview[\\s-]+mapper\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\binterview[\\s-]+mapper\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

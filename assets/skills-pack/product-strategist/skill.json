@@ -1,0 +1,12 @@
+{
+  "id": "product-strategist",
+  "name": "Product Strategist",
+  "about": "Head of Product: quarterly OKRs cascaded from company to team, product vision, roadmap, team structure. Use whenever the user asks to set OKRs, a vision or roadmap, or align teams on strategy.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+product[\\s-]+strategist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bproduct[\\s-]+strategist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

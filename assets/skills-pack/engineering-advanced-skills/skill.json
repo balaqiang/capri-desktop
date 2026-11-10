@@ -1,0 +1,12 @@
+{
+  "id": "engineering-advanced-skills",
+  "name": "Engineering Advanced Skills",
+  "about": "Pick the right advanced engineering skill: agents, RAG, MCP, CI/CD, databases, observability, release. Use whenever the user asks which skill fits a task.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+engineering[\\s-]+advanced[\\s-]+skills\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bengineering[\\s-]+advanced[\\s-]+skills\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

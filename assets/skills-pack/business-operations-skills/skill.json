@@ -1,0 +1,12 @@
+{
+  "id": "business-operations-skills",
+  "name": "Business Operations Skills",
+  "about": "Route internal operations requests to the right BizOps skill: process, vendors, capacity, internal comms, SOPs, procurement. Use whenever the user asks where the bottleneck is or about vendor health.",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+business[\\s-]+operations[\\s-]+skills\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bbusiness[\\s-]+operations[\\s-]+skills\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

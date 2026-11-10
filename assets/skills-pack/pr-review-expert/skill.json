@@ -1,0 +1,12 @@
+{
+  "id": "pr-review-expert",
+  "name": "Pr Review Expert",
+  "about": "File-by-file pull request review for bugs, security and quality, with a merge verdict. Load whenever the user asks to review, look over or check a PR or diff before merging.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+pr[\\s-]+review[\\s-]+expert\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpr[\\s-]+review[\\s-]+expert\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

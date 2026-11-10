@@ -1,0 +1,12 @@
+{
+  "id": "stress-test",
+  "name": "Stress Test",
+  "about": "Stress-test a plan built on untested assumptions. Use whenever the user bets on a hockey-stick model or long pilot.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+stress[\\s-]+test\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bstress[\\s-]+test\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

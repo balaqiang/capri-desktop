@@ -1,0 +1,12 @@
+{
+  "id": "gc-review",
+  "name": "Gc Review",
+  "about": "Use for /c-level-agents:gc-review, or to challenge a term sheet, customer MSA, IP assignment or regulatory exposure before signing.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+gc[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bgc[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

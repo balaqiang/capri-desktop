@@ -1,0 +1,12 @@
+{
+  "id": "popup-cro",
+  "name": "Popup Cro",
+  "about": "Use when creating or fixing a popup, modal, exit-intent, slide-in or banner meant to convert. Sets trigger, frequency, offer and copy rules that avoid hurting the page.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+popup[\\s-]+cro\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpopup[\\s-]+cro\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

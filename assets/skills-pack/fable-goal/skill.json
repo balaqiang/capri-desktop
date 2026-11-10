@@ -1,0 +1,12 @@
+{
+  "id": "fable-goal",
+  "name": "Fable Goal",
+  "about": "Use when the user wants a /goal prompt rather than the build itself ('/fable-goal', 'turn this into a goal prompt', 'write the prompt that builds X'). Turns their ramble into one copy-paste prompt che",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+fable[\\s-]+goal\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfable[\\s-]+goal\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "senior-architect",
+  "name": "Senior Architect",
+  "about": "System architecture decisions with a written rationale: monolith vs microservices, database choice, scaling limits, ADRs, Mermaid diagrams. Load whenever the user asks should we split, which database,",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+architect\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+architect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

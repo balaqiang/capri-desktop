@@ -1,0 +1,12 @@
+{
+  "id": "change-management",
+  "name": "Change Management",
+  "about": "Use when rolling out a reorg, pivot, tool switch, leadership change or product kill. Plans it with ADKAR, communication templates and resistance patterns.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+change[\\s-]+management\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchange[\\s-]+management\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

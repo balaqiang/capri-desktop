@@ -1,0 +1,11 @@
+{
+  "id": "hivemind",
+  "name": "Hivemind",
+  "about": "Use when delegating grunt work to free opencode workers instead of spending Claude tokens: one worker or a scout, coder and tester swarm in worktrees. Triggers on 'spawn a worker', 'swarm', 'delegate ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+hivemind\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

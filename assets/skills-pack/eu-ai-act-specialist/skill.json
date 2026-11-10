@@ -1,0 +1,12 @@
+{
+  "id": "eu-ai-act-specialist",
+  "name": "Eu Ai Act Specialist",
+  "about": "Use for EU AI Act (Regulation 2024/1689) compliance work: classifying an AI system's risk tier, planning the Art. 43 conformity route and Annex IV file, or listing obligations by role. Runs ai_system_",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+eu[\\s-]+ai[\\s-]+act[\\s-]+specialist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\beu[\\s-]+ai[\\s-]+act[\\s-]+specialist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

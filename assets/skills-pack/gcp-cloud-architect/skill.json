@@ -1,0 +1,12 @@
+{
+  "id": "gcp-cloud-architect",
+  "name": "Gcp Cloud Architect",
+  "about": "Design, deploy and cut the cost of Google Cloud setups: Cloud Run, GKE, Functions, Cloud SQL, BigQuery, moving to GCP. Use whenever the user asks how to host or run something on GCP, why their GCP bil",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+gcp[\\s-]+cloud[\\s-]+architect\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bgcp[\\s-]+cloud[\\s-]+architect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

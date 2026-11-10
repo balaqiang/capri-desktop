@@ -1,0 +1,12 @@
+{
+  "id": "performance-profiler",
+  "name": "Performance Profiler",
+  "about": "Use for a slow endpoint, memory leak, CPU spike, large bundle or performance budget in Node.js, Python or Go, before optimizing. Measures before and after with performance_profiler.py, flamegraphs and",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+performance[\\s-]+profiler\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bperformance[\\s-]+profiler\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

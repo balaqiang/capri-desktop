@@ -1,0 +1,12 @@
+{
+  "id": "skill-security-auditor",
+  "name": "Skill Security Auditor",
+  "about": "Use before installing any skill or plugin from an untrusted source, or when asked if a skill is safe. Scans scripts, SKILL.md and dependencies for exfiltration, dangerous calls and prompt injection wi",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+skill[\\s-]+security[\\s-]+auditor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bskill[\\s-]+security[\\s-]+auditor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

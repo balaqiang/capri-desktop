@@ -1,0 +1,12 @@
+{
+  "id": "epic-design",
+  "name": "Epic Design",
+  "about": "Use for any landing page, hero section or scroll-driven web design that should feel cinematic (parallax, scrollytelling, overlapping sections, text reveals, Apple-style animation), before coding. Insp",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+epic[\\s-]+design\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bepic[\\s-]+design\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "senior-data-engineer",
+  "name": "Senior Data Engineer",
+  "about": "Data pipelines: Airflow DAGs, Spark, dbt, Kafka, ETL/ELT, data quality checks. Load whenever a DAG or batch job times out or fails, data arrives wrong, or the user designs an ingestion pipeline.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+data[\\s-]+engineer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+data[\\s-]+engineer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

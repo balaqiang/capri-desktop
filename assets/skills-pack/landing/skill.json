@@ -1,0 +1,11 @@
+{
+  "id": "landing",
+  "name": "Landing",
+  "about": "Use when asked for a premium single-file HTML landing page with 3D CSS, GSAP scroll effects and parallax. Locks positioning in a short intake, validates the palette with brand_palette_validator.py and",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+landing\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

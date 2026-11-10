@@ -1,0 +1,12 @@
+{
+  "id": "agent-designer",
+  "name": "Agent Designer",
+  "about": "Design multi-agent systems (supervisor, swarm, pipeline) and tool schemas; find bottlenecks in run logs. Use whenever agents split work or a run is slow or costly. Not for Claude Code workflow files (",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+agent[\\s-]+designer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bagent[\\s-]+designer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

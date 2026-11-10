@@ -1,0 +1,12 @@
+{
+  "id": "statistical-analyst",
+  "name": "Statistical Analyst",
+  "about": "Is a difference real? Significance tests, confidence intervals, sample size and test duration for A/B results. Load whenever the user asks if a lift is real or noise, which variant won, or how many us",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+statistical[\\s-]+analyst\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bstatistical[\\s-]+analyst\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

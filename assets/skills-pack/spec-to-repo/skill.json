@@ -1,0 +1,12 @@
+{
+  "id": "spec-to-repo",
+  "name": "Spec To Repo",
+  "about": "Use when the user says 'build me an app', 'create a project from this spec', 'scaffold a new repo', 'generate a starter', 'turn this idea into code', 'bootstrap a project', 'I have requirements and ne",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+spec[\\s-]+to[\\s-]+repo\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bspec[\\s-]+to[\\s-]+repo\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "linkedin-content",
+  "name": "Linkedin Content",
+  "about": "Write, edit or review a LinkedIn post: story, how-to, carousel, video script or poll. Use whenever the user wants a LinkedIn post, asks if their draft is good, or wants a blog or talk turned into post",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+linkedin[\\s-]+content\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\blinkedin[\\s-]+content\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

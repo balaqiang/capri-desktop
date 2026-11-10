@@ -1,0 +1,12 @@
+{
+  "id": "senior-qa",
+  "name": "Senior Qa",
+  "about": "Write and improve tests for React or Next.js apps: Jest, React Testing Library, MSW mocks, Playwright E2E, coverage gaps. Use whenever the user asks to add tests to a component or page, mock an API, s",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+qa\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+qa\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

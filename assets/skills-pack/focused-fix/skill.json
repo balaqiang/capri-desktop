@@ -1,0 +1,12 @@
+{
+  "id": "focused-fix",
+  "name": "Focused Fix",
+  "about": "Use when a whole feature or module is broken and needs fixing end to end ('make X work', 'the Y module is broken'). Maps every file and dependency of the area before changing anything. Single quick bu",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+focused[\\s-]+fix\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfocused[\\s-]+fix\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

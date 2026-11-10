@@ -1,0 +1,12 @@
+{
+  "id": "knowledge-ops",
+  "name": "Knowledge Ops",
+  "about": "Use when writing, checking or cleaning up SOPs and runbooks. Generates them with sop_generator.py, checks 5W2H completeness and links with runbook_validator.py and ingests an existing knowledge base w",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+knowledge[\\s-]+ops\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bknowledge[\\s-]+ops\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

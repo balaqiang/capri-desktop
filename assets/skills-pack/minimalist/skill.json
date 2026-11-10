@@ -1,0 +1,11 @@
+{
+  "id": "minimalist",
+  "name": "Minimalist",
+  "about": "Write the least code: no over-engineering, fewer dependencies. Use whenever the user wants it simpler; applies a ladder first: YAGNI, reuse, stdlib, native platform, existing deps.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+minimalist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

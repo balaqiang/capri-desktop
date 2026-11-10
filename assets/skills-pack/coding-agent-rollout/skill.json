@@ -1,0 +1,12 @@
+{
+  "id": "coding-agent-rollout",
+  "name": "Coding Agent Rollout",
+  "about": "Roll out Claude Code to a team: shared or managed settings, MCP and plugin approval, layered CLAUDE.md, adoption. Use whenever the user sets up Claude Code for their team or org, or asks if a rollout ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+coding[\\s-]+agent[\\s-]+rollout\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcoding[\\s-]+agent[\\s-]+rollout\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

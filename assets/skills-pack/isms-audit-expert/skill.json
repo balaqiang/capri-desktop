@@ -1,0 +1,12 @@
+{
+  "id": "isms-audit-expert",
+  "name": "Isms Audit Expert",
+  "about": "Use for ISO 27001 audit work: internal or surveillance audits, Annex A control evidence, Statement of Applicability, nonconformities, Stage 1 and 2 prep. Plans risk-based audits with isms_audit_schedu",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+isms[\\s-]+audit[\\s-]+expert\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bisms[\\s-]+audit[\\s-]+expert\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

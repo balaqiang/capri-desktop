@@ -1,0 +1,12 @@
+{
+  "id": "cold-email",
+  "name": "Cold Email",
+  "about": "Use for any cold outreach or SDR email or follow-up sequence to prospects who did not opt in, before drafting. Scores the sequence for length, personalization and spam risk with email_sequence_analyze",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cold[\\s-]+email\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcold[\\s-]+email\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

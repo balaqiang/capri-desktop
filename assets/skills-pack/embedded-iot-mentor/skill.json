@@ -1,0 +1,12 @@
+{
+  "id": "embedded-iot-mentor",
+  "name": "Embedded Iot Mentor",
+  "about": "Use for any embedded or IoT hardware project (ESP32, STM32, Arduino, Pico, firmware, PCB, MQTT, Home Assistant, sensor dashboards), before buying parts. Picks the MCU, board and toolchain, decides whe",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+embedded[\\s-]+iot[\\s-]+mentor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bembedded[\\s-]+iot[\\s-]+mentor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

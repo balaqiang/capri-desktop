@@ -1,0 +1,12 @@
+{
+  "id": "scenario-war-room",
+  "name": "Scenario War Room",
+  "about": "Use for compound what-if questions ('what if X and Y both happen?') with major downside across functions. Models cascading scenarios with scenario_modeler.py.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+scenario[\\s-]+war[\\s-]+room\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bscenario[\\s-]+war[\\s-]+room\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

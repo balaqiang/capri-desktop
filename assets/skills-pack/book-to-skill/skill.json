@@ -1,0 +1,12 @@
+{
+  "id": "book-to-skill",
+  "name": "Book To Skill",
+  "about": "Use when turning a book, docs folder or spec collection (PDF, EPUB, DOCX, HTML, Markdown) into an agent skill, before summarizing it by hand. Extracts with extract_document.py, compiles chapters, glos",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+book[\\s-]+to[\\s-]+skill\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bbook[\\s-]+to[\\s-]+skill\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

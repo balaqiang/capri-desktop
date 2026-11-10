@@ -1,0 +1,12 @@
+{
+  "id": "human-gate",
+  "name": "Human Gate",
+  "about": "Use before shipping anything that needs human sign-off (a plan, spec, report, page, migration or irreversible action). Builds a review page with review_page_builder.py and runs human_gate.py, which re",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+human[\\s-]+gate\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bhuman[\\s-]+gate\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "cro-review",
+  "name": "Cro Review",
+  "about": "Challenge a forecast, win-rate drop or sales hires. Use whenever asked or /c-level-agents:cro-review.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cro[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcro[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

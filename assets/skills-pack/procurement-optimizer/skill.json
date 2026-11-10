@@ -1,0 +1,12 @@
+{
+  "id": "procurement-optimizer",
+  "name": "Procurement Optimizer",
+  "about": "Cut spend on software and suppliers: SaaS audit, category spend review, slow purchasing cycles, supplier consolidation. Use whenever the user asks which tools or vendors to cut, where money goes, or w",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+procurement[\\s-]+optimizer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bprocurement[\\s-]+optimizer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

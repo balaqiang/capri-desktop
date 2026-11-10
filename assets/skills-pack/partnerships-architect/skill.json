@@ -1,0 +1,12 @@
+{
+  "id": "partnerships-architect",
+  "name": "Partnerships Architect",
+  "about": "Use when deciding whether to sign a partner, at which tier (referral, reseller, OEM, SI, alliance), with what joint GTM and revshare. Runs partner_tier_classifier.py, revshare_modeler.py and joint_gtm",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+partnerships[\\s-]+architect\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpartnerships[\\s-]+architect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

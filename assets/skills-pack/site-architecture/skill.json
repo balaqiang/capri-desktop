@@ -1,0 +1,12 @@
+{
+  "id": "site-architecture",
+  "name": "Site Architecture",
+  "about": "Use for URL structure, navigation, internal linking, hub pages or orphan pages, or when SEO problems are structural. Analyzes the sitemap and link graph with sitemap_analyzer.py before proposing a str",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+site[\\s-]+architecture\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsite[\\s-]+architecture\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

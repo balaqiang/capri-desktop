@@ -1,0 +1,12 @@
+{
+  "id": "data-quality-auditor",
+  "name": "Data Quality Auditor",
+  "about": "Use before analysis or model training on any dataset, or when asked to profile data or hunt missing values and outliers. Profiles it with data_profiler.py, missing_value_analyzer.py and outlier_detect",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+data[\\s-]+quality[\\s-]+auditor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bdata[\\s-]+quality[\\s-]+auditor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

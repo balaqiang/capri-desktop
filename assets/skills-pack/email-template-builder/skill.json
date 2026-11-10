@@ -1,0 +1,12 @@
+{
+  "id": "email-template-builder",
+  "name": "Email Template Builder",
+  "about": "Use when adding or reworking transactional email (React Email templates, Resend, Postmark, SendGrid or SES, preview, i18n, dark mode, deliverability). Builds the template system and provider integrati",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+email[\\s-]+template[\\s-]+builder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bemail[\\s-]+template[\\s-]+builder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

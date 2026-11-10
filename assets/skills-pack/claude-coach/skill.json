@@ -1,0 +1,12 @@
+{
+  "id": "claude-coach",
+  "name": "Claude Coach",
+  "about": "Use when the user wants to get better at using Claude ('coach me', 'teach me Claude tricks', 'make me a power user'). Rates their prompts with prompt_rater.py and surfaces one relevant power-user tip ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+claude[\\s-]+coach\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bclaude[\\s-]+coach\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

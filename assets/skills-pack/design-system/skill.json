@@ -1,0 +1,12 @@
+{
+  "id": "design-system",
+  "name": "Design System",
+  "about": "Use when setting up brand settings before the first markdown-to-HTML conversion, or changing them. Runs a 10-question onboarding with onboard.py (colors, fonts, style, TOC) and refuses palettes that f",
+  "group": "Productivity",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+design[\\s-]+system\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bdesign[\\s-]+system\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

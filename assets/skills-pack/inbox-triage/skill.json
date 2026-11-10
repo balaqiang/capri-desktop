@@ -1,0 +1,12 @@
+{
+  "id": "inbox-triage",
+  "name": "Inbox Triage",
+  "about": "Use when the user wants their inbox processed ('triage my inbox', 'check my email'). Classifies recent mail with the inbox-setup knowledge base, drafts replies it never sends (checked by draft_safety_",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+inbox[\\s-]+triage\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\binbox[\\s-]+triage\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

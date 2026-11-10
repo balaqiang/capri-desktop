@@ -1,0 +1,12 @@
+{
+  "id": "md-document",
+  "name": "Md Document",
+  "about": "Use when converting long-form markdown (spec, RFC, report, plan) into a single-file HTML page with sticky TOC, search and code-copy. Parses with markdown_parser.py and renders with html_renderer.py us",
+  "group": "Productivity",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+md[\\s-]+document\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmd[\\s-]+document\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

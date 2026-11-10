@@ -1,0 +1,12 @@
+{
+  "id": "meta-research",
+  "name": "Meta Research",
+  "about": "Use when a wrong answer is expensive: strategy research, comparing several products or markets, validating a hypothesis with outside data. Fans out searches and sub-agents, triangulates each claim acr",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+meta[\\s-]+research\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmeta[\\s-]+research\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

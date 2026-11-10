@@ -1,0 +1,12 @@
+{
+  "id": "commercial-forecaster",
+  "name": "Commercial Forecaster",
+  "about": "Use when building a bookings, ARR, pipeline or NRR forecast, or a commit, best-case and pipeline board number. Forecasts with bookings_forecaster.py, projects cohorts with cohort_arr_projector.py and ",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+commercial[\\s-]+forecaster\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcommercial[\\s-]+forecaster\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

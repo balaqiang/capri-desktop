@@ -1,0 +1,12 @@
+{
+  "id": "landing-page-generator",
+  "name": "Landing Page Generator",
+  "about": "Use when asked for a landing, marketing or campaign page as a Next.js TSX component with Tailwind. Scaffolds it with landing_page_scaffolder.py using PAS, AIDA or BAB copy, SEO meta and Core Web Vital",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+landing[\\s-]+page[\\s-]+generator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\blanding[\\s-]+page[\\s-]+generator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

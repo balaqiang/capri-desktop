@@ -1,0 +1,12 @@
+{
+  "id": "senior-backend",
+  "name": "Senior Backend",
+  "about": "Build and fix backend services: REST or GraphQL APIs, auth, microservices, PostgreSQL queries, migrations and load tests. Use whenever the user's API is slow or broken, needs login or auth added, a sc",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+backend\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+backend\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

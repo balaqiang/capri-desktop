@@ -1,0 +1,12 @@
+{
+  "id": "universal-scraping-architect",
+  "name": "Universal Scraping Architect",
+  "about": "Build a scraper or extractor for sites, PDFs or paginated APIs and validate the fields (Firecrawl or local Python). Load whenever the user wants data pulled from pages, files or an API, or a scraper b",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+universal[\\s-]+scraping[\\s-]+architect\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\buniversal[\\s-]+scraping[\\s-]+architect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

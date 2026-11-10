@@ -1,0 +1,11 @@
+{
+  "id": "pulse",
+  "name": "Pulse",
+  "about": "Use for what people are saying right now about a topic (trends, sentiment, complaints, tool comparisons) across Reddit, Hacker News and the web in a recent window. Returns a cited briefing with engage",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+pulse\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

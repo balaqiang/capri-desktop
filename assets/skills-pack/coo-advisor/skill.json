@@ -1,0 +1,12 @@
+{
+  "id": "coo-advisor",
+  "name": "Coo Advisor",
+  "about": "Use for operations leadership: process design, OKR execution, operating cadence, bottlenecks or scaling playbooks. Tracks OKRs with okr_tracker.py and analyzes efficiency with ops_efficiency_analyzer.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+coo[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcoo[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "atlassian-admin",
+  "name": "Atlassian Admin",
+  "about": "Use for Atlassian org administration: Jira or Confluence users and groups, permissions, SSO, marketplace apps or security policy. Audits permissions with permission_audit_tool.py.",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+atlassian[\\s-]+admin\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\batlassian[\\s-]+admin\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

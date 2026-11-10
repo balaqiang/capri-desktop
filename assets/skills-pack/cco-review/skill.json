@@ -1,0 +1,12 @@
+{
+  "id": "cco-review",
+  "name": "Cco Review",
+  "about": "Challenge a churn, retention, segment or CS hiring plan. Use whenever asked or /c-level-agents:cco-review.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cco[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcco[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

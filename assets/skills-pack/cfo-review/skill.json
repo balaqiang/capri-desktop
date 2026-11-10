@@ -1,0 +1,12 @@
+{
+  "id": "cfo-review",
+  "name": "Cfo Review",
+  "about": "Challenge a plan that spends real money: hiring wave, raise, channel budget. Use whenever asked or /c-level-agents:cfo-review.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cfo[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcfo[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

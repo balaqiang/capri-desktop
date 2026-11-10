@@ -1,0 +1,12 @@
+{
+  "id": "seo-audit",
+  "name": "Seo Audit",
+  "about": "Find why a site is not ranking: technical SEO, on-page issues, meta tags, site health. Use whenever the user asks why a page is not on Google, why traffic dropped or for an SEO audit.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+seo[\\s-]+audit\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bseo[\\s-]+audit\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

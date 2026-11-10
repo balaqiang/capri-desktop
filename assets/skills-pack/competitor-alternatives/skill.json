@@ -1,0 +1,12 @@
+{
+  "id": "competitor-alternatives",
+  "name": "Competitor Alternatives",
+  "about": "Use when creating an 'X vs Y', '[product] alternative' or comparison page, before drafting. Builds the comparison matrix with comparison_matrix_builder.py and picks one of four page formats with a fai",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+competitor[\\s-]+alternatives\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcompetitor[\\s-]+alternatives\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

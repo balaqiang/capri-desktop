@@ -1,0 +1,12 @@
+{
+  "id": "compliance-os",
+  "name": "Compliance Os",
+  "about": "Use when running several compliance frameworks at once: which apply, where controls overlap, a mock audit or one evidence checklist. Runs framework_selector.py, cross_framework_mapper.py, audit_simula",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+compliance[\\s-]+os\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcompliance[\\s-]+os\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

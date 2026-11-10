@@ -1,0 +1,12 @@
+{
+  "id": "agent-protocol",
+  "name": "Agent Protocol",
+  "about": "Use when C-suite advisor agents need to call each other or run a multi-role meeting. Defines invocation syntax, loop prevention, isolation and response formats.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+agent[\\s-]+protocol\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bagent[\\s-]+protocol\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

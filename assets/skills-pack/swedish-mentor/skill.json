@@ -1,0 +1,12 @@
+{
+  "id": "swedish-mentor",
+  "name": "Swedish Mentor",
+  "about": "Use when someone learning Swedish wants a learning path or YouTube clips and podcasts matched to their CEFR level and skill (SFI, Lätt Svenska, Radio Sweden på lätt svenska).",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+swedish[\\s-]+mentor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bswedish[\\s-]+mentor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

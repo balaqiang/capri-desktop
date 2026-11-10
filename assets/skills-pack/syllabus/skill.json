@@ -1,0 +1,11 @@
+{
+  "id": "syllabus",
+  "name": "Syllabus",
+  "about": "Use when the user shares a course syllabus or outline and wants supplementary readings. Groups topics with topic_grouper.py, finds recent peer-reviewed papers and writes a .docx with summaries and dis",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+syllabus\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

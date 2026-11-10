@@ -1,0 +1,12 @@
+{
+  "id": "browser-automation",
+  "name": "Browser Automation",
+  "about": "Automate a browser: scrape websites, fill forms, pull structured data from web pages. Use whenever the user wants to grab data from a site, fill a web form or extract a table. Browser testing: playwri",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+browser[\\s-]+automation\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bbrowser[\\s-]+automation\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

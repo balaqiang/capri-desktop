@@ -1,0 +1,12 @@
+{
+  "id": "paid-ads",
+  "name": "Paid Ads",
+  "about": "Use for paid campaign strategy on Google, Meta, LinkedIn or X: structure, targeting, bids, retargeting and budgets. Scores account health with ad_health_scorer.py and models ROAS with roas_calculator.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+paid[\\s-]+ads\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpaid[\\s-]+ads\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "linkedin-skills",
+  "name": "Linkedin Skills",
+  "about": "Use for any organic LinkedIn growth request (strategy, profile, posts, cadence, outreach, analytics). Checks it against LinkedIn's rules with linkedin_policy_gate.py and routes with linkedin_goal_rout",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+linkedin[\\s-]+skills\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\blinkedin[\\s-]+skills\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

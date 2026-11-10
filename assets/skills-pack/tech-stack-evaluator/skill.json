@@ -1,0 +1,12 @@
+{
+  "id": "tech-stack-evaluator",
+  "name": "Tech Stack Evaluator",
+  "about": "Compare frameworks or tech stacks before committing: side-by-side scoring, total cost of ownership, ecosystem health and migration risk. Use whenever the user asks which framework to pick, X vs Y, whe",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+tech[\\s-]+stack[\\s-]+evaluator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\btech[\\s-]+stack[\\s-]+evaluator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

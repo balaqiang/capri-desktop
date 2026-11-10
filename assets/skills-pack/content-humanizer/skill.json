@@ -1,0 +1,12 @@
+{
+  "id": "content-humanizer",
+  "name": "Content Humanizer",
+  "about": "Make a draft sound less like AI: fix generic, robotic text with rhythm, specifics, personality and brand voice. Use whenever the user says copy sounds like ChatGPT, bland or stiff, or not like them.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+content[\\s-]+humanizer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcontent[\\s-]+humanizer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

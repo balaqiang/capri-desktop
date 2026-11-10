@@ -1,0 +1,12 @@
+{
+  "id": "self-eval",
+  "name": "Self Eval",
+  "about": "Grade finished work honestly on two axes with a devil's-advocate pass against inflation. Use whenever the user asks how well a task went, to rate the work or for an honest self-review.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+self[\\s-]+eval\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bself[\\s-]+eval\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

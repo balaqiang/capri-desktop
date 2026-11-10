@@ -1,0 +1,12 @@
+{
+  "id": "jira-expert",
+  "name": "Jira Expert",
+  "about": "Jira setup and queries: JQL, workflows, custom fields, automation, dashboards. Use whenever the user needs a Jira search, filter, dashboard or rule set up, or a workflow fixed.",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+jira[\\s-]+expert\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bjira[\\s-]+expert\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

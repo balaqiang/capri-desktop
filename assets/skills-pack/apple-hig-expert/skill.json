@@ -1,0 +1,12 @@
+{
+  "id": "apple-hig-expert",
+  "name": "Apple Hig Expert",
+  "about": "Use when designing or reviewing iOS, macOS, watchOS or visionOS UI against Apple's Human Interface Guidelines, including Liquid Glass, contrast and tap targets. Checks it with hig_checker.py.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+apple[\\s-]+hig[\\s-]+expert\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bapple[\\s-]+hig[\\s-]+expert\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

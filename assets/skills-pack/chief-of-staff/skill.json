@@ -1,0 +1,12 @@
+{
+  "id": "chief-of-staff",
+  "name": "Chief Of Staff",
+  "about": "Use when a founder question needs routing to the right C-suite advisor, or a cross-functional decision needs a board meeting convened. Loads company context, synthesizes the answers and tracks decisio",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+chief[\\s-]+of[\\s-]+staff\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchief[\\s-]+of[\\s-]+staff\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

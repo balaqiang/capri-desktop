@@ -1,0 +1,12 @@
+{
+  "id": "sales-engineer",
+  "name": "Sales Engineer",
+  "about": "Use for pre-sales work: RFP coverage gaps, competitive feature matrices or planning and scoring a proof of concept. Runs rfp_response_analyzer.py, competitive_matrix_builder.py and poc_planner.py.",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+sales[\\s-]+engineer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsales[\\s-]+engineer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "agent-run-forensics",
+  "name": "Agent Run Forensics",
+  "about": "Use when asked why an agent did something, what a past session or run changed, whether tests really passed, or to verify a session summary. Answers from the recorded transcript, not memory, with trace",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+agent[\\s-]+run[\\s-]+forensics\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bagent[\\s-]+run[\\s-]+forensics\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

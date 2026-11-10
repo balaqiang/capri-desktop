@@ -1,0 +1,12 @@
+{
+  "id": "contract-and-proposal-writer",
+  "name": "Contract And Proposal Writer",
+  "about": "Use when drafting a freelance contract, proposal, SOW, NDA or MSA for US, EU, UK or DACH jurisdictions. Writes structured Markdown with docx conversion steps; not legal advice.",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+contract[\\s-]+and[\\s-]+proposal[\\s-]+writer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcontract[\\s-]+and[\\s-]+proposal[\\s-]+writer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

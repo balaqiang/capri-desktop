@@ -1,0 +1,12 @@
+{
+  "id": "referral-program",
+  "name": "Referral Program",
+  "about": "Use when designing or fixing a referral, affiliate or ambassador program, before setting rewards. Models payout and ROI with referral_roi_calculator.py and designs the mechanics end to end.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+referral[\\s-]+program\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\breferral[\\s-]+program\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

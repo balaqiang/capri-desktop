@@ -1,0 +1,12 @@
+{
+  "id": "agent-memory",
+  "name": "Agent Memory",
+  "about": "Use when an agent keeps relearning the same correction, CLAUDE.md has grown unreadable, or you need to trace where a remembered rule came from. Promotes facts through four tiers only on recurrence acr",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+agent[\\s-]+memory\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bagent[\\s-]+memory\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

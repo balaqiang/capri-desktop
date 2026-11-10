@@ -1,0 +1,11 @@
+{
+  "id": "pw",
+  "name": "Pw",
+  "about": "Use for any Playwright or end-to-end browser testing work: writing tests, fixing flaky ones, migrating from Cypress or Selenium, CI setup, TestRail or BrowserStack. Routes to the matching /pw sub-skil",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+pw\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

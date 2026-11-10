@@ -1,0 +1,12 @@
+{
+  "id": "x-twitter-growth",
+  "name": "X Twitter Growth",
+  "about": "Use for growing on X/Twitter: tweets, threads, profile audit, competitors or posting plan. Audits the profile with profile_auditor.py, drafts with tweet_composer.py and plans posts with content_planne",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+x[\\s-]+twitter[\\s-]+growth\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bx[\\s-]+twitter[\\s-]+growth\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

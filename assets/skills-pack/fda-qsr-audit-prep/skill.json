@@ -1,0 +1,12 @@
+{
+  "id": "fda-qsr-audit-prep",
+  "name": "Fda Qsr Audit Prep",
+  "about": "Use for /compliance-os:fda-qsr-audit-prep, or before an FDA inspection, QMSR internal audit or Form 483 response.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+fda[\\s-]+qsr[\\s-]+audit[\\s-]+prep\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfda[\\s-]+qsr[\\s-]+audit[\\s-]+prep\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

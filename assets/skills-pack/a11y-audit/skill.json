@@ -1,0 +1,12 @@
+{
+  "id": "a11y-audit",
+  "name": "A11y Audit",
+  "about": "Use for any accessibility audit or a11y fix (WCAG 2.2 A/AA, color contrast, compliance report, CI check) in React, Next.js, Vue, Angular, Svelte or HTML. Scans with a11y_scanner.py and checks contrast",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+a11y[\\s-]+audit\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\ba11y[\\s-]+audit\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "cmo-review",
+  "name": "Cmo Review",
+  "about": "Use for /c-level-agents:cmo-review, or to challenge positioning, ICP, messaging or channel mix before a launch.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cmo[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcmo[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

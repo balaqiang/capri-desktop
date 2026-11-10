@@ -1,0 +1,12 @@
+{
+  "id": "rfp-responder",
+  "name": "Rfp Responder",
+  "about": "Use when an RFP, RFI, RFQ or security or vendor questionnaire arrives. Parses mandatory vs weighted requirements with rfp_parser.py, drafts proof-point answers with response_drafter.py and estimates w",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+rfp[\\s-]+responder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\brfp[\\s-]+responder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

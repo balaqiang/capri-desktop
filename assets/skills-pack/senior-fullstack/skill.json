@@ -1,0 +1,12 @@
+{
+  "id": "senior-fullstack",
+  "name": "Senior Fullstack",
+  "about": "Start a fullstack project or audit a codebase: pick a stack (Next.js, FastAPI, MERN, Django), scaffold it and score code quality. Use whenever the user asks which stack to use, wants a new web app set",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+fullstack\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+fullstack\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

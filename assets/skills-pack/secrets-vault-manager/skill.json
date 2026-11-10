@@ -1,0 +1,12 @@
+{
+  "id": "secrets-vault-manager",
+  "name": "Secrets Vault Manager",
+  "about": "Use when setting up HashiCorp Vault, AWS Secrets Manager, Azure Key Vault or GCP Secret Manager, rotating secrets or auditing secret access. Generates config with vault_config_generator.py, plans rota",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+secrets[\\s-]+vault[\\s-]+manager\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsecrets[\\s-]+vault[\\s-]+manager\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

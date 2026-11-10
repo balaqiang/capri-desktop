@@ -1,0 +1,12 @@
+{
+  "id": "app-store-optimization",
+  "name": "App Store Optimization",
+  "about": "Use for any App Store or Google Play listing, keyword, ranking or review question, before writing metadata. Scores the listing with aso_scorer.py and checks keywords, competitors, title and subtitle l",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+app[\\s-]+store[\\s-]+optimization\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bapp[\\s-]+store[\\s-]+optimization\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

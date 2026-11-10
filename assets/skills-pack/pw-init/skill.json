@@ -1,0 +1,12 @@
+{
+  "id": "pw-init",
+  "name": "Pw Init",
+  "about": "Use when setting up Playwright in a project ('set up playwright', 'add e2e tests', 'configure playwright', 'init playwright').",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+pw[\\s-]+init\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpw[\\s-]+init\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

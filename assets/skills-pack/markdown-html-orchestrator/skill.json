@@ -1,0 +1,12 @@
+{
+  "id": "markdown-html-orchestrator",
+  "name": "Markdown Html Orchestrator",
+  "about": "Use when the user wants a markdown file turned into a single-file interactive HTML page (document, code review or slide deck). Classifies it with doctype_classifier.py and routes to md-document, md-re",
+  "group": "Productivity",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+markdown[\\s-]+html[\\s-]+orchestrator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmarkdown[\\s-]+html[\\s-]+orchestrator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

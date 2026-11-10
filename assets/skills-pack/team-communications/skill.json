@@ -1,0 +1,12 @@
+{
+  "id": "team-communications",
+  "name": "Team Communications",
+  "about": "Use for any internal communication: 3P updates, weekly or status reports, newsletters, FAQs, incident reports, leadership updates ('write my update'). Drafts it in the right format for the audience.",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+team[\\s-]+communications\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bteam[\\s-]+communications\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

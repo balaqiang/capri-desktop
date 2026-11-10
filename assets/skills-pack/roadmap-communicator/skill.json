@@ -1,0 +1,12 @@
+{
+  "id": "roadmap-communicator",
+  "name": "Roadmap Communicator",
+  "about": "Write roadmap narratives, release notes, changelogs, stakeholder updates. Use whenever the user explains plans to execs, engineers or customers.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+roadmap[\\s-]+communicator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\broadmap[\\s-]+communicator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,11 @@
+{
+  "id": "andreessen",
+  "name": "Andreessen",
+  "about": "Blunt market-first verdict on an idea, venture or career bet, leading with the strongest counterargument, or a 3x5-card daily plan. Use whenever the user asks is there a market, are we at PMF, should ",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+andreessen\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

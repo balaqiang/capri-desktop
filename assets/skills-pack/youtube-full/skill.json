@@ -1,0 +1,12 @@
+{
+  "id": "youtube-full",
+  "name": "Youtube Full",
+  "about": "Use for any YouTube URL, video ID or @handle, or a request for transcripts, video search, channel, playlist or new-upload monitoring. Fetches them with yt-dlp, youtube-transcript-api and public RSS fe",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+youtube[\\s-]+full\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\byoutube[\\s-]+full\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "ship-gate",
+  "name": "Ship Gate",
+  "about": "Use before deploying or going live ('am I ready to ship', 'can I deploy', 'preflight check'). Scans the codebase with ship_gate_scanner.py across security, database, deploy, AI, dependencies and obser",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ship[\\s-]+gate\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bship[\\s-]+gate\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

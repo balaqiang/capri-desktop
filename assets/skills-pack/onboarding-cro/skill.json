@@ -1,0 +1,12 @@
+{
+  "id": "onboarding-cro",
+  "name": "Onboarding Cro",
+  "about": "Use when activation, time-to-value or a first-run experience after signup needs work, before redesigning it. Finds the activation drop-off with activation_funnel_analyzer.py.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+onboarding[\\s-]+cro\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bonboarding[\\s-]+cro\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

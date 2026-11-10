@@ -1,0 +1,12 @@
+{
+  "id": "karpathy-coder",
+  "name": "Karpathy Coder",
+  "about": "Check a diff for overbuilt code: hidden assumptions, needless abstraction, non-surgical changes, unverified goals (Karpathy's four principles). Load whenever the user thinks they overcomplicated somet",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+karpathy[\\s-]+coder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bkarpathy[\\s-]+coder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

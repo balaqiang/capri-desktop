@@ -1,0 +1,11 @@
+{
+  "id": "reflect",
+  "name": "Reflect",
+  "about": "Use when the user says 'step back', 'zoom out', 'are we on track' or 'sanity check this', or work has gone deep into details without a check on direction. Reassesses direction, assumptions and bias ac",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+reflect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

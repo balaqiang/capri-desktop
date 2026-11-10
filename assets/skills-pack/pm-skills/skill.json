@@ -1,0 +1,12 @@
+{
+  "id": "pm-skills",
+  "name": "Pm Skills",
+  "about": "Router for project-management skills: sprints, portfolio health, Jira, Confluence, stakeholder comms, plus a delivery loop. Use whenever a delivery request is unclear about which PM skill fits, or the",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+pm[\\s-]+skills\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpm[\\s-]+skills\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

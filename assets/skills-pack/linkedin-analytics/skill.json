@@ -1,0 +1,12 @@
+{
+  "id": "linkedin-analytics",
+  "name": "Linkedin Analytics",
+  "about": "Use when someone asks why their LinkedIn reach dropped, which posts worked, whether a pattern is real or how to test one. Analyzes posts with post_performance_analyzer.py, mines patterns with pattern_",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+linkedin[\\s-]+analytics\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\blinkedin[\\s-]+analytics\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

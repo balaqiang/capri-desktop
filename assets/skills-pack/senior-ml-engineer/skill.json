@@ -1,0 +1,12 @@
+{
+  "id": "senior-ml-engineer",
+  "name": "Senior Ml Engineer",
+  "about": "Use for putting ML models or LLM features into production: deployment, MLOps, drift monitoring, RAG pipelines, LLM API cost and retries. Deploys with model_deployment_pipeline.py, monitors with ml_mon",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+ml[\\s-]+engineer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+ml[\\s-]+engineer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

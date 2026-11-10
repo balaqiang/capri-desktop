@@ -1,0 +1,12 @@
+{
+  "id": "paywall-upgrade-cro",
+  "name": "Paywall Upgrade Cro",
+  "about": "Use when designing or fixing an in-app paywall, upgrade modal, feature gate or trial-expiry screen. Applies upgrade-moment patterns for users who have already seen value. Public pricing page: page-cro",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+paywall[\\s-]+upgrade[\\s-]+cro\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpaywall[\\s-]+upgrade[\\s-]+cro\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

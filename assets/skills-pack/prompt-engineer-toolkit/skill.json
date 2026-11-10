@@ -1,0 +1,12 @@
+{
+  "id": "prompt-engineer-toolkit",
+  "name": "Prompt Engineer Toolkit",
+  "about": "Use when a marketing team's AI prompts need testing, versioning or governance, before shipping a prompt. A/B tests prompts against cases with prompt_tester.py and keeps diffed versions with prompt_ver",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+prompt[\\s-]+engineer[\\s-]+toolkit\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bprompt[\\s-]+engineer[\\s-]+toolkit\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

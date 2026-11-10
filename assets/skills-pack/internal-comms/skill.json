@@ -1,0 +1,12 @@
+{
+  "id": "internal-comms",
+  "name": "Internal Comms",
+  "about": "Use when announcing a reorg, tool rollout, policy change, leadership change, layoff or acquisition internally. Builds the announcement with change_announcement_builder.py and sequences it with comms_c",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+internal[\\s-]+comms\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\binternal[\\s-]+comms\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

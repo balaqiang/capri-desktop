@@ -1,0 +1,11 @@
+{
+  "id": "litreview",
+  "name": "Litreview",
+  "about": "Use when starting a literature review or a literature-based project. Plans the search (PICO, SPIDER) with framework_recommender.py, searches PubMed and OpenAlex with free_search.py and writes a .docx ",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+litreview\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "form-cro",
+  "name": "Form Cro",
+  "about": "Use when a lead, contact, demo or checkout form is underperforming or being designed, before changing fields. Scores field friction with form_field_analyzer.py. Signup forms: signup-flow-cro.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+form[\\s-]+cro\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bform[\\s-]+cro\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

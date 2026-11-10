@@ -1,0 +1,12 @@
+{
+  "id": "aims-audit",
+  "name": "Aims Audit",
+  "about": "ISO 42001 AI readiness check. Use before a stage 1 or internal audit, or /compliance-os:aims-audit.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+aims[\\s-]+audit\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\baims[\\s-]+audit\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

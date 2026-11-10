@@ -1,0 +1,11 @@
+{
+  "id": "migrate",
+  "name": "Migrate",
+  "about": "Use when moving tests from Cypress or Selenium to Playwright ('migrate tests', 'convert tests', 'replace selenium').",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+migrate\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

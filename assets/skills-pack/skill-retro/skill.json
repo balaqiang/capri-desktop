@@ -1,0 +1,12 @@
+{
+  "id": "skill-retro",
+  "name": "Skill Retro",
+  "about": "Use when the user wants their skills graded from real session history, asks which installed skills actually work, or wants evidence-backed skill edits. Collects local sessions with collect_sessions.py",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+skill[\\s-]+retro\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bskill[\\s-]+retro\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

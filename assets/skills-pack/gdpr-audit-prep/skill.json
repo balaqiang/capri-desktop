@@ -1,0 +1,12 @@
+{
+  "id": "gdpr-audit-prep",
+  "name": "Gdpr Audit Prep",
+  "about": "Use for /compliance-os:gdpr-audit-prep, or before a GDPR review, post-breach audit or DPA investigation.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+gdpr[\\s-]+audit[\\s-]+prep\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bgdpr[\\s-]+audit[\\s-]+prep\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "mcp-server-builder",
+  "name": "Mcp Server Builder",
+  "about": "Use when exposing an API as an MCP server or scaffolding a new MCP server in Python or TypeScript, before hand-writing tool wrappers. Generates tools from OpenAPI with openapi_to_mcp.py and validates ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+mcp[\\s-]+server[\\s-]+builder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmcp[\\s-]+server[\\s-]+builder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

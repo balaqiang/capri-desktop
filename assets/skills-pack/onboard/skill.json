@@ -1,0 +1,11 @@
+{
+  "id": "onboard",
+  "name": "Onboard",
+  "about": "Use for /cs-onboard, or when the virtual C-suite lacks company context. Interviews the founder and writes ~/.claude/company-context.md.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+onboard\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

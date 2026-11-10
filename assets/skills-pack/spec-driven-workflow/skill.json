@@ -1,0 +1,12 @@
+{
+  "id": "spec-driven-workflow",
+  "name": "Spec Driven Workflow",
+  "about": "Use when a feature should be specified before coding (acceptance criteria, spec-first, tests from specs). Writes the spec with spec_generator.py, checks it with spec_validator.py and extracts tests wi",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+spec[\\s-]+driven[\\s-]+workflow\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bspec[\\s-]+driven[\\s-]+workflow\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

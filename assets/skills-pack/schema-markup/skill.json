@@ -1,0 +1,12 @@
+{
+  "id": "schema-markup",
+  "name": "Schema Markup",
+  "about": "Use for any JSON-LD, schema.org, rich-result or structured-data request, before writing markup. Validates the markup with schema_validator.py against Google's required properties, which catches errors",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+schema[\\s-]+markup\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bschema[\\s-]+markup\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

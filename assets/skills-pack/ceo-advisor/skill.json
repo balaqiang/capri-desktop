@@ -1,0 +1,12 @@
+{
+  "id": "ceo-advisor",
+  "name": "Ceo Advisor",
+  "about": "Advice for a CEO or founder on running the company: board and investor trouble, raise or cut, strategy bets, org and culture. Load whenever the user speaks as CEO or founder about a company-level deci",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ceo[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bceo[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

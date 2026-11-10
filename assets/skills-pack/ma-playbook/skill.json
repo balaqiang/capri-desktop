@@ -1,0 +1,12 @@
+{
+  "id": "ma-playbook",
+  "name": "Ma Playbook",
+  "about": "Buy a company or sell yours: diligence, valuation, terms, integration. Use whenever M&A or an exit comes up.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ma[\\s-]+playbook\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bma[\\s-]+playbook\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

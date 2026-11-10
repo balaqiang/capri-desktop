@@ -1,0 +1,12 @@
+{
+  "id": "tech-debt-tracker",
+  "name": "Tech Debt Tracker",
+  "about": "Find, rank and track tech debt in a codebase. Use whenever the user asks what to refactor first, plans a cleanup sprint, modernizes legacy code or wants to know how messy the code is.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+tech[\\s-]+debt[\\s-]+tracker\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\btech[\\s-]+debt[\\s-]+tracker\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

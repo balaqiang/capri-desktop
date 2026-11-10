@@ -1,0 +1,12 @@
+{
+  "id": "pricing-strategist",
+  "name": "Pricing Strategist",
+  "about": "Use when choosing or revisiting pricing: seat, usage, value-based, freemium or hybrid, Van Westendorp willingness-to-pay analysis, or Good/Better/Best tiers. Runs pricing_model_picker.py, wtp_analyzer",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+pricing[\\s-]+strategist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpricing[\\s-]+strategist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

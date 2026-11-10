@@ -1,0 +1,12 @@
+{
+  "id": "ab-test-setup",
+  "name": "Ab Test Setup",
+  "about": "Use before planning or launching any A/B, split or multivariate test, or when asked if a result is significant. Sizes the test with sample_size_calculator.py and writes the hypothesis, metric and stop",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ab[\\s-]+test[\\s-]+setup\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bab[\\s-]+test[\\s-]+setup\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

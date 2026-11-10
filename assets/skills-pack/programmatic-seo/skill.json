@@ -1,0 +1,12 @@
+{
+  "id": "programmatic-seo",
+  "name": "Programmatic Seo",
+  "about": "Use when building many SEO pages from a template and data (location, integration, comparison or directory pages), before generating them. Designs URL patterns with url_pattern_generator.py and guards ",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+programmatic[\\s-]+seo\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bprogrammatic[\\s-]+seo\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

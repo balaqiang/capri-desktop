@@ -1,0 +1,12 @@
+{
+  "id": "founder-coach",
+  "name": "Founder Coach",
+  "about": "Use when a founder is the bottleneck, can't delegate, is burning out or is moving from IC to CEO. Covers delegation, energy and calendar audits, blind spots and succession.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+founder[\\s-]+coach\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfounder[\\s-]+coach\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

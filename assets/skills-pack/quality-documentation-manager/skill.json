@@ -1,0 +1,12 @@
+{
+  "id": "quality-documentation-manager",
+  "name": "Quality Documentation Manager",
+  "about": "Use for QMS document control: numbering, versioning, change control or 21 CFR Part 11 e-signatures. Validates documents with document_validator.py and tracks versions with document_version_control.py.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+quality[\\s-]+documentation[\\s-]+manager\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bquality[\\s-]+documentation[\\s-]+manager\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "channel-economics",
+  "name": "Channel Economics",
+  "about": "Use for a direct vs partner channel review: fully loaded cost to serve, channel ROI and the best channel mix under constraints. Runs cost_to_serve_calculator.py, channel_roi_analyzer.py and channel_mi",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+channel[\\s-]+economics\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchannel[\\s-]+economics\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

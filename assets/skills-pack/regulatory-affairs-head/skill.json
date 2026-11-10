@@ -1,0 +1,12 @@
+{
+  "id": "regulatory-affairs-head",
+  "name": "Regulatory Affairs Head",
+  "about": "Use for medical device market access strategy: FDA 510(k), De Novo or PMA packages, CE marking under MDR, pre-sub meetings, agency deficiency responses or multi-market plans. Analyzes pathways with re",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+regulatory[\\s-]+affairs[\\s-]+head\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bregulatory[\\s-]+affairs[\\s-]+head\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

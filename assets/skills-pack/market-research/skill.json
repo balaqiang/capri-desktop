@@ -1,0 +1,12 @@
+{
+  "id": "market-research",
+  "name": "Market Research",
+  "about": "Use for market sizing (TAM, SAM, SOM both top-down and bottom-up), survey sample sizes or segment scoring. Runs market_sizer.py, sample_size_planner.py and segmentation_scorer.py and never returns one",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+market[\\s-]+research\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmarket[\\s-]+research\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

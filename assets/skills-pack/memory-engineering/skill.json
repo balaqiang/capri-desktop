@@ -1,0 +1,12 @@
+{
+  "id": "memory-engineering",
+  "name": "Memory Engineering",
+  "about": "Use before adding memory to an agent or when a memory store keeps growing (long context vs RAG vs graph vs agentic memory, what to expire). Prices the design with memory_cost_profiler.py and refuses o",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+memory[\\s-]+engineering\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmemory[\\s-]+engineering\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

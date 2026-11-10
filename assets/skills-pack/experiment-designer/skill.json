@@ -1,0 +1,12 @@
+{
+  "id": "experiment-designer",
+  "name": "Experiment Designer",
+  "about": "Plan A/B tests and product experiments: hypotheses, sample size, priority, reading results. Use whenever the user asks if a test won, how long to run it or what to test.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+experiment[\\s-]+designer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bexperiment[\\s-]+designer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

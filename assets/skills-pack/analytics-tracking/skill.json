@@ -1,0 +1,12 @@
+{
+  "id": "analytics-tracking",
+  "name": "Analytics Tracking",
+  "about": "Use for any GA4, Google Tag Manager, event-tracking or conversion-tracking setup, audit or broken-event debug, before touching tags. Generates the event taxonomy and tracking plan with tracking_plan_g",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+analytics[\\s-]+tracking\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\banalytics[\\s-]+tracking\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

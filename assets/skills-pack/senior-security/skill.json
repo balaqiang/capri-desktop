@@ -1,0 +1,12 @@
+{
+  "id": "senior-security",
+  "name": "Senior Security",
+  "about": "Check if a design or code is secure: STRIDE threat model, DREAD risk scores, leaked secret scan. Use whenever the user asks what could be attacked, how risky a feature is, or to find exposed keys.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+security\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+security\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "monorepo-navigator",
+  "name": "Monorepo Navigator",
+  "about": "Use for Turborepo, Nx, pnpm-workspace or Lerna setup, affected-only builds, remote caching or a multi-repo to monorepo move. Maps packages and the dependency graph with monorepo_analyzer.py.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+monorepo[\\s-]+navigator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmonorepo[\\s-]+navigator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

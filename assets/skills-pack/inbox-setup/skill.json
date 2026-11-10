@@ -1,0 +1,12 @@
+{
+  "id": "inbox-setup",
+  "name": "Inbox Setup",
+  "about": "Use when setting up email triage for the first time, before inbox-triage, or when priorities change. Interviews the user one question at a time and writes the knowledge base inbox-triage reads, valida",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+inbox[\\s-]+setup\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\binbox[\\s-]+setup\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "cpo-review",
+  "name": "Cpo Review",
+  "about": "Challenge a roadmap, PMF claim or feature kill. Use whenever asked or /c-level-agents:cpo-review.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cpo[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcpo[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "org-health-diagnostic",
+  "name": "Org Health Diagnostic",
+  "about": "Use for a whole-company health check before a board review or when functions seem at risk. Scores 8 dimensions on a traffic light with health_scorer.py.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+org[\\s-]+health[\\s-]+diagnostic\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\borg[\\s-]+health[\\s-]+diagnostic\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,11 @@
+{
+  "id": "decide",
+  "name": "Decide",
+  "about": "Use for /c-level-agents:decide, or right after the founder approves a boardroom memo, to log it as a durable decision.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+decide\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

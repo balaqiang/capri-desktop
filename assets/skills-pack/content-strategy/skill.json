@@ -1,0 +1,12 @@
+{
+  "id": "content-strategy",
+  "name": "Content Strategy",
+  "about": "Use when deciding what content to create (topics, clusters, a blog or content plan), before listing ideas. Maps topic clusters with topic_cluster_mapper.py and ties each piece to a funnel stage and se",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+content[\\s-]+strategy\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcontent[\\s-]+strategy\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

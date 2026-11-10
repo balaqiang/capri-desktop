@@ -1,0 +1,12 @@
+{
+  "id": "kubernetes-operator",
+  "name": "Kubernetes Operator",
+  "about": "Use when building a Kubernetes operator or CRD (controller-runtime, kubebuilder, operator-sdk, KOPF), before writing the controller. Validates CRDs with crd_validator.py, lints reconcile loops with re",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+kubernetes[\\s-]+operator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bkubernetes[\\s-]+operator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

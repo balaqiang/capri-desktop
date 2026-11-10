@@ -1,0 +1,12 @@
+{
+  "id": "cmmc-readiness",
+  "name": "Cmmc Readiness",
+  "about": "Use when a defense contractor or subcontractor is preparing for a CMMC 2.0 Level 2 self-assessment or C3PAO assessment, calculating or checking an SPRS score against NIST SP 800-171 Rev 2, deciding wh",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cmmc[\\s-]+readiness\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcmmc[\\s-]+readiness\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

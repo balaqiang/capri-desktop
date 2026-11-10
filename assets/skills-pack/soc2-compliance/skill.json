@@ -1,0 +1,12 @@
+{
+  "id": "soc2-compliance",
+  "name": "Soc2 Compliance",
+  "about": "Use when the user asks to prepare for SOC 2 audits, map Trust Service Criteria, build control matrices, collect audit evidence, perform gap analysis, or assess SOC 2 Type I vs Type II readiness.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+soc2[\\s-]+compliance\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsoc2[\\s-]+compliance\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

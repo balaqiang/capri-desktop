@@ -1,0 +1,12 @@
+{
+  "id": "post-mortem",
+  "name": "Post Mortem",
+  "about": "Use for /c-level-agents:post-mortem, or when a decision hits its 90-day review or kill criteria. Scores it against the original assumptions and dissent.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+post[\\s-]+mortem\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpost[\\s-]+mortem\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

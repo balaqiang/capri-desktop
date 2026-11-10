@@ -1,0 +1,12 @@
+{
+  "id": "skillopt-sleep",
+  "name": "Skillopt Sleep",
+  "about": "Use when the user wants their Claude agent to self-improve from past usage, asks about a nightly/offline 'sleep' or 'dream' cycle, memory/skill consolidation, or says things like 'make my agent better",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+skillopt[\\s-]+sleep\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bskillopt[\\s-]+sleep\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

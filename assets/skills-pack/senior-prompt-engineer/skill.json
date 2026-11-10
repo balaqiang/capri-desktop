@@ -1,0 +1,12 @@
+{
+  "id": "senior-prompt-engineer",
+  "name": "Senior Prompt Engineer",
+  "about": "Improve prompts and measure LLM quality: fix inconsistent prompts, build eval sets, score RAG retrieval, check agent tool configs. Use whenever the user's prompt, chatbot or RAG answers are unreliable",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+senior[\\s-]+prompt[\\s-]+engineer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsenior[\\s-]+prompt[\\s-]+engineer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

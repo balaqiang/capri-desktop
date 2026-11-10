@@ -1,0 +1,12 @@
+{
+  "id": "customer-success-manager",
+  "name": "Customer Success Manager",
+  "about": "Use when reviewing customer accounts for health, churn risk or expansion. Scores health with health_score_calculator.py, churn with churn_risk_analyzer.py and upsell with expansion_opportunity_scorer.",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+customer[\\s-]+success[\\s-]+manager\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcustomer[\\s-]+success[\\s-]+manager\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

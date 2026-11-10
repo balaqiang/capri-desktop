@@ -1,0 +1,12 @@
+{
+  "id": "strategic-alignment",
+  "name": "Strategic Alignment",
+  "about": "Use when teams pull in different directions, OKRs don't connect or departments optimize locally. Maps the strategy cascade and finds orphan goals and silos with alignment_checker.py.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+strategic[\\s-]+alignment\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bstrategic[\\s-]+alignment\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

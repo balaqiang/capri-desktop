@@ -1,0 +1,11 @@
+{
+  "id": "generate",
+  "name": "Generate",
+  "about": "Use when asked to write Playwright or e2e tests for a page, component or feature ('write tests', 'add tests for', 'e2e test').",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+generate\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

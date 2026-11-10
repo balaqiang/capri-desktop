@@ -1,0 +1,12 @@
+{
+  "id": "churn-prevention",
+  "name": "Churn Prevention",
+  "about": "Use when designing a cancel flow, save offers, exit surveys or dunning emails, or cutting failed-payment churn. Sizes the revenue at stake with churn_impact_calculator.py first. Health scores and expa",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+churn[\\s-]+prevention\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchurn[\\s-]+prevention\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

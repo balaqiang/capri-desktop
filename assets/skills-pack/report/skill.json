@@ -1,0 +1,11 @@
+{
+  "id": "report",
+  "name": "Report",
+  "about": "Summarize Playwright results. Use whenever the user asks how tests went, for a test report or status.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+report\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

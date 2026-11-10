@@ -1,0 +1,12 @@
+{
+  "id": "ai-act-readiness",
+  "name": "Ai Act Readiness",
+  "about": "EU AI Act readiness: risk tier, duties, deadlines. Load whenever AI ships in the EU or the user asks if the Act applies.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ai[\\s-]+act[\\s-]+readiness\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bai[\\s-]+act[\\s-]+readiness\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

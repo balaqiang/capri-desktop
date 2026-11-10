@@ -1,0 +1,12 @@
+{
+  "id": "financial-analyst",
+  "name": "Financial Analyst",
+  "about": "Analyze financial statements, value a company with a DCF, explain budget variance, build rolling forecasts. Use whenever the user asks what a business is worth or why spend missed budget.",
+  "group": "Finance",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+financial[\\s-]+analyst\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfinancial[\\s-]+analyst\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

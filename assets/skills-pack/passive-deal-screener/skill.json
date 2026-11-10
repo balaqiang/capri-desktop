@@ -1,0 +1,12 @@
+{
+  "id": "passive-deal-screener",
+  "name": "Passive Deal Screener",
+  "about": "Use when a passive investor shares a private deal (syndication, preferred equity, bridge fund, private credit) to screen as an LP. Stress-tests it, computes fee drag with fee_drag_calculator.py and co",
+  "group": "Finance",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+passive[\\s-]+deal[\\s-]+screener\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpassive[\\s-]+deal[\\s-]+screener\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

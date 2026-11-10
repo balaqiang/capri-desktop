@@ -1,0 +1,12 @@
+{
+  "id": "culture-architect",
+  "name": "Culture Architect",
+  "about": "Use when defining company values, turning them into behaviors, assessing culture health or designing rituals. Treats culture as operating behavior, not posters.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+culture[\\s-]+architect\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bculture[\\s-]+architect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

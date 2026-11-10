@@ -1,0 +1,12 @@
+{
+  "id": "ui-design-system",
+  "name": "Ui Design System",
+  "about": "Use when building a design system: tokens, component docs, responsive scales or developer handoff. Generates tokens with design_token_generator.py.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ui[\\s-]+design[\\s-]+system\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bui[\\s-]+design[\\s-]+system\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

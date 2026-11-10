@@ -1,0 +1,12 @@
+{
+  "id": "business-investment-advisor",
+  "name": "Business Investment Advisor",
+  "about": "Use when deciding whether a capital expense is worth it (equipment, property, an acquisition, hiring, technology), or for ROI, IRR, NPV, payback, build vs buy or lease vs buy.",
+  "group": "Finance",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+business[\\s-]+investment[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bbusiness[\\s-]+investment[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

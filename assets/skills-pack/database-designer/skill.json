@@ -1,0 +1,12 @@
+{
+  "id": "database-designer",
+  "name": "Database Designer",
+  "about": "Design a database schema: tables, relationships, indexes, normalization, SQL vs NoSQL, migration plans. Use whenever the user asks how to structure their data, which database to pick, or before writin",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+database[\\s-]+designer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bdatabase[\\s-]+designer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "general-counsel-advisor",
+  "name": "General Counsel Advisor",
+  "about": "Legal review of contracts and term sheets (MSA, SaaS, NDA, DPA, employment), IP strategy and regulatory exposure (HIPAA, GDPR, FDA, fintech). Use whenever the user asks if a contract is risky or what ",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+general[\\s-]+counsel[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bgeneral[\\s-]+counsel[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

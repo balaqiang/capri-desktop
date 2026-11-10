@@ -1,0 +1,12 @@
+{
+  "id": "ux-researcher-designer",
+  "name": "Ux Researcher Designer",
+  "about": "UX research: personas, journey maps, usability test plans, synthesis. Use whenever the user asks who their users are or why they struggle.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ux[\\s-]+researcher[\\s-]+designer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bux[\\s-]+researcher[\\s-]+designer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

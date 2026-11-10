@@ -1,0 +1,11 @@
+{
+  "id": "execute",
+  "name": "Execute",
+  "about": "Use for /c-level-agents:execute, or to turn an approved decision into a 90-day plan with weekly milestones and owners.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+execute\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

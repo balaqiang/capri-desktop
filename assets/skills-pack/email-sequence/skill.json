@@ -1,0 +1,12 @@
+{
+  "id": "email-sequence",
+  "name": "Email Sequence",
+  "about": "Use for any drip, nurture, onboarding, welcome or re-engagement email sequence to opted-in users, before writing emails. Plans timing, triggers and exits and scores the sequence with sequence_analyzer",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+email[\\s-]+sequence\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bemail[\\s-]+sequence\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

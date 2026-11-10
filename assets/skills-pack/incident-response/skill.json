@@ -1,0 +1,12 @@
+{
+  "id": "incident-response",
+  "name": "Incident Response",
+  "about": "Handle a suspected security breach: triage, SEV1-SEV4 severity, escalation and forensic evidence, per NIST SP 800-61. Use whenever the user thinks they were hacked, sees suspicious activity or a leake",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+incident[\\s-]+response\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bincident[\\s-]+response\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

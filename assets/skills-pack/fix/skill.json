@@ -1,0 +1,11 @@
+{
+  "id": "fix",
+  "name": "Fix",
+  "about": "Diagnose and fix a failing or flaky Playwright test. Use whenever a test fails, passes only sometimes, breaks intermittently or needs fixing.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+fix\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

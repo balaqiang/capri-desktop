@@ -1,0 +1,12 @@
+{
+  "id": "security-guidance",
+  "name": "Security Guidance",
+  "about": "Use when installing or tuning the PreToolUse security hook that warns before Claude writes command injection, XSS, SQL injection, unsafe deserialization, eval or GitHub Actions injection. Warns once p",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+security[\\s-]+guidance\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsecurity[\\s-]+guidance\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

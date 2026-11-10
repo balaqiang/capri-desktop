@@ -1,0 +1,12 @@
+{
+  "id": "changelog-generator",
+  "name": "Changelog Generator",
+  "about": "Write release notes and CHANGELOG.md from commits and pick the next semver version. Use whenever the user is cutting a release, asks what changed since the last one or what version comes next, or want",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+changelog[\\s-]+generator\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchangelog[\\s-]+generator\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

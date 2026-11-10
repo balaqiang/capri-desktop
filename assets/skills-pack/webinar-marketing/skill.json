@@ -1,0 +1,12 @@
+{
+  "id": "webinar-marketing",
+  "name": "Webinar Marketing",
+  "about": "Use when planning, promoting or fixing a webinar or virtual event (registrations, show-up, follow-up, conversion). Scores each funnel stage with webinar_funnel_scorer.py to find where it leaks.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+webinar[\\s-]+marketing\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bwebinar[\\s-]+marketing\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

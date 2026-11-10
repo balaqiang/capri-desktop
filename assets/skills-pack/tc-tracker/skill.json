@@ -1,0 +1,12 @@
+{
+  "id": "tc-tracker",
+  "name": "Tc Tracker",
+  "about": "Use when tracking technical changes as records, or handing work between AI sessions with a change record. Creates, updates and validates change records with tc_create.py, tc_update.py and tc_validator",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+tc[\\s-]+tracker\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\btc[\\s-]+tracker\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

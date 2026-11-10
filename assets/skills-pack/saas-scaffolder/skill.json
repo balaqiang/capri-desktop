@@ -1,0 +1,12 @@
+{
+  "id": "saas-scaffolder",
+  "name": "Saas Scaffolder",
+  "about": "Use when starting a new SaaS app with auth, database, Stripe billing and a dashboard (Next.js App Router, TypeScript, Tailwind, shadcn/ui, Drizzle). Bootstraps it with project_bootstrapper.py.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+saas[\\s-]+scaffolder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsaas[\\s-]+scaffolder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "business-name-fit",
+  "name": "Business Name Fit",
+  "about": "Use when naming a company, brand or product, or checking whether a name works abroad, before committing to one. Tests a culturally rooted name for pronunciation, bad meanings and trust in each target ",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+business[\\s-]+name[\\s-]+fit\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bbusiness[\\s-]+name[\\s-]+fit\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

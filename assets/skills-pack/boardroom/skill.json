@@ -1,0 +1,11 @@
+{
+  "id": "boardroom",
+  "name": "Boardroom",
+  "about": "Use for /c-level-agents:boardroom, or a decision spanning several executive domains (a pricing change, raise vs cut). Runs a 6-phase C-suite deliberation and writes a board memo.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+boardroom\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

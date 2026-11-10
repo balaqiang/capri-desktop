@@ -1,0 +1,12 @@
+{
+  "id": "ms365-tenant-manager",
+  "name": "Ms365 Tenant Manager",
+  "about": "Use for Microsoft 365 tenant administration (Entra ID users, Exchange Online, Teams, licenses, Conditional Access, compliance reports). Plans setup with tenant_setup.py, bulk-manages users with user_m",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ms365[\\s-]+tenant[\\s-]+manager\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bms365[\\s-]+tenant[\\s-]+manager\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

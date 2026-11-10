@@ -1,0 +1,12 @@
+{
+  "id": "information-security-manager-iso27001",
+  "name": "Information Security Manager Iso27001",
+  "about": "Use when designing or running an ISO 27001 ISMS in HealthTech or MedTech: risk assessment, control implementation, certification or security incidents. Assesses risk with risk_assessment.py and checks",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+information[\\s-]+security[\\s-]+manager[\\s-]+iso27001\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\binformation[\\s-]+security[\\s-]+manager[\\s-]+iso27001\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

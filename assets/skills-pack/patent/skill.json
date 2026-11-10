@@ -1,0 +1,11 @@
+{
+  "id": "patent",
+  "name": "Patent",
+  "about": "Use for prior-art search, freedom-to-operate, patent landscape, acquisition diligence or litigation prior art. Picks the use case with sub_use_case_router.py, searches Google Patents, Espacenet and US",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+patent\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

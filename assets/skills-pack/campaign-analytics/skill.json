@@ -1,0 +1,12 @@
+{
+  "id": "campaign-analytics",
+  "name": "Campaign Analytics",
+  "about": "Analyze campaign performance on the user's numbers: ROAS, CPA, ROI, multi-touch attribution and funnel drop-off. Use whenever the user asks which channel or ad is working, where spend is wasted, why c",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+campaign[\\s-]+analytics\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcampaign[\\s-]+analytics\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

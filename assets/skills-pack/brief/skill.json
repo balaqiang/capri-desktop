@@ -1,0 +1,11 @@
+{
+  "id": "brief",
+  "name": "Brief",
+  "about": "Use for /c-level-agents:brief, or to frame a strategic question (options, assumptions, success criteria) as a one-page brief before deliberation.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+brief\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

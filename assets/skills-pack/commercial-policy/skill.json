@@ -1,0 +1,12 @@
+{
+  "id": "commercial-policy",
+  "name": "Commercial Policy",
+  "about": "Use when writing or revising discount rules: discount matrix, approver thresholds, exception flows and the deal framework sales works under. Builds the matrix with discount_matrix_builder.py, routes e",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+commercial[\\s-]+policy\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcommercial[\\s-]+policy\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

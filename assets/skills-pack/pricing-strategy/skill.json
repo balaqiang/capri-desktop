@@ -1,0 +1,12 @@
+{
+  "id": "pricing-strategy",
+  "name": "Pricing Strategy",
+  "about": "Use for SaaS pricing tiers, value metric, packaging, a pricing page or a price increase, before proposing numbers. Models revenue across tier options with pricing_modeler.py.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+pricing[\\s-]+strategy\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpricing[\\s-]+strategy\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

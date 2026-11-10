@@ -1,0 +1,12 @@
+{
+  "id": "chief-customer-officer-advisor",
+  "name": "Chief Customer Officer Advisor",
+  "about": "Use for retention strategy, customer segmentation or CS team sizing decisions (GRR vs NRR, churn causes, pooled vs named CSMs). Runs retention_decomposition_analyzer.py, customer_segmentation_designer",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+chief[\\s-]+customer[\\s-]+officer[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchief[\\s-]+customer[\\s-]+officer[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,11 @@
+{
+  "id": "coverage",
+  "name": "Coverage",
+  "about": "Find what is not tested: map untested pages and flows and coverage gaps. Use whenever the user asks what needs tests, about missing tests or test coverage.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+coverage\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

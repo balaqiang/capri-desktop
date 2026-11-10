@@ -1,0 +1,12 @@
+{
+  "id": "deep-work",
+  "name": "Deep Work",
+  "about": "Use when someone wants to plan a deep work day, time-block their calendar or task list, budget or cut shallow work, protect focus hours, track deep-work sessions and streaks, run an end-of-day shutdow",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+deep[\\s-]+work\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bdeep[\\s-]+work\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

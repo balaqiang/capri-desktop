@@ -1,0 +1,12 @@
+{
+  "id": "spinning-up-deep-rl",
+  "name": "Spinning Up Deep Rl",
+  "about": "Learn or apply deep reinforcement learning with OpenAI Spinning Up: policy gradients, VPG, PPO, SAC, TD3, DDPG, TRPO. Use whenever an RL agent will not learn, reward stays flat, or the user asks how P",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+spinning[\\s-]+up[\\s-]+deep[\\s-]+rl\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bspinning[\\s-]+up[\\s-]+deep[\\s-]+rl\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

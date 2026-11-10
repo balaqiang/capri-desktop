@@ -1,0 +1,12 @@
+{
+  "id": "page-cro",
+  "name": "Page Cro",
+  "about": "Fix a page that is not converting: section by section audit with fixes ranked by impact. Use whenever a homepage, landing, pricing or feature page gets few signups, sales or clicks.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+page[\\s-]+cro\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bpage[\\s-]+cro\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

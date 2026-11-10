@@ -1,0 +1,12 @@
+{
+  "id": "scrum-master",
+  "name": "Scrum Master",
+  "about": "Use for sprint and team analytics: velocity forecasts, sprint health, retrospectives, burndown or blockers. Forecasts with velocity_analyzer.py (Monte Carlo), scores with sprint_health_scorer.py and t",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+scrum[\\s-]+master\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bscrum[\\s-]+master\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

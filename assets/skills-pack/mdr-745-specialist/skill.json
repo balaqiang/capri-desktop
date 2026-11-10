@@ -1,0 +1,12 @@
+{
+  "id": "mdr-745-specialist",
+  "name": "Mdr 745 Specialist",
+  "about": "Use for EU MDR 2017/745 work: device classification under Annex VIII, technical file gaps (Annex II/III), clinical evaluation, PMS and PSUR cadence, notified body prep. Checks the file with mdr_gap_an",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+mdr[\\s-]+745[\\s-]+specialist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmdr[\\s-]+745[\\s-]+specialist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

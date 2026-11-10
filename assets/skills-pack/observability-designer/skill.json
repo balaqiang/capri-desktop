@@ -1,0 +1,12 @@
+{
+  "id": "observability-designer",
+  "name": "Observability Designer",
+  "about": "Use when adding metrics, logs and traces to a service, fixing noisy alerts or designing dashboards. Designs SLIs with slo_designer.py, tunes alerts with alert_optimizer.py and generates dashboards wit",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+observability[\\s-]+designer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bobservability[\\s-]+designer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

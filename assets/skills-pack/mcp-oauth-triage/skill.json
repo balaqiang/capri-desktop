@@ -1,0 +1,12 @@
+{
+  "id": "mcp-oauth-triage",
+  "name": "Mcp Oauth Triage",
+  "about": "Use when an MCP connector that used to authenticate now fails (tool calls 401 after a good token exchange, breaks after refresh, returns another account's data), before changing code. Classifies the f",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+mcp[\\s-]+oauth[\\s-]+triage\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmcp[\\s-]+oauth[\\s-]+triage\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

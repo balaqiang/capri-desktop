@@ -1,0 +1,12 @@
+{
+  "id": "zero-hallucination-coder",
+  "name": "Zero Hallucination Coder",
+  "about": "Use before high-stakes or multi-file coding (auth, databases, migrations), or when asked to plan carefully and avoid invented APIs. Runs discuss, map, decompose, execute and verify, checking every imp",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+zero[\\s-]+hallucination[\\s-]+coder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bzero[\\s-]+hallucination[\\s-]+coder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

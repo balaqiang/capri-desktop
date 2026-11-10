@@ -1,0 +1,12 @@
+{
+  "id": "agent-decision-receipts",
+  "name": "Agent Decision Receipts",
+  "about": "Use when an autonomous agent takes a side-effecting action (deploy, delete, pay, grant access) that may need proving later, or for EU AI Act Art. 12 record-keeping. Builds a tamper-evident signed rece",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+agent[\\s-]+decision[\\s-]+receipts\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bagent[\\s-]+decision[\\s-]+receipts\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

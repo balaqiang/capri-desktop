@@ -1,0 +1,12 @@
+{
+  "id": "product-discovery",
+  "name": "Product Discovery",
+  "about": "Validate product ideas: map assumptions, plan discovery sprints, test problem-solution fit. Use whenever the user asks if an idea is worth building.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+product[\\s-]+discovery\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bproduct[\\s-]+discovery\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

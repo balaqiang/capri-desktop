@@ -1,0 +1,12 @@
+{
+  "id": "revenue-operations",
+  "name": "Revenue Operations",
+  "about": "Check sales pipeline and forecasts: pipeline coverage, forecast accuracy, magic number, CAC payback. Use whenever the user asks if pipeline is enough or how good forecasts are.",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+revenue[\\s-]+operations\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\brevenue[\\s-]+operations\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

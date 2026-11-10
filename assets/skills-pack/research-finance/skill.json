@@ -1,0 +1,12 @@
+{
+  "id": "research-finance",
+  "name": "Research Finance",
+  "about": "Use for R&D program money: multi-period budgets with indirect cost split, burn and runway against milestones, or capitalize vs expense routing. Runs program_budget_planner.py, burn_runway_tracker.py a",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+research[\\s-]+finance\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bresearch[\\s-]+finance\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

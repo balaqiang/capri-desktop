@@ -1,0 +1,12 @@
+{
+  "id": "cto-advisor",
+  "name": "Cto Advisor",
+  "about": "CTO decisions: tech debt, architecture direction, scaling the engineering team, technology evaluation, DORA metrics. Use whenever the user asks whether to rewrite, how to grow the eng team or which te",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cto[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcto[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

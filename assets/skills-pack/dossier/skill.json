@@ -1,0 +1,11 @@
+{
+  "id": "dossier",
+  "name": "Dossier",
+  "about": "Use for diligence or meeting prep on a specific company, person or organization ('prep me for a meeting with X', 'due diligence on Y'). Tests the user's stated hypothesis with balanced evidence (disco",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+dossier\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

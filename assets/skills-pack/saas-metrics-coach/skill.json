@@ -1,0 +1,12 @@
+{
+  "id": "saas-metrics-coach",
+  "name": "Saas Metrics Coach",
+  "about": "Use when someone shares SaaS revenue or customer numbers, or asks about ARR, MRR, churn, LTV, CAC, NRR or how their SaaS is doing. Computes metrics with metrics_calculator.py, quick ratio and unit eco",
+  "group": "Finance",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+saas[\\s-]+metrics[\\s-]+coach\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsaas[\\s-]+metrics[\\s-]+coach\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

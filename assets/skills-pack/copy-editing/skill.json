@@ -1,0 +1,12 @@
+{
+  "id": "copy-editing",
+  "name": "Copy Editing",
+  "about": "Edit, proofread and tighten existing marketing copy in focused passes: clarity, voice, proofreading, specificity, readability and AI tells. Use whenever the user asks to polish, clean up, shorten or f",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+copy[\\s-]+editing\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcopy[\\s-]+editing\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

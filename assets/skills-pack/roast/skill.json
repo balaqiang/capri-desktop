@@ -1,0 +1,11 @@
+{
+  "id": "roast",
+  "name": "Roast",
+  "about": "Roast an idea: a 5-angle panel (Critic, Champion, Analyst, Investigator, Customer) attacks it, then a Judge returns one GO / RESHAPE / KILL verdict with the cheapest test to de-risk it. Use whenever t",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+roast\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

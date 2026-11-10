@@ -1,0 +1,12 @@
+{
+  "id": "gdpr-dsgvo-expert",
+  "name": "Gdpr Dsgvo Expert",
+  "about": "Use for GDPR or DSGVO work: scanning a codebase for privacy risks, writing a DPIA or tracking data subject requests against the Art. 12(3) deadline. Runs gdpr_compliance_checker.py, dpia_generator.py ",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+gdpr[\\s-]+dsgvo[\\s-]+expert\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bgdpr[\\s-]+dsgvo[\\s-]+expert\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

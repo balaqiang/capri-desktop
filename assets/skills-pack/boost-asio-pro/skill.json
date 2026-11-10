@@ -1,0 +1,12 @@
+{
+  "id": "boost-asio-pro",
+  "name": "Boost Asio Pro",
+  "about": "Use for any C++ networking code with Boost.Asio or standalone Asio (TCP/UDP, SSL, timers, strands, io_context, co_spawn, awaitable, completion handlers), before writing or reviewing it. Applies lifeti",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+boost[\\s-]+asio[\\s-]+pro\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bboost[\\s-]+asio[\\s-]+pro\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

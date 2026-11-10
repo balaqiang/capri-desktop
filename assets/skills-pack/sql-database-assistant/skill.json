@@ -1,0 +1,12 @@
+{
+  "id": "sql-database-assistant",
+  "name": "Sql Database Assistant",
+  "about": "Write, fix and speed up SQL: slow queries, EXPLAIN plans, indexes, ORM migrations (Prisma, Drizzle, SQLAlchemy). Load whenever a query is slow or wrong, the user needs SQL written, or an ORM migration",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+sql[\\s-]+database[\\s-]+assistant\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsql[\\s-]+database[\\s-]+assistant\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

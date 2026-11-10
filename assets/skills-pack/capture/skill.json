@@ -1,0 +1,11 @@
+{
+  "id": "capture",
+  "name": "Capture",
+  "about": "Use whenever the user unloads a messy brain dump of ideas, tasks and plans ('capture this', 'brain dump', a long unstructured paste) and wants it organized. Sorts it with dump_classifier.py into proje",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+capture\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

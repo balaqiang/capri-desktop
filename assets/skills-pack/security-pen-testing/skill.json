@@ -1,0 +1,12 @@
+{
+  "id": "security-pen-testing",
+  "name": "Security Pen Testing",
+  "about": "Authorized penetration testing of an app or API: vulnerability scans, OWASP Top 10 checks, dependency audits and a pentest report. Use whenever the user asks if their app is secure or hackable, wants ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+security[\\s-]+pen[\\s-]+testing\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bsecurity[\\s-]+pen[\\s-]+testing\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

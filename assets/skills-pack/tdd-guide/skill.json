@@ -1,0 +1,12 @@
+{
+  "id": "tdd-guide",
+  "name": "Tdd Guide",
+  "about": "Test-first development and test generation for Jest, Pytest, JUnit, Vitest or Mocha: red-green-refactor, fixtures and mocks, coverage gaps. Use whenever the user asks to write tests (before or after t",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+tdd[\\s-]+guide\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\btdd[\\s-]+guide\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

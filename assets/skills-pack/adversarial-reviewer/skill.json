@@ -1,0 +1,12 @@
+{
+  "id": "adversarial-reviewer",
+  "name": "Adversarial Reviewer",
+  "about": "Tough, critical review of a diff or PR before merge, through hostile reviewer personas that catch shared blind spots. Use whenever the user wants a change torn apart, a harsh second opinion, or a self",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+adversarial[\\s-]+reviewer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\badversarial[\\s-]+reviewer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

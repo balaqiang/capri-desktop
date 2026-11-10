@@ -1,0 +1,12 @@
+{
+  "id": "marketing-demand-acquisition",
+  "name": "Marketing Demand Acquisition",
+  "about": "Use when planning demand generation, paid acquisition across Google, LinkedIn and Meta, or a marketing budget, before allocating spend. Computes blended and per-channel CAC with calculate_cac.py and s",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+marketing[\\s-]+demand[\\s-]+acquisition\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmarketing[\\s-]+demand[\\s-]+acquisition\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

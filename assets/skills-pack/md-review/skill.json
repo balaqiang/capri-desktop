@@ -1,0 +1,12 @@
+{
+  "id": "md-review",
+  "name": "Md Review",
+  "about": "Use when converting a markdown code review with diff blocks and severity callouts into a two-column HTML review. Parses diffs with diff_parser.py and annotations with annotation_extractor.py; requires",
+  "group": "Productivity",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+md[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmd[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "cross-eval",
+  "name": "Cross Eval",
+  "about": "Use for /c-level-agents:cross-eval, or when a high-stakes memo needs independent review by several models before the boardroom.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cross[\\s-]+eval\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcross[\\s-]+eval\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

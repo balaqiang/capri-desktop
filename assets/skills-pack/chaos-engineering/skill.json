@@ -1,0 +1,12 @@
+{
+  "id": "chaos-engineering",
+  "name": "Chaos Engineering",
+  "about": "Use before running a chaos experiment, gameday or fault injection, or after one to write it up. Designs it with steady state and abort criteria in experiment_designer.py, sizes the blast radius with b",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+chaos[\\s-]+engineering\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchaos[\\s-]+engineering\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

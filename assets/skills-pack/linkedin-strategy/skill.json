@@ -1,0 +1,12 @@
+{
+  "id": "linkedin-strategy",
+  "name": "Linkedin Strategy",
+  "about": "Build a LinkedIn plan rather than a post: content pillars, positioning, a sustainable cadence, whether to start a newsletter. Use whenever the user asks what to post about, how often, or how to grow.",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+linkedin[\\s-]+strategy\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\blinkedin[\\s-]+strategy\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "codebase-onboarding",
+  "name": "Codebase Onboarding",
+  "about": "Explain an unfamiliar repo: architecture brief and onboarding docs. Use whenever someone is new to a codebase, asks how a project is structured or where to start reading.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+codebase[\\s-]+onboarding\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcodebase[\\s-]+onboarding\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "chief-ai-officer-advisor",
+  "name": "Chief Ai Officer Advisor",
+  "about": "Use for AI strategy decisions: API vs fine-tune vs build, EU AI Act or US state risk classification, when self-hosting pays off, or AI hiring order. Runs model_buildvsbuy_calculator.py, ai_risk_classi",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+chief[\\s-]+ai[\\s-]+officer[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bchief[\\s-]+ai[\\s-]+officer[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,11 @@
+{
+  "id": "deepread",
+  "name": "Deepread",
+  "about": "Use when the user asks to deeply read a book, article, PDF, or document set; extract claims and evidence; build a knowledge map; or learn through Feynman explanation and recall. Covers quick, deep, ma",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+deepread\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,11 @@
+{
+  "id": "freeze",
+  "name": "Freeze",
+  "about": "Use for /c-level-agents:freeze, or to put a cooling-off lock on an irreversible decision made under pressure.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+freeze\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

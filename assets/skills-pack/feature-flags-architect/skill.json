@@ -1,0 +1,12 @@
+{
+  "id": "feature-flags-architect",
+  "name": "Feature Flags Architect",
+  "about": "Use before adding, rolling out or retiring a feature flag or kill switch, or when flag debt piles up. Plans the rollout with rollout_planner.py, finds stale flags with flag_debt_scanner.py and audits ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+feature[\\s-]+flags[\\s-]+architect\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfeature[\\s-]+flags[\\s-]+architect\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

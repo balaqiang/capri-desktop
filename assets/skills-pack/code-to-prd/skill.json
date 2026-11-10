@@ -1,0 +1,12 @@
+{
+  "id": "code-to-prd",
+  "name": "Code To Prd",
+  "about": "Use when asked to write a PRD or product spec from an existing codebase (reverse-engineer requirements, document pages, fields, routes and endpoints). Maps the code with codebase_analyzer.py and scaff",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+code[\\s-]+to[\\s-]+prd\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcode[\\s-]+to[\\s-]+prd\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

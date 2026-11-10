@@ -1,0 +1,12 @@
+{
+  "id": "write-a-skill",
+  "name": "Write A Skill",
+  "about": "Create new agent skills with proper structure, progressive disclosure, and bundled resources. Use when user wants to create, write, build, or author a new skill.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+write[\\s-]+a[\\s-]+skill\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bwrite[\\s-]+a[\\s-]+skill\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "workflow-builder",
+  "name": "Workflow Builder",
+  "about": "Use when writing or running a Claude Code Workflow-tool script (.js in .claude/workflows/) for fan-out, pipeline, loop or judge-panel sub-agents. Gathers intent with workflow_intake.py, scaffolds with",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+workflow[\\s-]+builder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bworkflow[\\s-]+builder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

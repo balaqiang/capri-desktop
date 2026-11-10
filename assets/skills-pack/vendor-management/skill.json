@@ -1,0 +1,12 @@
+{
+  "id": "vendor-management",
+  "name": "Vendor Management",
+  "about": "Use when scoring or auditing vendors: scorecards, SLA compliance and service credits, third-party risk tier or a tier-1 vendor review. Runs vendor_scorer.py, sla_compliance_tracker.py and vendor_risk_",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+vendor[\\s-]+management\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bvendor[\\s-]+management\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

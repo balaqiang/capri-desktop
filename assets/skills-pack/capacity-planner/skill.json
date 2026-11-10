@@ -1,0 +1,12 @@
+{
+  "id": "capacity-planner",
+  "name": "Capacity Planner",
+  "about": "Size an ops or support team and plan headcount: Erlang C queue models, utilization risk, hiring order. Use whenever the user asks how many agents or staff they need, if the team is overloaded, or who ",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+capacity[\\s-]+planner\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcapacity[\\s-]+planner\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

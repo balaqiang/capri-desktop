@@ -1,0 +1,12 @@
+{
+  "id": "cmo-advisor",
+  "name": "Cmo Advisor",
+  "about": "Marketing leadership: positioning, product-led vs sales-led vs community-led growth, budget split across channels, marketing team design. Use whenever the user asks how to grow, which go-to-market fit",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cmo[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcmo[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

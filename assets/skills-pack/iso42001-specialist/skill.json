@@ -1,0 +1,12 @@
+{
+  "id": "iso42001-specialist",
+  "name": "Iso42001 Specialist",
+  "about": "Use for ISO/IEC 42001 AI management system work: gap analysis against Clauses 4-10, the AI risk register and Annex A controls, or the internal audit plan. Runs aims_gap_analyzer.py, ai_risk_register_b",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+iso42001[\\s-]+specialist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\biso42001[\\s-]+specialist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

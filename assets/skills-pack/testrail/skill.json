@@ -1,0 +1,11 @@
+{
+  "id": "testrail",
+  "name": "Testrail",
+  "about": "Use when syncing Playwright tests with TestRail ('testrail', 'sync test cases', 'push results to testrail', 'import from testrail').",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+testrail\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

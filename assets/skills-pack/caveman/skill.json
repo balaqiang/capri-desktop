@@ -1,0 +1,11 @@
+{
+  "id": "caveman",
+  "name": "Caveman",
+  "about": "Terse mode: drop filler, articles and pleasantries, keep technical accuracy, about 75% fewer tokens, and stay in it. Load whenever the user asks for fewer words, shorter answers, less tokens, caveman ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+caveman\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

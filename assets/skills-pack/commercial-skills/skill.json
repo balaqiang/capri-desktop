@@ -1,0 +1,12 @@
+{
+  "id": "commercial-skills",
+  "name": "Commercial Skills",
+  "about": "Use when a commercial request needs routing (pricing, deal review, discounts, partners, channels, policy, RFPs, forecasts): 'review this deal', 'should we discount'. Lists the commercial skills and ro",
+  "group": "Business",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+commercial[\\s-]+skills\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcommercial[\\s-]+skills\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

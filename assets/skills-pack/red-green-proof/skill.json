@@ -1,0 +1,12 @@
+{
+  "id": "red-green-proof",
+  "name": "Red Green Proof",
+  "about": "Turns a suspected bug into a proven one. Verify the cause against reality before claiming it, write a test that FAILS on the current code, apply the fix, watch it pass — then revert the fix and confir",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+red[\\s-]+green[\\s-]+proof\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bred[\\s-]+green[\\s-]+proof\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

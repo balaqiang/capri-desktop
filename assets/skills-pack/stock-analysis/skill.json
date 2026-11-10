@@ -1,0 +1,12 @@
+{
+  "id": "stock-analysis",
+  "name": "Stock Analysis",
+  "about": "Analyze, research or value a listed stock or company (US, global, NSE or BSE) with verified data, ratios, scores and valuation. Use whenever asked if a stock is a buy, what it is worth, or how a compa",
+  "group": "Finance",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+stock[\\s-]+analysis\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bstock[\\s-]+analysis\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

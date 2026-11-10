@@ -1,0 +1,145 @@
+YOU ARE USING THE SKILL "collab-proof" FOR THIS ANSWER. It was written for someone with more tools than you: here you cannot run scripts or open files, so give the advice and the result yourself, in your own voice, and only as long as the job needs.
+
+# collab-proof
+
+Surfaces AI collaboration evidence the developer didn't consciously record.
+Vela 3-layer pipeline × ADHD 4-frame reasoning — prompt-native, zero dependencies.
+
+---
+
+## Layer 01 — Signal detection
+
+Run `git log --oneline -10` and `git diff --stat HEAD~3..HEAD` first.
+
+Classify signal level using this rubric (pick the highest that matches):
+
+**HIGH** → full artifacts (DECISIONS.md + session-history + WORKLOG + HTML)
+- New file created, OR
+- 4+ files modified, OR
+- Explicit option comparison in conversation ("vs", "instead of", "chose X over Y"), OR
+- Design discussion lasted 15+ exchanges, OR
+- **Bug with root cause diagnosis** — conversation contains WHY the bug happened
+  (not just "fixed X" but "the bug was caused by Y because Z")
+
+**BUG_FIXING special rule** — override file count:
+Even if only 1 file changed, classify as HIGH if the conversation contains:
+- Root cause explanation ("the bug was...", "this happened because...", "the issue is...")
+- Diagnosis process ("I checked...", "turned out...", "the problem was...")
+- Fix rationale ("chose this approach because...", "instead of X, used Y because...")
+File count doesn't matter for bugs — a well-diagnosed single-file fix is more valuable
+than a 10-file feature with no discussion.
+
+**MEDIUM** → WORKLOG only
+- 1–3 files modified with no root cause discussion, OR
+- Minor feature added, no tradeoffs discussed
+
+**LOW** → silence, tell user "Routine session — nothing recorded."
+- No code changes, only planning/discussion, OR
+- Single trivial change with no context ("change this text", "fix typo", "rename variable")
+
+Show the user: `Signal: HIGH / MEDIUM / LOW — [one-line reason]`
+
+---
+
+## Layer 02 — WorkIntentClassifier
+
+Run all four frames simultaneously against conversation context + git diff.
+Score each frame 0.0–1.0 using the rubric below. Then apply pruning and classification rules.
+
+### Frame scoring rubric
+
+**Frame A — Technical** (code churn complexity)
+- `1.0` New module/file created, complex logic added (state machine, Lua script, novel algorithm)
+- `0.5` Existing function logic modified, simple API endpoint added
+- `0.1` Typo fix, comment change, plain text edit
+
+**Frame B — Uncertainty** (developer doubt signals)
+- `1.0` Code written then fully rolled back, explicit doubt expressed ("이게 맞나?", "동작 안 하네"), `git revert`
+- `0.5` Advice sought from Claude mid-implementation, 2+ revision requests on same area
+- `0.0` Uninterrupted directive execution — developer knew exactly what to build
+
+**Frame C — Fork** (decision branch presence)
+- `1.0` Two or more alternatives explicitly compared in conversation (A vs B)
+- `0.5` No explicit comparison but tradeoff mentioned (performance vs readability)
+- `0.0` Single standard approach applied, no alternatives considered
+
+**Frame D — AI contribution** (Claude's actual impact)
+- `1.0` Claude identified a bug/edge case the developer hadn't noticed and proposed the fix
+- `0.6` Claude generated structural boilerplate/skeleton that significantly accelerated execution
+- `0.2` Claude reformatted or transcribed developer-directed code without independent contribution
+
+---
+
+### Pruning rule
+
+Prune any frame scoring < 0.4.
+
+**Exception — High-Speed Execution Guard:**
+If `Frame A >= 0.8` AND `Frame D >= 0.6`, do NOT prune and do NOT silence the session,
+even if Frame B = 0.0 and Frame C = 0.0.
+This is a boilerplate-heavy FEATURE_BUILDING session. Classify immediately as `FEATURE_BUILDING` with `HIGH` signal.
+Rationale: zero uncertainty in a fast-moving session is a feature, not a reason to discard it.
+
+---
+
+### Intent classification
+
+| Surviving frames | Dominant intent | Meaning |
+|---|---|---|
+| A high + D mid-high (B, C low) | `FEATURE_BUILDING` | High-velocity feature generation, Claude scaffolding |
+| B high + A/D high | `BUG_FIXING` or `STUCK` | Active debugging or unresolved looping |
+| C high + A high | `REFACTORING` or `EXPLORING` | Architecture exploration, weighing alternatives |
+| All frames < 0.4 | `FLOW_STATE` or LOW | Routine typing, silence unless Layer 01 was HIGH |
+
+If multiple intents tie, pick the one with the highest combined frame score.
+Record the runner-up — it belongs in the session narrative.
+
+---
+
+### Internal output format
+
+Before proceeding to Layer 03, resolve to this structure (show it to the user):
+
+```json
+{
+  "frames": {
+    "technical": 0.0,
+    "uncertainty": 0.0,
+    "fork": 0.0,
+    "ai_contribution": 0.0
+  },
+  "pruned": ["list of pruned frame names"],
+  "intent": "FEATURE_BUILDING",
+  "signal": "HIGH",
+  "calibration_note": "one sentence explaining any exception rule applied"
+}
+
+---
+
+## Layer 03 — Output
+
+### If HIGH signal
+
+**Append to `DECISIONS.md`** — one entry per real fork (Frame C must confirm alternatives existed):
+
+```markdown
+## [YYYY-MM-DD] <title>
+
+**Context**: [Frame A — what forced this choice]
+**Decision**: what was chosen
+**Alternatives considered**: [Frame C — road not taken]
+**Reasoning**: why — prefix "inferred:" if reconstructed from context
+**AI contribution**:
+  - Identified: [Frame D — something developer missed]
+  - Suggested: [Frame D — approach or alternative]
+  - Developer-driven: [what the developer decided independently]
+**Intent class**: [from Layer 02]
+**Signal score**: HIGH
+**Outcome**: implemented | pending | reversed
+
+If no real fork existed → write nothing. Never fabricate decisions.
+
+**BUG_FIXING intent: use this format instead:**
+
+```markdown
+## [YYYY-MM-DD] <bug title>

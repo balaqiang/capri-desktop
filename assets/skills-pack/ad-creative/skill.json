@@ -1,0 +1,12 @@
+{
+  "id": "ad-creative",
+  "name": "Ad Creative",
+  "about": "Use for any ad copy request (RSA headlines, Meta, LinkedIn or TikTok ads, bulk variations), before writing. Checks every line against platform character limits and policy with ad_copy_validator.py. Ca",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ad[\\s-]+creative\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bad[\\s-]+creative\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

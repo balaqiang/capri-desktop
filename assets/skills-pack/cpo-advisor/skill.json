@@ -1,0 +1,12 @@
+{
+  "id": "cpo-advisor",
+  "name": "Cpo Advisor",
+  "about": "Product leadership: PMF measurement, product vision, portfolio investment, product org design, board product reporting. Use whenever the user asks if they have PMF or how to split investment across pr",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cpo[\\s-]+advisor\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcpo[\\s-]+advisor\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

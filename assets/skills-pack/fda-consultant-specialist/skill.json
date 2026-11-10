@@ -1,0 +1,12 @@
+{
+  "id": "fda-consultant-specialist",
+  "name": "Fda Consultant Specialist",
+  "about": "Use for FDA medical device questions: 510(k) vs De Novo vs PMA, predicates and substantial equivalence, QMSR (21 CFR 820), HIPAA or device cybersecurity. Runs fda_submission_tracker.py, qsr_compliance",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+fda[\\s-]+consultant[\\s-]+specialist\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bfda[\\s-]+consultant[\\s-]+specialist\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

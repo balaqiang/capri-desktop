@@ -1,0 +1,12 @@
+{
+  "id": "marketing-strategy-pmm",
+  "name": "Marketing Strategy Pmm",
+  "about": "Use for product positioning, ICP, competitive battlecards or a go-to-market plan, before drafting. Applies April Dunford's positioning method and produces the positioning statement, battlecards and la",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+marketing[\\s-]+strategy[\\s-]+pmm\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmarketing[\\s-]+strategy[\\s-]+pmm\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

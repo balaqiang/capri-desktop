@@ -1,0 +1,11 @@
+{
+  "id": "copywriting",
+  "name": "Copywriting",
+  "about": "Use for any headline, tagline, CTA, landing, pricing or about-page copy request, before drafting. Scores candidate headlines with headline_scorer.py and applies a page-section framework, so the first ",
+  "group": "Marketing",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+copywriting\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "context-engine",
+  "name": "Context Engine",
+  "about": "Use when starting a C-suite advisor session, when company context is missing or older than 90 days, or before company data goes to an external service. Loads and enriches ~/.claude/company-context.md ",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+context[\\s-]+engine\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcontext[\\s-]+engine\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

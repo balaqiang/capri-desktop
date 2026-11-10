@@ -1,0 +1,12 @@
+{
+  "id": "month-end-close",
+  "name": "Month End Close",
+  "about": "Use when running, planning or speeding up a month-end (or quarter-end) close — building or reviewing the close checklist and calendar, reconciling a bank statement or sub-ledger to the general ledger,",
+  "group": "Finance",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+month[\\s-]+end[\\s-]+close\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bmonth[\\s-]+end[\\s-]+close\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

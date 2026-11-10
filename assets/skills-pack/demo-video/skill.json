@@ -1,0 +1,12 @@
+{
+  "id": "demo-video",
+  "name": "Demo Video",
+  "about": "Use when asked for a demo video, product walkthrough, feature showcase or GIF from screenshots or scene descriptions. Orchestrates playwright, ffmpeg and edge-tts to render it.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+demo[\\s-]+video\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bdemo[\\s-]+video\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

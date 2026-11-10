@@ -1,0 +1,12 @@
+{
+  "id": "collab-proof",
+  "name": "Collab Proof",
+  "about": "Use for /collab-proof or a session retrospective on what Claude contributed versus what the user drove. Builds an evidence-backed split of the session's decisions and work.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+collab[\\s-]+proof\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcollab[\\s-]+proof\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

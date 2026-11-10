@@ -1,0 +1,11 @@
+{
+  "id": "notebooklm",
+  "name": "Notebooklm",
+  "about": "Use for anything in Google NotebookLM: querying notebooks, adding sources, generating Audio or Video Overviews, reports, flashcards or slides. Drives the browser; needs browser automation.",
+  "group": "Research",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+notebooklm\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

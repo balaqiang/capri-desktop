@@ -1,0 +1,12 @@
+{
+  "id": "ai-security",
+  "name": "Ai Security",
+  "about": "Use when assessing an AI/ML system or LLM agent for prompt injection, jailbreaks, model inversion, data poisoning or tool abuse. Maps findings to MITRE ATLAS and scores robustness with ai_threat_scann",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+ai[\\s-]+security\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bai[\\s-]+security\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

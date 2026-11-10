@@ -1,0 +1,12 @@
+{
+  "id": "api-test-suite-builder",
+  "name": "Api Test Suite Builder",
+  "about": "Use when asked to write API, integration or contract tests for REST endpoints. Builds the suite from the routes: happy paths, auth, validation errors and edge cases per endpoint.",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+api[\\s-]+test[\\s-]+suite[\\s-]+builder\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bapi[\\s-]+test[\\s-]+suite[\\s-]+builder\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

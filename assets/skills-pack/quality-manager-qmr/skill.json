@@ -1,0 +1,12 @@
+{
+  "id": "quality-manager-qmr",
+  "name": "Quality Manager Qmr",
+  "about": "Use for QMR duties under ISO 13485 5.5.2: management review, quality policy and objectives, quality KPIs and cost of quality. Tracks reviews with management_review_tracker.py and monitors effectivenes",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+quality[\\s-]+manager[\\s-]+qmr\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bquality[\\s-]+manager[\\s-]+qmr\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

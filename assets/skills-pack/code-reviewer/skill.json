@@ -1,0 +1,12 @@
+{
+  "id": "code-reviewer",
+  "name": "Code Reviewer",
+  "about": "Use for any code review: a pull request, a diff, a commit, or a pasted function, handler or file in TypeScript, JavaScript, Python, Go, Swift, Kotlin, C#/.NET, Java, C, C++, Rust, Ruby, PHP or Dart/Fl",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+code[\\s-]+reviewer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcode[\\s-]+reviewer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,11 @@
+{
+  "id": "postmortem",
+  "name": "Postmortem",
+  "about": "Use after a failed launch, missed quarter or bad hire. Runs a blameless 5-Whys with a change register.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+postmortem\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

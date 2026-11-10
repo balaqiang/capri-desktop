@@ -1,0 +1,12 @@
+{
+  "id": "grill-me",
+  "name": "Grill Me",
+  "about": "Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test a plan, get grilled on their ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+grill[\\s-]+me\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bgrill[\\s-]+me\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

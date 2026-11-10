@@ -1,0 +1,11 @@
+{
+  "id": "behuman",
+  "name": "Behuman",
+  "about": "Reply like a real person, direct and warm, without lists or hedging. Use whenever the user says you sound robotic, asks you to be real or talk like a person, wants mirror mode, or is going through gri",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+behuman\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

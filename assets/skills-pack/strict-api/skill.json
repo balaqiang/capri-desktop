@@ -1,0 +1,12 @@
+{
+  "id": "strict-api",
+  "name": "Strict Api",
+  "about": "Use when the user says 'no hallucinations', 'verify APIs' or 'don't invent functions', or code depends on a library version you have not checked. Requires proof that every method, import and variable ",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+strict[\\s-]+api\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bstrict[\\s-]+api\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

@@ -1,0 +1,12 @@
+{
+  "id": "board-prep",
+  "name": "Board Prep",
+  "about": "Use before a board meeting, investor update or fundraising pitch where the numbers will be challenged. Drills numbers cold, anticipates the hard questions and builds a narrative that admits weakness w",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+board[\\s-]+prep\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bboard[\\s-]+prep\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

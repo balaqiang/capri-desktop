@@ -1,0 +1,12 @@
+{
+  "id": "c-level-agents",
+  "name": "C Level Agents",
+  "about": "Use when the founder wants a virtual executive team or a /c-level-agents command. Lists the 13 C-suite agents and 21 commands and routes multi-role decisions.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+c[\\s-]+level[\\s-]+agents\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bc[\\s-]+level[\\s-]+agents\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

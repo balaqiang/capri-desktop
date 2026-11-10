@@ -1,0 +1,12 @@
+{
+  "id": "compliance-readiness",
+  "name": "Compliance Readiness",
+  "about": "Use for /compliance-os:compliance-readiness, or before adding a framework or planning the annual audit calendar.",
+  "group": "Compliance and quality",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+compliance[\\s-]+readiness\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcompliance[\\s-]+readiness\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

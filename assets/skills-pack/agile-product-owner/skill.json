@@ -1,0 +1,12 @@
+{
+  "id": "agile-product-owner",
+  "name": "Agile Product Owner",
+  "about": "Use for backlog work: writing user stories and acceptance criteria, splitting epics, estimating or prioritizing for a sprint. Generates stories with user_story_generator.py.",
+  "group": "Product",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+agile[\\s-]+product[\\s-]+owner\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bagile[\\s-]+product[\\s-]+owner\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

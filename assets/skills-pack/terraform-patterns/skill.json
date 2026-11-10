@@ -1,0 +1,12 @@
+{
+  "id": "terraform-patterns",
+  "name": "Terraform Patterns",
+  "about": "Use for any Terraform module, state backend, provider setup or IaC security review, before editing .tf files. Analyzes modules with tf_module_analyzer.py and scans for misconfigurations with tf_securi",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+terraform[\\s-]+patterns\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bterraform[\\s-]+patterns\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

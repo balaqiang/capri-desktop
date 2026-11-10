@@ -1,0 +1,12 @@
+{
+  "id": "cdo-review",
+  "name": "Cdo Review",
+  "about": "Use for /c-level-agents:cdo-review, or to challenge a plan touching training-data rights, data architecture or data monetization.",
+  "group": "Executive advisors",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+cdo[\\s-]+review\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bcdo[\\s-]+review\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

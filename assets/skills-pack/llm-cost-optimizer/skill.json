@@ -1,0 +1,12 @@
+{
+  "id": "llm-cost-optimizer",
+  "name": "Llm Cost Optimizer",
+  "about": "Use whenever an LLM feature is being built or its costs come up (model choice, prompt caching, token limits, per-feature spend). Sets routing, caching, max_tokens and cost logging before launch rather",
+  "group": "Engineering",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+llm[\\s-]+cost[\\s-]+optimizer\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\bllm[\\s-]+cost[\\s-]+optimizer\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}

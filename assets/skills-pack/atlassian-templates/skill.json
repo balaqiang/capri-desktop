@@ -1,0 +1,12 @@
+{
+  "id": "atlassian-templates",
+  "name": "Atlassian Templates",
+  "about": "Use when creating or changing Jira or Confluence templates, blueprints or page layouts for reuse across the org. Scaffolds them with template_scaffolder.py.",
+  "group": "Project management",
+  "when": [
+    "\\b(?:skill|pakai|pake|gunakan|use(?: the)?)\\s+atlassian[\\s-]+templates\\b",
+    "\\b(?:bantu|tolong|buat|buatin|buatkan|bikin|bikinin|susun|rancang|cek|periksa|perbaiki|analisis|help|write|make|create|build|draft|audit|review|plan|analy[sz]e|improve|fix)\\b.*\\batlassian[\\s-]+templates\\b"
+  ],
+  "maxTokens": 1200,
+  "temperature": 0.5
+}
