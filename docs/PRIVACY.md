@@ -10,6 +10,7 @@ Her brain can be Ollama on your PC, her ears Whisper on your PC, her voice Windo
 | --- | --- | --- | --- |
 | The title, artist, album and length of the song playing | [LRCLIB](https://lrclib.net) | its lyrics | Behavior › Song lyrics |
 | What a skill or plan searches for | Bing, Wikipedia, or the page you asked her to open | the answer, in her own browser profile | Access › Her own browser, Look things up online |
+| What you search or play, with your own developer app connected | [Spotify](https://developer.spotify.com/documentation/web-api) | the results, and the song starting; the login happens on Spotify's own page | Access › Spotify developer app (off unless you connect it) |
 | The title and artist of a song she hasn't heard before | [Deezer](https://developers.deezer.com/api) | its real loudness and tempo, for what she thinks of it | Behavior › Check how a song really sounds |
 | A question about the world ("siapa presiden indonesia") | Wikipedia, Bing | today's answer | Access › Look things up online |
 | A city's name | [Open-Meteo](https://open-meteo.com) | the weather | Access › Look things up online |
