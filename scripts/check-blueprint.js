@@ -9,9 +9,24 @@ const path = require('node:path');
 
 const SCHEMA = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'assets', 'capri', 'blueprint.schema.json'), 'utf8'));
 
+// Illustrator writes arm_L as arm_x5F_L, and a repeated name as head_1_. Put right, only for the names she knows: its own ids
+// (SVGID_1_) are pointed at from elsewhere in the file.
+const HER_NAME = /^(?:head|jaw|torso|hair_[1-5]|(?:arm|forearm|hand)_[LR]|leg_[LR]|form-[a-z]+|pivot-[\w-]+)$/;
+function decodeIds(svg) {
+  const text = String(svg || '');
+  const seen = new Set();
+  return text.replace(/\bid="([^"]+)"/g, (all, id) => {
+    const decoded = id.replace(/_x([0-9A-Fa-f]{2})_/g, (m, hex) => String.fromCharCode(parseInt(hex, 16)));
+    const plain = decoded.replace(/_\d+_$/, '');
+    const name = HER_NAME.test(plain) && !seen.has(plain) ? plain : HER_NAME.test(decoded) ? decoded : id;
+    seen.add(name);
+    return `id="${name}"`;
+  });
+}
+
 // -> { ok, missing: [], missingForms: [], missingPivots: [], unknown: [], unsafe: [] }
 function check(svg, schema = SCHEMA) {
-  const text = String(svg || '');
+  const text = decodeIds(svg);
   const ids = new Set([...text.matchAll(/\bid\s*=\s*"([^"]+)"/g)].map((m) => m[1]));
   const known = new Set([...schema.parts, ...schema.parts.map((p) => `pivot-${p}`), ...schema.forms.map((f) => `form-${f}`)]);
   const missing = schema.required.filter((p) => !ids.has(p));
@@ -41,4 +56,4 @@ if (require.main === module) {
   process.exit(res.ok ? 0 : 1);
 }
 
-module.exports = { check };
+module.exports = { check, decodeIds };
