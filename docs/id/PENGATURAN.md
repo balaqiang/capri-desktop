@@ -57,6 +57,7 @@ AI yang dia pakai untuk bicara.
   kreativitas, panjang jawaban, berapa pesan yang dia ingat, **perintah dengan kata-kataku sendiri** (modelnya membaca
   perintah yang terlewat oleh aturannya).
 - **Improve her** (hanya model lokal): yang berjalan baik, ujiannya, melatih, memasang hasilnya.
+- **Spotify developer app** (Access, opsional): Client ID-mu, cari dan putar tanpa jendela. Butuh Premium dan Spotify yang berjalan.
 - **What she knows**: seberapa banyak dia ingat, apakah juga berdasarkan makna, file yang kamu berikan. **Her skills**: nyala atau mati, dan punyamu.
 - **Sesuaikan model dengan kartu grafisku** (Ollama): model lebih kecil selama pilihanmu tidak muat di memori grafis.
 - **Otak lokalnya (Ollama)**: model kecil sebagai cadangan dan untuk tugas-tugas kecilnya.
