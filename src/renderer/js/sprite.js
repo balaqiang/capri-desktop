@@ -112,7 +112,13 @@ vec3 grade(vec3 c, out float red) {
   h.y = mix(h.y, max(h.y, 0.86), red * uGrade);
   h.y = mix(h.y, min(1.0, h.y * 1.1 + 0.06), green * uGrade);
   h.z = mix(h.z, min(1.0, h.z * 1.5 + 0.1), (red + green) * uGrade);
-  return hsv2rgb(h);
+  // her picture's red, black and green, brought to exactly those of your drawings (assets/capri/rig): measured on both
+  float dark = 1.0 - smoothstep(0.12, 0.32, h.z);
+  vec3 col = hsv2rgb(h);
+  col *= mix(vec3(1.0), vec3(1.0, 0.08, 0.747), red * uGrade);
+  col *= mix(vec3(1.0), vec3(1.0, 1.049, 0.923), green * uGrade);
+  col *= mix(vec3(1.0), vec3(0.09, 0.286, 0.364), dark * uGrade);
+  return col;
 }
 
 // Graded, speckled, premultiplied sample of the figure.
