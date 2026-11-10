@@ -55,6 +55,7 @@ Which AI she talks through.
   OpenAI-compatible server), the model, your key (stored encrypted for your Windows account), creativity, answer length,
   how many messages she keeps in mind, **commands in my own words** (her model reads a command her rules missed).
 - **Improve her** (local models only): what went well, her test, training, installing the result.
+- **Spotify developer app** (Access, optional): your Client ID, search and play with no window. Needs Premium and Spotify running.
 - **What she knows**: how much she remembers, whether by meaning too, the files you gave her. **Her skills**: on or off, and your own.
 - **Fit the model to my graphics card** (Ollama): a smaller model while the one you picked doesn't fit in the free video memory.
 - **Her local brain (Ollama)**: a small model as a backup and for her quick jobs.
