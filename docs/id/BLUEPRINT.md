@@ -30,6 +30,14 @@ mencari sendinya di situ dan menyembunyikan lingkarannya. Tanpa itu, bagian ters
 File › Export › Export As… › SVG, lalu di opsinya: Styling ***Presentation Attributes*** (CSS di dalam gambar tidak bisa dimuat), Object IDs ***Layer Names***, Decimal 2, Minify mati. Artboard sekitar
 240 × 420, kakinya di tepi bawah.
 
+## Atau ekspor otomatis
+
+```bash
+npm run export:ai -- lokasi/capri.ai
+```
+
+Setiap layer, sub-layer, dan grup bernama keluar sebagai SVG sendiri di folder di sebelah filenya, bersama `all.svg` (seluruh gambar) dan `manifest.json` (posisi tiap bagian). Berjalan di dalam Illustrator-mu; filenya tidak disimpan atau diubah.
+
 ## Cek
 
 ```bash
