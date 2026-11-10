@@ -117,6 +117,7 @@ function playSong({ cased }) {
   m = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan|nyalain(?=\s+(?:the |a |some )?(?:song|track|lagu|musik)\s))\s+(?:(?:the |a |some )?(?:song|track|lagu|musik)\s+)?(.{2,80}?)(?:\s+(?:by|dari|oleh|from)\s+(.{2,40}?))?$/i.exec(cased);
   // ("play me X" is X; "play me some music vibes, I'm happy" isn't a title, nor is a sentence after a comma)
   const asked = m && m[1].trim().replace(/^(?:me|us|for me)\s+/i, '').replace(/^some\s+/i, '');
+  if (asked && /^(?:and|dan|lalu|terus|then)\b/i.test(asked)) return null; // "play and repeat…": commands, not a title
   if (m && !NOT_A_SONG.test(asked) && !/,\s*(?:i|i'm|im|aku|saya|karena|because|soalnya)\b/i.test(asked) && !/\s(?:on|in|di)\s+(?:youtube|google|bing|duckduckgo)$/i.test(cased)) {
     const song = [asked, m[2]].filter(Boolean).join(' ').replace(/[^\p{L}\p{N} '&,.!-]/gu, '').trim();
     if (song.length >= 2) return { kind: 'song', text: song };
@@ -124,8 +125,15 @@ function playSong({ cased }) {
   return null;
 }
 
+// a volume with a number: "up spotify volume to 100", "volume spotify 50", "besarkan volume ke 80"
+const LEVEL = /^(?:(?:up|raise|increase|lower|set|turn|change|put|naikkan|naikin|besarkan|gedein|kerasin|turunkan|kecilkan|kecilin|atur|ubah|bikin|setel)\s+)?(?:(?:the|my)\s+)?(?:(?:spotify|music|musik|lagu)\s+)?(?:volume|suara)(?:nya)?(?:\s+(?:spotify|musik|lagu))?(?:\s+(?:up|down))?(?:\s+(?:to|at|ke|jadi|di))?\s+(\d{1,3})\s*(?:%|persen|percent)?$/;
+
 function mediaKeys({ text }) {
-  let m;
+  if (/^(?:play|putar(?:kan)?|setel(?:in)?)$/.test(text)) return { kind: 'media', action: 'play' }; // just "play": what was paused
+  let m = LEVEL.exec(text);
+  if (m) return { kind: 'volumeLevel', level: Math.min(100, Number(m[1])) };
+  if (/^(?:up|raise|increase|naikkan|naikin|besarkan|gedein|kerasin)\s+(?:the\s+|my\s+)?spotify\s+(?:volume|suara)$/.test(text)) return { kind: 'media', action: 'volup' };
+  if (/^(?:down|lower|decrease|turunkan|turunin|kecilkan|kecilin|pelankan)\s+(?:the\s+|my\s+)?spotify\s+(?:volume|suara)$/.test(text)) return { kind: 'media', action: 'voldown' };
   if (/^(?:pause|stop|hold|jeda|hentikan|stop)(?: the| my)?(?: music| song| track| video| media| playback| audio| musik(?:nya)?| lagu(?:nya)?)$|^(?:pause|jeda)(?: it| dulu)?$/.test(text)) return { kind: 'media', action: 'pause' };
   if (/^(?:resume|unpause|continue|play|lanjutkan|lanjut|putar lagi)(?: the| my)?(?: music| song| track| video| media| playback| audio| musik(?:nya)?| lagu(?:nya)?)$|^(?:resume|unpause|lanjutkan)(?: it)?$/.test(text)) return { kind: 'media', action: 'play' };
   if (/^(?:skip|next|lewati|ganti)(?: this| the)?(?: song| track| one| lagu(?:nya)?)?$|^(?:play )?(?:the )?next (?:song|track)$|^lagu (?:berikut(?:nya)?|selanjutnya)$/.test(text)) return { kind: 'media', action: 'next' };
@@ -140,7 +148,26 @@ function mediaKeys({ text }) {
   return null;
 }
 
+// one of what she just found on Spotify ("putar nomor 2", "play number 3")
+const PICK = /^(?:play|putar(?:kan|in)?|puterin|setel(?:in)?)\s+(?:the\s+)?(?:number|nomor|no\.?|yang(?:\s+nomor)?)\s*(\d{1,2})$/i;
+function pick({ text }) {
+  const m = PICK.exec(text);
+  return m ? { kind: 'songPick', n: Number(m[1]) } : null;
+}
+
+// Your own playlists, through your Spotify developer app: "putar playlist chill", "play my workout playlist", "daftar playlist aku"
+function playlist({ text }) {
+  let m = /^(?:play|put on|putar(?:kan|in)?|puterin|setel(?:in)?|mainkan)\s+(?:(?:my|our|the)\s+)?playlist(?:ku|nya)?(?:\s+(?:aku|saya|kita|punyaku|punya aku|punya kita))?(?:\s+(.{1,60}))?$/.exec(text);
+  if (m) return { kind: 'playlist', text: (m[1] || '').trim() };
+  m = /^(?:play|put on)\s+(?:my|our|the)\s+(.{1,60}?)\s+playlist$/.exec(text);
+  if (m) return { kind: 'playlist', text: m[1].trim() };
+  if (/^(?:(?:daftar|list|lihat|tampilkan|show)(?: me)? (?:semua |all )?(?:my |our )?playlists?(?:ku| aku| saya| kita)?|playlist(?:ku| aku| saya| kita) (?:apa (?:aja|saja)|ada apa)|what playlists? do (?:i|we) have)$/.test(text)) return { kind: 'playlistList' };
+  return null;
+}
+
 const commands = {
+  playlist,
+  pick,
   lyrics,
   songControl: songControlled,
   lyricsNow,
