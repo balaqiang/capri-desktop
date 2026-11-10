@@ -18,6 +18,7 @@ function createTrainer({ dir, reward, isLocal, currentModel, persona, chat, setM
   const home = path.join(dir, 'training');
   const set = () => JSON.parse(fs.readFileSync(path.join(assets, 'eval', 'prompts.json'), 'utf8'));
   const canon = () => fs.readFileSync(path.join(assets, 'finetune', 'canon.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  const curated = () => fs.readFileSync(path.join(assets, 'finetune', 'curated.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
   const reportFile = () => path.join(home, 'report.json');
   const job = { running: false, done: 0, all: 0, what: '', abort: null };
 
@@ -70,10 +71,13 @@ function createTrainer({ dir, reward, isLocal, currentModel, persona, chat, setM
     // The dataset and what's needed to train on it, in one folder of yours.
     exportPack() {
       if (!isLocal()) return { ok: false, error: 'localonly' };
-      const built = dataset.build({ persona: persona(), canon: canon(), good: reward.good() });
+      const built = dataset.build({ persona: persona(), canon: canon(), curated: curated(), good: reward.good() });
+      const { train, valid } = dataset.split(built.rows);
       const pack = path.join(home, 'pack');
       fs.mkdirSync(pack, { recursive: true });
-      fs.writeFileSync(path.join(pack, 'capri-dataset.jsonl'), dataset.toJsonl(built.rows));
+      fs.writeFileSync(path.join(pack, 'capri-dataset.jsonl'), dataset.toJsonl(train));
+      fs.writeFileSync(path.join(pack, 'capri-valid.jsonl'), dataset.toJsonl(valid));
+      fs.writeFileSync(path.join(pack, 'dataset-card.json'), JSON.stringify({ made: new Date().toISOString(), train: train.length, valid: valid.length, dropped: built.dropped, counts: built.counts }, null, 2));
       for (const f of ['train.py', 'requirements.txt']) fs.copyFileSync(path.join(assets, 'finetune', f), path.join(pack, f));
       openFolder?.(pack);
       return { ok: true, used: built.used, dropped: built.dropped, enough: built.used >= MIN_FOR_TRAINING, folder: pack };
