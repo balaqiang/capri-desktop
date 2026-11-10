@@ -28,6 +28,7 @@ const homeCommands = require('./commands/home');
 const ollama = require('./ai/ollama');
 const helper = require('./platform/helper');
 const hearing = require('./voice/hearing');
+const ownVoice = require('./voice/own-voice');
 const mouth = require('./voice/mouth');
 const history = require('./core/history');
 const growth = require('./engines/growth');
@@ -76,6 +77,7 @@ const chats = new Map(); // id -> AbortController of an answer being streamed
 let settingsWin = null;  // her settings window (settings › everything)
 let personaText = '';    // her persona as the overlay last wrote it (chat.js), for what she asks her model herself (dares)
 let earsDownload = null; // AbortController of "Download better ears…"
+let voiceDownload = null; // ...and of "Capri's own voice"
 let hotkeyErrors = [];   // accelerators Windows wouldn't give her
 let riding = false;      // she's perched on your cursor (the overlay says so)
 let fullscreenAway = false;     // stepped aside for a game or a full screen video
@@ -1634,6 +1636,21 @@ function registerIpc() {
         }
       }
       case 'cancelEars': earsDownload?.abort(); break;
+      case 'ownVoiceStatus': return { ok: true, piper: ownVoice.hasPiper(hearing.speechDir()), voices: ownVoice.installed(hearing.speechDir()) };
+      case 'downloadOwnVoice': {
+        voiceDownload?.abort();
+        const abort = new AbortController();
+        voiceDownload = abort;
+        try {
+          const res = await ownVoice.download((p) => broadcast('voice:own-progress', p), abort.signal, { speech: hearing.speechDir(), getChecked: hearing.getChecked });
+          return { ok: true, ...res };
+        } catch (err) {
+          return { ok: false, error: abort.signal.aborted ? 'stopped' : err.code || err.message };
+        } finally {
+          if (voiceDownload === abort) voiceDownload = null;
+        }
+      }
+      case 'cancelOwnVoice': voiceDownload?.abort(); break;
       case 'checkUpdate': await updater.check(); break;
       case 'clearActions': actionsLog.clear(); break;
       case 'pluginRun': return { ok: life.pluginRun(arg) };
