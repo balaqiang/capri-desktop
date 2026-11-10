@@ -30,6 +30,14 @@ finds the joint there and hides the circle. Without one, the part turns around t
 File › Export › Export As… › SVG, then in the options: Styling ***Presentation Attributes*** (she can't load a drawing's own CSS), Object IDs ***Layer Names***, Decimal 2, Minify off. Keep the
 artboard about 240 × 420 with her feet at the bottom edge.
 
+## Or export it for you
+
+```bash
+npm run export:ai -- path/to/capri.ai
+```
+
+Every layer, sub-layer and named group comes out as its own SVG in a folder next to the file, with `all.svg` (the whole drawing) and `manifest.json` (where each piece sits). It runs inside your Illustrator; your file isn't saved or changed.
+
 ## Check it
 
 ```bash
