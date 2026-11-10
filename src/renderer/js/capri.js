@@ -6,6 +6,7 @@
 // ("peek"), and falling ("fall") when the window under her goes away or you drop her.
 
 import { SpriteRenderer, SPRITE } from './sprite.js';
+import { pickPose } from './rig.js';
 import { ACTS, NEUTRAL, Player } from './acting.js';
 import { COLORS } from './fx.js';
 import { Hair } from './hair.js';
@@ -257,6 +258,7 @@ export class Capri {
     if (this.hidden || this.p.alpha < 0.5) return false;
     if (this.riding) return false; // on your cursor, she's never in the way of a click
     if (this.perch?.id === 'taskbar' && y > this.view.floor) return false; // the taskbar under her legs stays clickable
+    if (this.rig?.shown) return this.rig.hit(x, y); // in one of your drawings: that's her shape now
     const s = this.scale;
     const fy = this.pos.y + this.bob;
     if (this.upside) {
@@ -322,12 +324,11 @@ export class Capri {
     this.windows = data;
     if (this.stance !== 'sit' || this.busy || this.dragging || this.riding) return;
     const win = this.perchWin(this.perch.id);
-    const dx = win ? clamp(this.perch.dx, 50, win.w - 60) : 0;
-    if (!win || !this.canSit(win) || this.covered(win, win.x + dx)) {
+    if (!win || !this.holds(win, this.perch)) {
       this.fall(); // the ledge is gone (closed, minimized, maximized or covered)
       return;
     }
-    const to = this.seat(win, dx);
+    const to = this.perchSpot(win, this.perch);
     if (to.x !== this.pos.x || to.y !== this.pos.y) {
       this.pos = to; // ride along with the window
       this.place();
@@ -339,6 +340,49 @@ export class Capri {
     return { x: win.x + dx, y: win.y + 3 + (SPRITE.feet.y - SPRITE.hip) * this.scale };
   }
 
+  // Where she is (her feet, as everywhere) for how she's on that window: along its top edge, or hanging from its side.
+  perchSpot(win, perch) {
+    if (perch.pose !== 'cling') return this.seat(win, clamp(perch.dx, 50, win.w - 60));
+    const out = 70 * this.scale;
+    return { x: perch.side === 'left' ? win.x - out : win.x + win.w + out, y: win.y + perch.dy + (SPRITE.feet.y - SPRITE.head.y) * this.scale };
+  }
+
+  // Is she still able to be there?
+  holds(win, perch) {
+    if (perch.pose === 'cling') return this.canCling(win, perch.side) && !this.covered(win, perch.side === 'left' ? win.x : win.x + win.w, win.y + perch.dy);
+    return this.canSit(win) && !this.covered(win, win.x + clamp(perch.dx, 50, win.w - 60));
+  }
+
+  // A side of a window to hang from: it has to be tall enough, with room outside it.
+  canCling(win, side) {
+    const room = 220 * this.scale;
+    return win.id !== 'taskbar' && !win.max && win.h > 260 && (side === 'left' ? win.x > room : win.x + win.w < this.view.w - room);
+  }
+
+  clingDrop(win) {
+    return clamp(win.h * 0.3, 70, 220);
+  }
+
+  // How she'll be on that window: what there's room for, and whatever she feels like.
+  poseOn(win) {
+    const drop = this.clingDrop(win);
+    const sides = ['left', 'right'].filter((side) => this.canCling(win, side) && !this.covered(win, side === 'left' ? win.x : win.x + win.w, win.y + drop));
+    return pickPose(Math.random(), { work: this.mode === 'work', sides, taskbar: win.id === 'taskbar' });
+  }
+
+  // A change of position, staying on the window she's on.
+  shiftPose() {
+    const win = this.perchWin(this.perch?.id);
+    if (!win) {
+      this.flourish();
+      return;
+    }
+    const next = this.poseOn(win);
+    if (next.pose === this.perch.pose) this.flourish();
+    else if (next.pose === 'cling' || this.perch.pose === 'cling') this.sitOn({ win, dx: this.perch.dx, ...next });
+    else this.perch = { ...this.perch, pose: next.pose };
+  }
+
   canSit(win) {
     if (win.id === 'taskbar') return true;
     const roomAbove = SPRITE.hip * this.scale + 12;
@@ -346,13 +390,13 @@ export class Capri {
   }
 
   // Is her spot on that ledge hidden under a window that's above it?
-  covered(win, x) {
+  covered(win, x, y = win.y) {
     if (win.id === 'taskbar') return false; // nothing goes over the taskbar
     const half = 34 * this.scale;
     const { wins } = this.windows;
     for (const o of wins) {
       if (o === win || o.id === win.id) return false; // reached it: everything after is below
-      if (o.x < x + half && o.x + o.w > x - half && o.y <= win.y && o.y + o.h >= win.y) return true;
+      if (o.x < x + half && o.x + o.w > x - half && o.y <= y && o.y + o.h >= y) return true;
     }
     return false; // window not in the list any more
   }
@@ -574,16 +618,19 @@ export class Capri {
       return;
     }
     if (this.stance === 'sit' && this.perch?.id === 'taskbar') {
-      // nothing to hop off or take over down there: a flourish, or off for a bit (she comes back)
-      if (Math.random() < 0.6) this.flourish();
+      // nothing to hop off or take over down there: a change of position, a flourish, or off for a bit (she comes back)
+      const down = Math.random();
+      if (down < 0.35) this.shiftPose();
+      else if (down < 0.7) this.flourish();
       else this.teleport(this.spot('random'));
       return;
     }
     if (this.stance === 'sit') {
       const r = Math.random();
-      if (r < 0.3) this.flourish();
-      else if (r < 0.5 && this.canPossess()) this.possess();
-      else if (r < 0.75) this.fall(); // just hops off the ledge
+      if (r < 0.15) this.flourish();
+      else if (r < 0.42) this.shiftPose();
+      else if (r < 0.58 && this.canPossess()) this.possess();
+      else if (r < 0.8) this.fall(); // just hops off the ledge
       else this.teleport(this.spot('random'));
       return;
     }
@@ -597,7 +644,7 @@ export class Capri {
     const r = Math.random();
     const onFloor = Math.abs(this.pos.y - this.floor) < 30;
     if (onFloor && r < 0.35) this.walkTo(this.spot('random').x, { speed: rand(140, 240) });
-    else if (seat && r < 0.55) this.sitOn(seat);
+    else if (seat && r < 0.55) this.sitOn({ ...seat, ...this.poseOn(seat.win) });
     else if (r < 0.7) this.peek();
     else if (r < 0.88) this.teleport(this.spot('random'));
     else this.flourish();
@@ -864,6 +911,10 @@ export class Capri {
   // itself; a click on her mask, a command of yours, or "normal mode" brings her back.
   // Out of your way before she comes apart (game mode): a teleport to that side of the screen, whatever she was
   // doing. Her hold stays on all the way, a mask she already was comes back whole for the trip.
+  get stillMotion() {
+    return reducedMotion.matches;
+  }
+
   tweenP(to, ms) {
     return reducedMotion.matches ? Object.assign(this.p, to) && Promise.resolve() : tween(this.p, to, ms, ease.out);
   }
@@ -1625,8 +1676,9 @@ export class Capri {
     await this.settle();
   }
 
-  sitOn({ win, dx }) {
-    return this.teleport(this.seat(win, dx), { stance: 'sit', perch: { id: win.id, dx }, face: this.facing });
+  sitOn({ win, dx, pose = 'sit', side = null }) {
+    const perch = pose === 'cling' ? { id: win.id, dx, pose, side, dy: this.clingDrop(win) } : { id: win.id, dx, pose };
+    return this.teleport(this.perchSpot(win, perch), { stance: 'sit', perch, face: pose === 'cling' ? (side === 'left' ? 1 : -1) : this.facing });
   }
 
   canPossess() {
@@ -1951,10 +2003,10 @@ export class Capri {
     this.busy = false;
   }
 
-  // Her intro, when she starts: she grabs your screen by its edges, huge, says hi, then her hands
-  // slip and she dives down to where she stands, and her body unfolds from her face (fx.intro).
+  // Her opening, when she starts (opening.js): sparks across your screen pull together into her, huge, she says hi, then she dives
+  // down to where she stands, and her body unfolds from her face.
   // `still`: no motion, it comes and goes where it is (Windows' animations off).
-  async intro(at, { label = 'hi', caption = 'PROJECT CAPRICORN', still = reducedMotion.matches } = {}) {
+  async intro(at, { caption = 'PROJECT CAPRICORN', still = reducedMotion.matches } = {}) {
     const p = this.p;
     this.pos = { ...at };
     this.faceCenter();
@@ -1966,15 +2018,13 @@ export class Capri {
     p.dissolve = 0.5;
     this.place();
     const head = this.head(at, this.facing);
-    await this.fx.intro({
-      to: { x: head.x, y: head.y, size: 100 * this.scale },
-      label,
+    if (this.rig) this.rig.landScale = this.scale;
+    await this.opening.play({
+      to: { x: head.x, y: head.y },
       caption,
       still,
       onCue: (cue) => {
         if (cue === 'open') this.voice.play('charge'); // the edges of the screen crackling
-        else if (cue === 'hand') this.voice.play('land'); // a hand on the edge
-        else if (cue === 'wave') this.voice.play('rise'); // a hand off it, to wave
         else if (cue === 'grab') {
           this.voice.play('land'); // she slams into it
           this.voice.play('bolt');
@@ -1982,6 +2032,7 @@ export class Capri {
         else if (cue === 'slip') this.voice.play('teleport-out');
       },
     });
+    this.fx.sparks(head.x, head.y, { count: 10, power: 0.6 });
     await this.arrive(at, { face: this.facing, beam: false });
     this.busy = false;
     this.onTeleport?.('end');
@@ -2088,21 +2139,27 @@ export class Capri {
 
   bindPointer() {
     let down = null;
+    // Listened for on the window: your drawings reach past her old picture, which is hidden while one is showing. Her panels and buttons
+    // keep their own clicks.
+    const onHer = (e) => (e.target === document.body || e.target === document.documentElement || this.root.contains(e.target)) && this.hit(e.clientX, e.clientY);
     // double-click: onto your cursor (2.4)
-    this.canvas.addEventListener('dblclick', (e) => {
-      if (this.hit(e.clientX, e.clientY)) this.onDoubleClick?.();
+    window.addEventListener('dblclick', (e) => {
+      if (onHer(e)) this.onDoubleClick?.();
     });
-    this.canvas.addEventListener('contextmenu', (e) => {
+    window.addEventListener('contextmenu', (e) => {
+      if (!onHer(e)) return;
       e.preventDefault();
-      if (this.hit(e.clientX, e.clientY)) this.onMenu?.(); // right-click: her menu
+      this.onMenu?.(); // right-click: her menu
     });
-    this.canvas.addEventListener('mousedown', (e) => {
-      if (e.button !== 0 || !this.hit(e.clientX, e.clientY)) return;
+    window.addEventListener('mousedown', (e) => {
+      if (e.button !== 0 || !onHer(e)) return;
+      // taken out of one of your drawings, she hangs from where you took hold
+      const from = this.rig?.shown ? { x: e.clientX, y: e.clientY + (SPRITE.feet.y - SPRITE.head.y) * this.scale } : { ...this.pos };
       // whatever she was doing (a teleport, floating in, walking, falling), she's in your hand now
       this.snatched = false;
       if (this.busy || this.walking || this.stance === 'fall') this.grab();
       this.stopWalking();
-      down = { x: e.clientX, y: e.clientY, pos: { ...this.pos } };
+      down = { x: e.clientX, y: e.clientY, pos: from };
     });
     window.addEventListener('mousemove', (e) => {
       this.mouse = { x: e.clientX, y: e.clientY }; // a window she's in watches it
