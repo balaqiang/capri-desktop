@@ -64,6 +64,11 @@ const DEFAULTS = {
   wakeWord: true,      // in 'always': only what starts with her name ("Capri, ...") reaches her
   wakeWords: 'capri, kapri, cappy',
   toured: false,       // her tour, once
+  settingsToured: false, // her tour of the settings window: offered once
+  tuyaId: '',          // your Tuya cloud project (settings › Access): its Access ID; the Secret is with her other keys
+  tuyaRegion: '',      // its data center, found by itself the first time
+  spotifyClientId: '', // optional: your own Spotify developer app (settings › Access): search and play with no window
+  spotifyToken: '',    // what its login gave her, encrypted; never shown, never exported
   sttVad: true,        // Silero tells a voice from noise, and when you've stopped (vad.js)
   sttPartials: true,   // the words as you say them, for showing (Whisper on this PC only)
   wakeLocal: true,     // her name caught right away on this PC, before the rest is written out (wake.js)
