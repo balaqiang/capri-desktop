@@ -5,10 +5,23 @@
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+// Illustrator writes arm_L as arm_x5F_L, and a repeated name as head_1_: put right, only for the names she knows.
+const HER_NAME = /^(?:head|jaw|torso|hair_[1-5]|(?:arm|forearm|hand)_[LR]|leg_[LR]|form-[a-z]+|pivot-[\w-]+)$/;
+export function decodeIds(svg) {
+  const seen = new Set();
+  return String(svg || '').replace(/\bid="([^"]+)"/g, (all, id) => {
+    const decoded = id.replace(/_x([0-9A-Fa-f]{2})_/g, (m, hex) => String.fromCharCode(parseInt(hex, 16)));
+    const plain = decoded.replace(/_\d+_$/, '');
+    const name = HER_NAME.test(plain) && !seen.has(plain) ? plain : HER_NAME.test(decoded) ? decoded : id;
+    seen.add(name);
+    return `id="${name}"`;
+  });
+}
+
 export class Blueprint {
   // svgText: the file. schema: assets/capri/blueprint.schema.json
   constructor(svgText, schema, { doc = document } = {}) {
-    const parsed = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    const parsed = new DOMParser().parseFromString(decodeIds(svgText), 'image/svg+xml');
     const root = parsed.documentElement;
     if (root.nodeName !== 'svg' || parsed.querySelector('parsererror')) throw new Error('not an SVG');
     // only a drawing: nothing in it can run
