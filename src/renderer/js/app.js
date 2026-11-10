@@ -1,10 +1,13 @@
 import { Capri } from './capri.js';
-import { FxLayer, GRAB_FRAMES } from './fx.js';
+import { FxLayer } from './fx.js';
 import { Chip, Mask } from './chip.js';
 import { Panel } from './panel.js';
 import { Voice } from './voice.js';
 import { Brain } from './brain.js';
 import { Guide } from './guide.js';
+import { BodyDiary, activityOf, asksAboutHer, bodyContext } from './self-report.js';
+import { Rig, micBeside } from './rig.js';
+import { Opening } from './opening.js';
 import { Blueprint } from './blueprint.js';
 import { Mission } from './mission.js';
 import { Chat } from './chat.js';
@@ -18,6 +21,8 @@ import { Glitch } from './glitch.js';
 import { Life } from './life.js';
 import { Listening } from './listen.js';
 import { loadLang, T } from './i18n.js';
+
+let rigNow = null; // her models, once they're up: her mouth and her feelings go to them
 
 const host = window.host;
 
@@ -48,14 +53,9 @@ async function boot() {
     Promise.all(artNames.map((name) => loadImage(`../../assets/art/${ART_CUTINS[name]}.png`).catch(() => null))),
     loadLang(host),
   ]);
-  const [config, image, intro, ...cutins] = await Promise.all([
+  const [config, image, ...cutins] = await Promise.all([
     host.getConfig(),
     loadImage('../../assets/capri/capri-full.png'),
-    // her intro: her close-up grabbing the screen, and its drawings with her mouth and arm moving
-    Promise.all(GRAB_FRAMES.map((name) => loadImage(`../../assets/capri/intro-${name}.webp`).catch(() => null)))
-      // decoded now, not the first time each one shows up (a hitch right on "hi", on the wave)
-      .then((cels) => Promise.all(cels.map((cel) => cel && createImageBitmap(cel))))
-      .then((cels) => (cels[0] ? Object.fromEntries(GRAB_FRAMES.map((name, i) => [name, cels[i]])) : null)),
     ...CUTINS.map((name) => loadImage(`../../assets/capri/cutin-${name}.png`)),
     document.fonts.load('600 16px "Chakra Petch"'),
     document.fonts.load('400 11px "JetBrains Mono"'),
@@ -75,7 +75,6 @@ async function boot() {
       ...Object.fromEntries(CUTINS.map((name, i) => [name, cutins[i]])),
       ...Object.fromEntries(artNames.map((name, i) => [name, art[i]]).filter(([, img]) => img)),
     },
-    intro,
   });
   fx.resize(innerWidth, innerHeight);
   // how far the top of the taskbar is from the bottom of her window: she covers it too while she
@@ -232,13 +231,22 @@ async function boot() {
   }, 350);
 
   // wiring
+  let micAt = '';
+  const putMic = (x, y) => {
+    const at = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+    if (at === micAt) return;
+    micAt = at;
+    micButton.style.transform = at;
+  };
   capri.onMove = (head) => {
     // pointing at something: the panel goes on her other side, so it doesn't cover it
     panel.setAnchor({ ...head, lean: capri.pointing ? -capri.pointing.dir : 0 }, capri.view);
     listening.place(head);
-    // her mic rides by her head
-    const side = head.x > innerWidth - 120 ? -1 : 1;
-    micButton.style.transform = `translate(${Math.round(head.x + side * 70 * Math.max(0.6, capri.scale) - 17)}px, ${Math.round(head.y - 10)}px)`;
+    // her mic rides by her head (in one of your drawings, by the face it really has: rig.onFace)
+    if (!rigNow?.shown) {
+      const side = head.x > innerWidth - 120 ? -1 : 1;
+      putMic(head.x + side * 70 * Math.max(0.6, capri.scale) - 17, head.y - 10);
+    }
     // she may have moved out from under a still pointer: never leave a dead click zone behind
     refreshHit();
   };
@@ -314,7 +322,10 @@ async function boot() {
     panel.say({ kind: 'info', face: h.face, badge: 'CAPRI', line, hold: 3800 });
     life.speak(line, h.emotion);
   };
-  panel.onChar = (kind) => voice.play('blip', { mood: kind });
+  panel.onChar = (kind) => {
+    voice.play('blip', { mood: kind });
+    rigNow?.talking();
+  };
   panel.onTalk = (talking) => talking && capri.perform('talk');
   capri.onMenu = () => host.openMenu();
 
@@ -323,6 +334,17 @@ async function boot() {
   const guide = new Guide({ capri, panel, voice, host, brain });
   // Talking to her (chat.js): "Talk to her" in her menu, or the button when you click her idle.
   const chat = new Chat({ capri, panel, voice, host, brain });
+  // she knows what she's doing: for "kamu lagi apa"
+  const diary = new BodyDiary();
+  const noteBody = () => diary.note(activityOf(capri, rigNow?.current), Date.now());
+  noteBody();
+  setInterval(noteBody, 4000);
+  chat.bodyNow = (said) => {
+    if (!asksAboutHer(said)) return '';
+    noteBody();
+    const feeling = rigNow && performance.now() < rigNow.emotionUntil ? rigNow.emotion : '';
+    return bodyContext(capri, diary, { mood: capri.moodLabel, emotion: feeling, sync: capri.sync, now: Date.now() });
+  };
   brain.onTalk = () => chat.start();
   const life = new Life({ capri, panel, voice, host, brain, fx, glitch, mouth });
   // a job of hers: she says so first, shows the step she's on, and it can be stopped
@@ -433,6 +455,7 @@ async function boot() {
   let lastTalk = 0;
   mouth.onLevel = (level) => {
     panel.lipSync(level);
+    rigNow?.setLevel(level);
     const now = performance.now();
     if (level > 0.06 && now - lastTalk > 700 && !capri.busy && !capri.act) {
       lastTalk = now;
@@ -648,7 +671,7 @@ async function boot() {
         console.log('[state]', JSON.stringify({
           pos: { x: Math.round(capri.pos.x), y: Math.round(capri.pos.y) }, floor: capri.floor, stance: capri.stance,
           busy: capri.busy, dragging: capri.dragging, flight: Boolean(capri.flight), alpha: capri.p.alpha, hidden: capri.hidden,
-          interactive, lastMoveAgo: Math.round(performance.now() - lastMove), riding: capri.riding, form: capri.form, sync: capri.sync, mood: capri.moodLabel, blueprint: Boolean(capri.blueprint),
+          interactive, lastMoveAgo: Math.round(performance.now() - lastMove), riding: capri.riding, face: rigNow?.shown ? [Math.round(rigNow.shown.x), Math.round(rigNow.shown.y)] : null, form: capri.form, sync: capri.sync, mood: capri.moodLabel, blueprint: Boolean(capri.blueprint), model: capri.rig?.current ?? null, modeNow: capri.mode, dormant: capri.dormant,
         }));
         break;
       case 'fx': { // --dev: { what: 'poke' | 'eyes' | 'whoosh' | 'land' }: her elastic body and its sparks, acted out
@@ -818,6 +841,10 @@ async function boot() {
         if (cmd.sync !== undefined) capri.sync = cmd.sync;
         capri.takeForm(cmd.form, cmd.seconds || 2).then((r) => console.log('[form]', cmd.form, r));
         break;
+      case 'feel': // --dev: { emotion: 'annoyed' }: that face, on the model she's in
+        rig.setEmotion(cmd.emotion);
+        rig.calm = 20;
+        break;
       case 'tour': // --dev: her tour; { answer: id } presses a button of it
         if (cmd.answer !== undefined) guide.answer(cmd.answer);
         else guide.tour();
@@ -843,6 +870,20 @@ async function boot() {
       case 'hooks':
         if (cmd.ok) panel.say({ kind: 'info', line: cmd.action === 'install' ? t.hooksOk : t.hooksRemoved, hold: 6000 });
         else panel.say({ kind: 'error', line: fmt(t.hooksFail, { error: cmd.error }), hold: 9000 });
+        break;
+      case 'settingsTour': // her tour of the settings window: she comes and sits on it, and talks you through it
+        if (cmd.phase === 'start') {
+          capri.nextMove = Infinity; // she stays for it
+          const seat = capri.busy || capri.stowed || capri.hidden ? null : capri.pickSeat({ frontOnly: true });
+          if (seat) capri.sitOn({ ...seat, pose: 'sit' });
+          rigNow?.setEmotion('happy');
+        } else if (cmd.phase === 'line') {
+          if (cmd.speak && !currentCfg.muted) mouth.speak(cmd.line, { force: true });
+          else for (let i = 0; i < 10; i++) setTimeout(() => rigNow?.talking(), i * 130);
+        } else if (cmd.phase === 'end') {
+          capri.nextMove = performance.now() + 6000;
+          if (!capri.busy) capri.goHome();
+        }
         break;
       // --dev helpers
       case 'intro': // her intro again, as when she starts (still: as with Windows' animations off)
@@ -888,11 +929,29 @@ async function boot() {
     }
   });
 
-  // entrance: her face big in the corner says hi, then she dives down to her spot
+  // her models and her opening, from your drawing (rig.js, opening.js)
+  const rig = new Rig(document.getElementById('rig'));
+  capri.rig = rig;
+  capri.opening = new Opening(rig);
+  rig.onFace = (shown) => {
+    const at = micBeside(shown, innerWidth);
+    putMic(at.x, at.y);
+  };
+  capri.maskCanvas = document.getElementById('mask');
+  rigNow = rig;
+  life.onFeel = (emotion) => rig.setEmotion(emotion);
+  const followRig = (now) => {
+    rig.frame(capri, now);
+    requestAnimationFrame(followRig);
+  };
+  requestAnimationFrame(followRig);
+  const openingReady = await capri.opening.prepare().then(() => true, (err) => { console.warn('[capri] her opening:', err.message); return false; });
+  // entrance: sparks, then her, huge, then she dives down to her spot
   // (put away last time: she starts in her biochip)
   if (config.visible === false) capri.stowNow();
-  else if (intro) await capri.intro(capri.spot('post'));
+  else if (openingReady) await capri.intro(capri.spot('post'));
   else await capri.materialize(capri.spot('post'));
+  rig.preload(['sit', 'lean', 'lean-sleep', 'perch', 'just-head'], capri.scale).catch(() => {});
   // Windows has its animations off and she's following it: she barely moves. The first time, she
   // says so and asks whether to move anyway (her menu › Animations changes it later).
   if (reducedMotion.setting === 'auto' && reducedMotion.system && !config.motionAsked) {
