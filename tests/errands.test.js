@@ -19,6 +19,9 @@ const EVERYDAY = [
   ['sit on my cursor', 'move'], ['get off my cursor', 'move'], ['go to sleep', 'move'], ['dance', 'move'], ['joget dong', 'move'],
   // music
   ['play Die For You', 'song'], ['putar lagu Sorai', 'song'], ['play your favorite song', 'song'], ['search Blinding Lights on spotify', 'spotifySearch'],
+  ['up spotify volume to 100', 'volumeLevel'], ['volume spotify 50', 'volumeLevel'], ['besarkan volume ke 80', 'volumeLevel'], ['set the volume to 30%', 'volumeLevel'], ['up spotify volume', 'media'],
+  ['matiin lampu kamar', 'home'], ['tolong nyalakan lampu', 'home'], ['turn off the bedroom light', 'home'], ['lampu 30 persen', 'home'], ['lampu kamar warna biru', 'home'],
+  ['putar playlist chill', 'playlist'], ['play my workout playlist', 'playlist'], ['daftar playlist aku', 'playlistList'], ['play', 'media'],
   ['pause the music', 'media'], ['next song', 'media'], ['lagu berikutnya', 'media'], ['louder', 'media'], ['what song is this', 'nowPlaying'],
   ['lagu apa yang aku dengerin?', 'nowPlaying'], ['do you like this song', 'songOpinion'], ['kamu suka lagu ini?', 'songOpinion'],
   ['show the music lyrics', 'lyrics'], ['buka lirik', 'lyrics'], ['stop showing lyrics', 'lyrics'], ['liriknya apa?', 'lyrics'], ['dengarkan lagu ini', 'listen'],
