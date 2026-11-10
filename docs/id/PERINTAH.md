@@ -19,6 +19,7 @@ ketik halo"). Kalau diucapkan dengan kata lain, modelnya mencari perintah mana y
 | Beberapa langkah | "cari info tentang kucing lalu tulis ringkasannya di notepad" | "search for cats and then write a summary in notepad" |
 | Wujudnya | "jadi spark", "jadi serpihan", "jadi bayangan" | "become a spark", "become a shadow", "glitch out" |
 | Nilai jawabannya | "jawabanmu bagus", "jawabanmu salah" | "good answer", "bad answer" |
+| Hasil Spotify (dengan aplikasi developer-mu) | "cari lofi di spotify", lalu "putar nomor 2" | "search lofi on spotify", then "play number 2" |
 | Tekan tombol | "klik tombol Kirim", "pencet tombol OK" | "click the Send button", "click Save in notepad" |
 | Gerakan | "kurangi gerakan", "jangan gerak sama sekali", "boleh gerak lagi" | "move less", "you can move again" |
 | Dia | "tantang aku", "improve dirimu", "kamu udah belajar apa?" | "dare me", "how's our sync?", "who are you?" |
