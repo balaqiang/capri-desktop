@@ -29,8 +29,11 @@ function parse(said) {
 const JOIN = /\s*,?\s+(?:and then|and|then|after that|lalu|terus|trus|kemudian|habis itu|abis itu|setelah itu|dan|&)\s+|\s*[;,]\s+/gi;
 const MAX_STEPS = 5;
 
+// "play this song on repeat" is the same two things as "play and repeat the song"
+const ON_REPEAT = /^(?:play|putar(?:kan)?|setel) (?:it|this(?: song)?|the song|lagu(?:nya)?(?: ini)?) (?:on (?:repeat|loop)|berulang(?:-ulang)?)[.!?]*$/i;
+
 function chain(said) {
-  const raw = politely(said);
+  const raw = politely(said).replace(ON_REPEAT, 'play and repeat the song');
   const pieces = [];
   const joins = [];
   let last = 0;
@@ -64,10 +67,10 @@ function chain(said) {
 // ---- what her rules missed: her model asked what you meant (life.js route) ----
 // Only a sentence that sounds like a command ("could you fire up spotify", "tolong nyalain notepad dong", "kecilin
 // suaranya"), so a plain chat never waits for it; a question about the world never is one.
-const ROUTE_HINT = /\b(?:open|launch|start|fire up|boot|run|load|bring up|pull up|play|pause|resume|stop the|skip|next|previous|turn (?:up|down|on|off)|crank|volume|louder|quieter|softer|mute|unmute|tunes?|hear|listen|type|write|enter|search|google|look up|find|show|hide|set|timer|alarm|remind|wake me|move|go to|go (?:left|right)|stand|sit|come|dance|lyrics?|music|song|track|playlist|spotify|notepad|vs ?code|chrome|edge|browser|youtube|discord|whatsapp|telegram|folder|downloads?|documents?|buka\w*|nyala\w*|jalan\w*|putar\w*|puter\w*|setel\w*|mainkan|lanjut\w*|ganti|lewati|skip\w*|ketik\w*|tulis\w*|cari\w*|tampil\w*|sembunyi\w*|pasang\w*|ingatkan|bangunin|kecil\w*|gede\w*|besar\w*|keras\w*|pelan\w*|lagu\w*|musik\w*|lirik\w*|suara\w*|pindah\w*|ke (?:kiri|kanan|tengah|sini)|joget\w*)\b/i;
+const ROUTE_HINT = /\b(?:lampu|lights?|lamps?|colokan|stop ?kontak|ac|aircon|suhu|open|launch|start|fire up|boot|run|load|bring up|pull up|play|pause|resume|stop the|skip|next|previous|turn (?:up|down|on|off)|crank|volume|louder|quieter|softer|mute|unmute|tunes?|hear|listen|type|write|enter|search|google|look up|find|show|hide|set|timer|alarm|remind|wake me|move|go to|go (?:left|right)|stand|sit|come|dance|lyrics?|music|song|track|playlist|spotify|notepad|vs ?code|chrome|edge|browser|youtube|discord|whatsapp|telegram|folder|downloads?|documents?|buka\w*|nyala\w*|jalan\w*|putar\w*|puter\w*|setel\w*|mainkan|lanjut\w*|ganti|lewati|skip\w*|ketik\w*|tulis\w*|cari\w*|tampil\w*|sembunyi\w*|pasang\w*|ingatkan|bangunin|kecil\w*|gede\w*|besar\w*|keras\w*|pelan\w*|lagu\w*|musik\w*|lirik\w*|suara\w*|pindah\w*|ke (?:kiri|kanan|tengah|sini)|joget\w*)\b/i;
 const ROUTE_QUESTION = /^(?:who|what|why|how|when|where|which|whose|is|are|was|were|does|did|siapa|apa|apakah|kenapa|mengapa|bagaimana|gimana|kapan|di ?mana|berapa)\b/i;
 // what she may do from her model's reading of you (never closing an app, forgetting, clearing alarms, writing code)
-const ROUTE_KINDS = new Set(['app', 'open', 'find', 'browser', 'web', 'song', 'media', 'spotifySearch', 'lyrics', 'listen', 'nowPlaying', 'move', 'timer', 'clock', 'time', 'type', 'key']);
+const ROUTE_KINDS = new Set(['home', 'playlist', 'app', 'open', 'find', 'browser', 'web', 'song', 'media', 'spotifySearch', 'lyrics', 'listen', 'nowPlaying', 'move', 'timer', 'clock', 'time', 'type', 'key']);
 
 // talk to her, about her, or about the world: a chat, whatever words are in it ("kamu suka musik apa?", "tell me
 // about spotify's history")
