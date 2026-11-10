@@ -29,4 +29,5 @@ contextBridge.exposeInMainWorld('settings', {
   onRefresh: on('settings:refresh'),
   onTab: on('settings:tab'),
   onEarsProgress: on('voice:progress'),
+  onOwnVoiceProgress: on('voice:own-progress'),
 });
